@@ -147,7 +147,8 @@ img { display: block; max-width: 100%; }
 .btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
 .btn-primary.btn-large { padding: 1rem 2.5rem; font-size: 1rem; }
 .btn-outline {
-  border: 1px solid rgba(255,255,255,0.2);
+  border: 1px solid rgba(0,229,255,0.8);
+  box-shadow: 0 0 12px rgba(0,229,255,0.2);
   color: var(--white);
   padding: 0.75rem 1.75rem;
   border-radius: 100px;
@@ -261,6 +262,7 @@ img { display: block; max-width: 100%; }
   padding: 6rem 6rem;
   position: relative;
   background: transparent;
+  z-index: 5;
 }
 
 /* El fondo oscuro va solo detrás del texto, no en toda la sección */
@@ -337,7 +339,7 @@ img { display: block; max-width: 100%; }
 
 .scroll-section p {
   font-size: 1rem;
-  color: var(--gray);
+  color: var(--cyan);
   line-height: 1.75;
   margin-bottom: 2rem;
   opacity: 0;
