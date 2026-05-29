@@ -772,7 +772,7 @@ html {
 .site-footer {
   position: relative;
   z-index: 200;
-  background: var(--bg);
+  background: transparent;
   border-top: 1px solid rgba(0,229,255,0.12);
   padding: 2.5rem 2rem;
   transition: background 0.4s ease;
@@ -792,6 +792,7 @@ html {
   font-family: var(--font-mono);
   font-size: 1rem;
   font-weight: 700;
+  color: var(--cyan);
   letter-spacing: 0.1em;
   color: var(--white);
   white-space: nowrap;
@@ -802,7 +803,7 @@ html {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
-.footer-copy { font-size: 0.8rem; color: var(--gray); flex: 1; text-align: center; }
+.footer-copy { font-size: 0.8rem; color: var(--cyan); flex: 1; text-align: center; }
 .footer-socials { display: flex; gap: 1rem; align-items: center; position: relative; z-index: 20; }
 .social-link {
   display: flex;
@@ -811,8 +812,8 @@ html {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  border: 1px solid rgba(0,229,255,0.2);
-  color: var(--gray);
+  border: 1px solid rgba(0,229,255,0.6);
+  color: var(--cyan);
   transition: color 0.3s, border-color 0.3s, box-shadow 0.3s;
   text-decoration: none;
 }
