@@ -354,13 +354,13 @@ img { display: block; max-width: 100%; }
 }
 
 .service-item {
-  border: 1px solid rgba(0,229,255,0.5);
+  border: 1px solid rgba(0,229,255,0.8);
   border-radius: 16px;
   overflow: hidden;
   background: transparent;
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  box-shadow: 0 0 12px rgba(0,229,255,0.15), inset 0 0 12px rgba(0,229,255,0.04);
+  box-shadow: 0 0 16px rgba(0,229,255,0.25), inset 0 0 12px rgba(0,229,255,0.06);
   transition: border-color 0.3s, box-shadow 0.3s, background 0.3s;
 }
 .service-item:hover {
