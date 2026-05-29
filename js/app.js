@@ -268,20 +268,19 @@ function initApp() {
 
   /* === canvas visible desde el inicio === */
 
-  /* === FRAME SCRUBBING === */
-  ScrollTrigger.create({
-    trigger: '#scroll-container',
-    start: 'top top',
-    end: 'bottom bottom',
-    scrub: FRAME_SPEED,
-    onUpdate: (self) => {
-      const idx = Math.min(Math.floor(self.progress * (TOTAL_FRAMES - 1)), TOTAL_FRAMES - 1);
-      if (idx !== currentFrame && frames[idx]) {
-        currentFrame = idx;
-        drawFrame(idx);
-      }
-    },
-  });
+  /* === FRAME LOOP CONTINUO 30fps === */
+  let lastFrameTime = 0;
+  const FPS = 30;
+  const frameInterval = 1000 / FPS;
+  function animateBrain(timestamp) {
+    if (timestamp - lastFrameTime >= frameInterval) {
+      lastFrameTime = timestamp;
+      currentFrame = (currentFrame + 1) % TOTAL_FRAMES;
+      if (frames[currentFrame]) drawFrame(currentFrame);
+    }
+    requestAnimationFrame(animateBrain);
+  }
+  requestAnimationFrame(animateBrain);
 
   /* === DARK OVERLAY stats === */
   const overlay = document.getElementById('dark-overlay');
@@ -345,8 +344,5 @@ function initApp() {
   gsap.to('#marquee1', { scrollTrigger: { trigger: '.marquee-section', scrub: 1 }, x: '-=100' });
   gsap.to('#marquee2', { scrollTrigger: { trigger: '.marquee-reverse', scrub: 1 }, x: '+=100' });
 
-  /* === PARALLAX cerebro === */
-  window.addEventListener('scroll', () => {
-    canvas.style.transform = `translateY(${window.scrollY * 0.12}px)`;
-  });
+  /* === cerebro fixed, sin parallax === */
 }
