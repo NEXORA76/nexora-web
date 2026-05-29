@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NEXORA AI STUDIO — Automatización IA para negocios que crecen</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- SCROLL PROGRESS BAR -->
+  <div id="scroll-progress"></div>
+
+  <!-- CURSOR PARTICLES CANVAS -->
+  <canvas id="particles-canvas"></canvas>
+
+  <!-- LOADER -->
+  <div id="loader">
+    <div class="loader-inner">
+      <img src="LOGO DEFINITIVO NEXORA.png" alt="NEXORA" class="loader-logo" />
+      <div class="loader-bar"><div class="loader-fill" id="loaderFill"></div></div>
+      <p class="loader-text" id="loaderText">Cargando experiencia… 0%</p>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <header id="header">
+    <div class="header-inner">
+      <img src="LOGO DEFINITIVO NEXORA.png" alt="NEXORA AI STUDIO" class="header-logo" />
+      <nav class="header-nav">
+        <a href="#servicios">Servicios</a>
+        <a href="#stats">Resultados</a>
+        <a href="#contacto">Contacto</a>
+      </nav>
+      <a href="#contacto" class="btn-primary">Empezar ahora</a>
+      <button class="hamburger" id="hamburger" aria-label="Menú">
+        <span></span><span></span><span></span>
+      </button>
+      <button class="theme-toggle" id="themeToggle" aria-label="Cambiar tema">
+        <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>
+        <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="5"/>
+          <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+          <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- MOBILE MENU -->
+  <nav class="mobile-menu" id="mobileMenu">
+    <a href="#servicios" class="mobile-nav-link">Servicios</a>
+    <a href="#stats" class="mobile-nav-link">Resultados</a>
+    <a href="#contacto" class="mobile-nav-link">Contacto</a>
+    <a href="#contacto" class="btn-primary">Empezar ahora</a>
+  </nav>
+
+  <!-- HERO STANDALONE -->
+  <section class="hero-standalone">
+    <div class="hero-content">
+      <span class="label">Agencia de Automatización IA</span>
+      <div class="nexora-brand glitch-title" data-text="NEXORA AI STUDIO">NEXORA AI STUDIO</div>
+      <h1>Transformamos<br /><em>datos en<br />decisiones</em></h1>
+      <p>Tu negocio necesita <span id="typewriter" class="typewriter-text"></span></p>
+      <a href="#scroll-section" class="btn-primary magnetic-btn">Descubrí cómo →</a>
+    </div>
+  </section>
+
+  <!-- CANVAS FIJO -->
+  <canvas id="canvas"></canvas>
+
+  <!-- DARK OVERLAY para sección de stats -->
+  <div id="dark-overlay"></div>
+
+  <!-- SCROLL CONTAINER -->
+  <div id="scroll-container">
+
+    <!-- Sección 1 — Qué hacemos -->
+    <section class="scroll-section" id="scroll-section" data-align="left" data-anim="slide-left">
+      <div class="section-content">
+        <span class="label">Lo que hacemos</span>
+        <h2>IA aplicada<br />a tu negocio</h2>
+        <p>Diseñamos e implementamos flujos de automatización con inteligencia artificial que eliminan tareas repetitivas y multiplican la capacidad de tu equipo.</p>
+      </div>
+    </section>
+
+    <!-- MARQUEE 1 -->
+    <div class="marquee-section">
+      <div class="marquee-track" id="marquee1">
+        <span>AUTOMATIZACIÓN &nbsp;·&nbsp; DASHBOARDS &nbsp;·&nbsp; AGENTES IA &nbsp;·&nbsp; N8N &nbsp;·&nbsp; POWER BI &nbsp;·&nbsp;</span>
+        <span>AUTOMATIZACIÓN &nbsp;·&nbsp; DASHBOARDS &nbsp;·&nbsp; AGENTES IA &nbsp;·&nbsp; N8N &nbsp;·&nbsp; POWER BI &nbsp;·&nbsp;</span>
+      </div>
+    </div>
+
+    <!-- Sección 2 — Servicios -->
+    <section class="scroll-section" id="servicios" data-align="right" data-anim="slide-right">
+      <div class="section-content">
+        <span class="label">Servicios</span>
+        <h2>Todo lo que<br />necesitás</h2>
+        <div class="services-accordion">
+
+          <div class="service-item">
+            <div class="service-header">
+              <span class="service-icon">⚡</span>
+              <span class="service-name">Automatización con n8n</span>
+              <span class="service-arrow">→</span>
+            </div>
+            <div class="service-body">
+              <div class="service-img" style="background: linear-gradient(135deg,#1a0533,#0d1528); background-image: url('https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=600&q=80'); background-size:cover; background-position:center;"></div>
+              <p>Conectamos todas tus herramientas en un flujo automatizado. Gmail, Sheets, WhatsApp, CRMs — todo hablando entre sí sin intervención humana.</p>
+              <ul>
+                <li>→ Flujos de prospección automática</li>
+                <li>→ Notificaciones y alertas inteligentes</li>
+                <li>→ Integración con +400 apps</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="service-item">
+            <div class="service-header">
+              <span class="service-icon">📊</span>
+              <span class="service-name">Dashboards con Power BI</span>
+              <span class="service-arrow">→</span>
+            </div>
+            <div class="service-body">
+              <div class="service-img" style="background: linear-gradient(135deg,#001a33,#0d1528); background-image: url('https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&q=80'); background-size:cover; background-position:center;"></div>
+              <p>Tus datos convertidos en dashboards interactivos en tiempo real. Tomá decisiones basadas en números, no en intuición.</p>
+              <ul>
+                <li>→ KPIs en tiempo real</li>
+                <li>→ Reportes automáticos</li>
+                <li>→ Visualizaciones personalizadas</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="service-item">
+            <div class="service-header">
+              <span class="service-icon">🤖</span>
+              <span class="service-name">Agentes IA personalizados</span>
+              <span class="service-arrow">→</span>
+            </div>
+            <div class="service-body">
+              <div class="service-img" style="background: linear-gradient(135deg,#1a0033,#0d1528); background-image: url('https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=600&q=80'); background-size:cover; background-position:center;"></div>
+              <p>Agentes de IA que trabajan 24/7 respondiendo clientes, calificando leads y ejecutando tareas complejas de forma autónoma.</p>
+              <ul>
+                <li>→ Chatbots con Claude / GPT-4</li>
+                <li>→ Calificación automática de leads</li>
+                <li>→ Soporte al cliente automatizado</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="service-item">
+            <div class="service-header">
+              <span class="service-icon">🌐</span>
+              <span class="service-name">Páginas web premium IA</span>
+              <span class="service-arrow">→</span>
+            </div>
+            <div class="service-body">
+              <div class="service-img" style="background: linear-gradient(135deg,#001433,#0d1528); background-image: url('https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?w=600&q=80'); background-size:cover; background-position:center;"></div>
+              <p>Landings y webs con animaciones IA, video scroll-driven, diseño premium y conversión optimizada. Como esta misma página.</p>
+              <ul>
+                <li>→ Video animado al scroll</li>
+                <li>→ Identidad de marca completa</li>
+                <li>→ Deploy en Vercel en 24hs</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="service-item">
+            <div class="service-header">
+              <span class="service-icon">📱</span>
+              <span class="service-name">WhatsApp Business API</span>
+              <span class="service-arrow">→</span>
+            </div>
+            <div class="service-body">
+              <div class="service-img" style="background: linear-gradient(135deg,#001a0d,#0d1528); background-image: url('https://images.unsplash.com/photo-1611746872915-64382b5c76da?w=600&q=80'); background-size:cover; background-position:center;"></div>
+              <p>Automatizá tus comunicaciones por WhatsApp — desde recordatorios de cobro hasta campañas de fidelización masiva con IA.</p>
+              <ul>
+                <li>→ Mensajes automáticos personalizados</li>
+                <li>→ Campañas masivas segmentadas</li>
+                <li>→ Integración con tu CRM</li>
+              </ul>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Sección 3 — Cómo trabajamos -->
+    <section class="scroll-section" data-align="left" data-anim="scale-up">
+      <div class="section-content">
+        <span class="label">Nuestro proceso</span>
+        <h2>Simple,<br />directo<br />y efectivo</h2>
+        <p>Diagnóstico en 48hs → Implementación en 2 semanas → Soporte continuo. Sin burocracia, sin excusas.</p>
+        <a href="#contacto" class="btn-outline">Ver casos de éxito →</a>
+      </div>
+    </section>
+
+    <!-- MARQUEE 2 -->
+    <div class="marquee-section marquee-reverse">
+      <div class="marquee-track" id="marquee2">
+        <span>NEXORA AI STUDIO &nbsp;·&nbsp; TRANSFORMAMOS DATOS &nbsp;·&nbsp; EN DECISIONES &nbsp;·&nbsp; IA APLICADA &nbsp;·&nbsp;</span>
+        <span>NEXORA AI STUDIO &nbsp;·&nbsp; TRANSFORMAMOS DATOS &nbsp;·&nbsp; EN DECISIONES &nbsp;·&nbsp; IA APLICADA &nbsp;·&nbsp;</span>
+      </div>
+    </div>
+
+    <!-- Sección 4 — Stats con dark overlay -->
+    <section class="scroll-section stats-section" id="stats" data-align="center" data-anim="stagger-up" data-overlay="true">
+      <div class="section-content">
+        <span class="label">Resultados reales</span>
+        <h2>Números que<br />hablan solos</h2>
+        <div class="stats-grid">
+          <div class="stat">
+            <span class="stat-number" data-value="80" data-suffix="%">0%</span>
+            <span class="stat-label">Reducción de tareas manuales</span>
+          </div>
+          <div class="stat">
+            <span class="stat-number" data-value="48" data-suffix="hs">0hs</span>
+            <span class="stat-label">De diagnóstico a propuesta</span>
+          </div>
+          <div class="stat">
+            <span class="stat-number" data-value="3" data-suffix="x">0x</span>
+            <span class="stat-label">Más capacidad sin más personal</span>
+          </div>
+          <div class="stat">
+            <span class="stat-number" data-value="100" data-suffix="%">0%</span>
+            <span class="stat-label">Proyectos entregados en tiempo</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sección 5 — Por qué NEXORA -->
+    <section class="scroll-section" data-align="right" data-anim="rotate-in">
+      <div class="section-content">
+        <span class="label">Por qué elegirnos</span>
+        <h2>Somos tu<br />equipo de IA</h2>
+        <p>No vendemos software genérico. Diseñamos soluciones a medida para tu negocio, con soporte real y resultados medibles desde el primer mes.</p>
+      </div>
+    </section>
+
+    <!-- Sección 6 — CTA Final -->
+    <section class="scroll-section cta-section" id="contacto" data-align="center" data-anim="clip-reveal">
+      <div class="section-content">
+        <span class="label">Empezá hoy</span>
+        <h2>¿Listo para<br />automatizar<br />tu negocio?</h2>
+        <p>Primera consulta sin costo. Te mostramos exactamente qué podemos automatizar en tu empresa.</p>
+        <div class="cta-buttons">
+          <a href="mailto:marilanz76@gmail.com" class="btn-primary btn-large">Agenda tu diagnóstico gratuito</a>
+          <a href="https://wa.me/5491100000000" class="btn-outline btn-large">Escribinos por WhatsApp</a>
+        </div>
+      </div>
+    </section>
+
+  </div><!-- /scroll-container -->
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <span class="footer-brand">NEXORA <em>AI</em></span>
+      <p class="footer-copy">© 2025 NEXORA AI STUDIO — Todos los derechos reservados</p>
+      <div class="footer-socials">
+        <a href="https://www.instagram.com/aistudionexora/" target="_blank" class="social-link" aria-label="Instagram">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+          </svg>
+        </a>
+        <a href="https://www.facebook.com/profile.php?id=61590105672486" target="_blank" class="social-link" aria-label="Facebook">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+          </svg>
+        </a>
+        <a href="https://www.linkedin.com/feed/" target="_blank" class="social-link" aria-label="LinkedIn">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Remove dark background from logo -->
+  <script>
+    function removeDarkBackground(imgEl) {
+      const offscreen = document.createElement('canvas');
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        offscreen.width = img.naturalWidth;
+        offscreen.height = img.naturalHeight;
+        const ctx = offscreen.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        const data = ctx.getImageData(0, 0, offscreen.width, offscreen.height);
+        for (let i = 0; i < data.data.length; i += 4) {
+          const r = data.data[i], g = data.data[i+1], b = data.data[i+2];
+          // Remove dark navy background — covers #080d1a and antialiased edges
+          if (r < 60 && g < 80 && b < 120) {
+            data.data[i+3] = 0;
+          }
+        }
+        ctx.putImageData(data, 0, 0);
+        imgEl.src = offscreen.toDataURL('image/png');
+      };
+      img.src = imgEl.src;
+    }
+    window.addEventListener('load', () => {
+      document.querySelectorAll('.header-logo, .loader-logo').forEach(removeDarkBackground);
+    });
+  </script>
+
+  <!-- Scripts CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
