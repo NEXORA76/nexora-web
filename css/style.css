@@ -108,7 +108,7 @@ img { display: block; max-width: 100%; }
   position: fixed;
   top: 0; left: 0; right: 0;
   z-index: 100;
-  padding: 1.25rem 3rem;
+  padding: 1.25rem 1.5rem;
   background: transparent;
   backdrop-filter: none;
   border-bottom: none;
