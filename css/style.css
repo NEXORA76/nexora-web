@@ -109,9 +109,9 @@ img { display: block; max-width: 100%; }
   top: 0; left: 0; right: 0;
   z-index: 100;
   padding: 1.25rem 3rem;
-  background: var(--header-bg);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--glass-border);
+  background: transparent;
+  backdrop-filter: none;
+  border-bottom: none;
   transition: background 0.4s ease;
 }
 .header-inner {
