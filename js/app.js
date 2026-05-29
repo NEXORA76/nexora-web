@@ -344,5 +344,8 @@ function initApp() {
   gsap.to('#marquee1', { scrollTrigger: { trigger: '.marquee-section', scrub: 1 }, x: '-=100' });
   gsap.to('#marquee2', { scrollTrigger: { trigger: '.marquee-reverse', scrub: 1 }, x: '+=100' });
 
+  /* === Refresh ScrollTrigger después de cargar === */
+  setTimeout(() => ScrollTrigger.refresh(), 500);
+
   /* === cerebro fixed, sin parallax === */
 }
