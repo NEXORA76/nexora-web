@@ -116,7 +116,7 @@ img { display: block; max-width: 100%; }
 }
 .header-inner {
   max-width: 1400px;
-  margin: 0 auto;
+  margin: 0;
   display: flex;
   align-items: center;
   gap: 2rem;
