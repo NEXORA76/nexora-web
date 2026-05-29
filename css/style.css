@@ -168,12 +168,7 @@ img { display: block; max-width: 100%; }
   padding: 8rem 6rem 4rem;
   position: relative;
   z-index: 5;
-  background: linear-gradient(
-    to right,
-    var(--hero-overlay-start) 0%,
-    rgba(8,13,26,0.4) 60%,
-    var(--hero-overlay-end) 100%
-  );
+  background: transparent;
   transition: background 0.4s ease;
 }
 .hero-content { max-width: 650px; }
