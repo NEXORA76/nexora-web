@@ -153,11 +153,14 @@ img { display: block; max-width: 100%; }
   border-radius: 100px;
   font-weight: 500;
   font-size: 0.9rem;
-  transition: border-color 0.2s, background 0.2s;
+  background: rgba(0,229,255,0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
   display: inline-block;
   white-space: nowrap;
 }
-.btn-outline:hover { border-color: var(--cyan); background: rgba(0,229,255,0.05); }
+.btn-outline:hover { border-color: var(--cyan); background: rgba(0,229,255,0.15); box-shadow: 0 0 20px rgba(0,229,255,0.35); }
 .btn-outline.btn-large { padding: 1rem 2.5rem; font-size: 1rem; }
 
 /* ===== HERO STANDALONE ===== */
