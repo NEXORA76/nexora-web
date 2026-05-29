@@ -266,10 +266,10 @@ img { display: block; max-width: 100%; }
 /* El fondo oscuro va solo detrás del texto, no en toda la sección */
 .section-content {
   max-width: 520px;
-  background: var(--glass-bg);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--glass-border);
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border: none;
   border-radius: 20px;
   padding: 3rem;
   transition: background 0.4s ease, border-color 0.4s ease;
@@ -634,7 +634,7 @@ html {
   .scroll-section {
     grid-template-columns: 1fr;
     padding: 5rem 1.5rem;
-    background: rgba(8,13,26,0.9) !important;
+    background: transparent !important;
   }
   .scroll-section[data-align="right"] .section-content { grid-column: 1; }
   .stats-grid { grid-template-columns: repeat(2,1fr); }
@@ -733,7 +733,7 @@ html {
   /* --- SCROLL SECTIONS MOBILE --- */
   .scroll-section {
     padding: 3.5rem 1.25rem;
-    background: rgba(8,13,26,0.92) !important;
+    background: transparent !important;
   }
   .section-content {
     padding: 2rem 1.25rem;
