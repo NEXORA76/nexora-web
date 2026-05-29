@@ -16,7 +16,7 @@
   --text-muted: #8892a4;
   --glass-bg: rgba(13,21,40,0.75);
   --glass-border: rgba(255,255,255,0.06);
-  --header-bg: rgba(8,13,26,0.9);
+  --header-bg: transparent;
   --hero-overlay-start: rgba(8,13,26,0.85);
   --hero-overlay-end: rgba(8,13,26,0.0);
   --section-bg: rgba(8,13,26,0.0);
