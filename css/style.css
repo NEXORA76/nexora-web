@@ -126,11 +126,10 @@ img { display: block; max-width: 100%; }
 .header-nav a {
   font-size: 0.875rem;
   font-weight: 500;
-  color: var(--gray);
+  color: var(--cyan);
   transition: color 0.2s;
 }
-.header-nav a { color: var(--text-muted); }
-.header-nav a:hover { color: var(--text); }
+.header-nav a:hover { color: var(--white); }
 
 /* ===== BUTTONS ===== */
 .btn-primary {
