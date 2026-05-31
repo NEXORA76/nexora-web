@@ -358,33 +358,40 @@ function initApp() {
   const iconOff= document.getElementById('audioIconOff');
   if (!audio || !btn) return;
 
+  // Estado inicial: silenciado
+  audio.volume = 0.5;
+  iconOn.style.display  = 'none';
+  iconOff.style.display = 'block';
   let playing = false;
 
-  function setIcon(on) {
-    iconOn.style.display  = on ? 'block' : 'none';
-    iconOff.style.display = on ? 'none'  : 'block';
+  function tryPlay() {
+    audio.play()
+      .then(() => {
+        playing = true;
+        iconOn.style.display  = 'block';
+        iconOff.style.display = 'none';
+      })
+      .catch(() => {});
   }
 
-  function startAudio() {
-    audio.volume = 0.4;
-    audio.currentTime = 0;
-    const p = audio.play();
-    if (p !== undefined) {
-      p.then(() => { playing = true; setIcon(true); })
-       .catch((e) => { console.warn('Audio blocked:', e); });
-    }
-  }
-
-  // Botón toggle — click directo arranca el audio
-  btn.addEventListener('click', (e) => {
-    e.stopPropagation();
+  // Click en botón
+  btn.addEventListener('click', function() {
     if (playing) {
       audio.pause();
       playing = false;
-      setIcon(false);
+      iconOn.style.display  = 'none';
+      iconOff.style.display = 'block';
     } else {
-      startAudio();
+      tryPlay();
     }
+  });
+
+  // También arranca en primer click en cualquier parte de la página
+  document.addEventListener('click', function onFirstClick(e) {
+    if (e.target !== btn && !btn.contains(e.target)) {
+      tryPlay();
+    }
+    document.removeEventListener('click', onFirstClick);
   });
 })();
 
