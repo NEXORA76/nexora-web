@@ -350,48 +350,95 @@ function initApp() {
   /* === cerebro fixed, sin parallax === */
 }
 
-/* ===== BACKGROUND AUDIO ===== */
+/* ===== AMBIENT AUDIO (Web Audio API) ===== */
 (function () {
-  const audio  = document.getElementById('bgAudio');
   const btn    = document.getElementById('audioToggle');
   const iconOn = document.getElementById('audioIconOn');
   const iconOff= document.getElementById('audioIconOff');
-  if (!audio || !btn) return;
+  if (!btn) return;
 
-  // Estado inicial: silenciado
-  audio.volume = 0.5;
-  iconOn.style.display  = 'none';
-  iconOff.style.display = 'block';
-  let playing = false;
+  let actx = null, playing = false, masterGain = null;
+  const nodes = [];
 
-  function tryPlay() {
-    audio.play()
-      .then(() => {
-        playing = true;
-        iconOn.style.display  = 'block';
-        iconOff.style.display = 'none';
-      })
-      .catch(() => {});
+  function buildAmbient(ctx) {
+    masterGain = ctx.createGain();
+    masterGain.gain.setValueAtTime(0, ctx.currentTime);
+    masterGain.gain.linearRampToValueAtTime(0.55, ctx.currentTime + 2.5);
+    masterGain.connect(ctx.destination);
+
+    // Drone base — tono profundo
+    [[55, 0.18], [110, 0.10], [165, 0.06]].forEach(([freq, vol]) => {
+      const osc = ctx.createOscillator();
+      const g   = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      g.gain.value = vol;
+      osc.connect(g); g.connect(masterGain);
+      osc.start();
+      nodes.push(osc);
+    });
+
+    // Tono medio — melodía ambient suave
+    const osc2 = ctx.createOscillator();
+    const lfo  = ctx.createOscillator();
+    const lfoG = ctx.createGain();
+    osc2.type = 'sine';
+    osc2.frequency.value = 220;
+    lfo.type = 'sine';
+    lfo.frequency.value = 0.12;
+    lfoG.gain.value = 6;
+    lfo.connect(lfoG); lfoG.connect(osc2.frequency);
+    const g2 = ctx.createGain(); g2.gain.value = 0.07;
+    osc2.connect(g2); g2.connect(masterGain);
+    osc2.start(); lfo.start();
+    nodes.push(osc2, lfo);
+
+    // Shimmer alto — brillo espacial
+    const osc3 = ctx.createOscillator();
+    const lfo3 = ctx.createOscillator();
+    const lfoG3= ctx.createGain();
+    osc3.type = 'sine';
+    osc3.frequency.value = 880;
+    lfo3.type = 'sine';
+    lfo3.frequency.value = 0.07;
+    lfoG3.gain.value = 3;
+    lfo3.connect(lfoG3); lfoG3.connect(osc3.frequency);
+    const g3 = ctx.createGain(); g3.gain.value = 0.025;
+    osc3.connect(g3); g3.connect(masterGain);
+    osc3.start(); lfo3.start();
+    nodes.push(osc3, lfo3);
   }
 
-  // Click en botón
-  btn.addEventListener('click', function() {
-    if (playing) {
-      audio.pause();
-      playing = false;
-      iconOn.style.display  = 'none';
-      iconOff.style.display = 'block';
-    } else {
-      tryPlay();
+  function startAmbient() {
+    if (!actx) {
+      actx = new (window.AudioContext || window.webkitAudioContext)();
+      buildAmbient(actx);
+    } else if (actx.state === 'suspended') {
+      actx.resume();
     }
+    playing = true;
+    iconOn.style.display  = 'block';
+    iconOff.style.display = 'none';
+  }
+
+  function stopAmbient() {
+    if (actx && masterGain) {
+      masterGain.gain.linearRampToValueAtTime(0, actx.currentTime + 0.8);
+      setTimeout(() => { if (actx) actx.suspend(); }, 900);
+    }
+    playing = false;
+    iconOn.style.display  = 'none';
+    iconOff.style.display = 'block';
+  }
+
+  btn.addEventListener('click', () => {
+    playing ? stopAmbient() : startAmbient();
   });
 
-  // También arranca en primer click en cualquier parte de la página
-  document.addEventListener('click', function onFirstClick(e) {
-    if (e.target !== btn && !btn.contains(e.target)) {
-      tryPlay();
-    }
-    document.removeEventListener('click', onFirstClick);
+  // Primer click en la página arranca el audio
+  document.addEventListener('click', function onFirst(e) {
+    if (!btn.contains(e.target)) startAmbient();
+    document.removeEventListener('click', onFirst);
   });
 })();
 
