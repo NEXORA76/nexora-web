@@ -835,3 +835,94 @@ html {
   border-color: var(--cyan);
   box-shadow: 0 0 12px rgba(0,229,255,0.4);
 }
+
+/* ===== CUSTOM CURSOR ===== */
+* { cursor: none !important; }
+.cursor-dot {
+  position: fixed;
+  width: 7px; height: 7px;
+  background: #00e5ff;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 99999;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 8px #00e5ff, 0 0 18px rgba(0,229,255,0.6);
+  transition: width 0.15s, height 0.15s, background 0.15s;
+}
+.cursor-ring {
+  position: fixed;
+  width: 34px; height: 34px;
+  border: 1.5px solid rgba(0,229,255,0.55);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 99998;
+  transform: translate(-50%, -50%);
+  transition: width 0.2s ease, height 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.cursor-ring.hover {
+  width: 52px; height: 52px;
+  border-color: #00e5ff;
+  box-shadow: 0 0 14px rgba(0,229,255,0.4);
+}
+.cursor-dot.clicking { width: 4px; height: 4px; }
+
+/* ===== NEURAL NETWORK CANVAS ===== */
+#neural-canvas {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0.45;
+}
+
+/* ===== BRAIN HALO ===== */
+#brain-halo {
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 520px; height: 520px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 2;
+  background: radial-gradient(circle, transparent 38%, rgba(0,229,255,0.04) 60%, transparent 75%);
+}
+#brain-halo::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(0,229,255,0.18);
+  animation: halo-pulse 3s ease-in-out infinite;
+}
+#brain-halo::after {
+  content: '';
+  position: absolute;
+  inset: -30px;
+  border-radius: 50%;
+  border: 1px solid rgba(0,229,255,0.08);
+  animation: halo-pulse 3s ease-in-out infinite 1s;
+}
+@keyframes halo-pulse {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50%       { opacity: 1;   transform: scale(1.05); }
+}
+
+/* ===== SCANLINE SWEEP ===== */
+#scanline {
+  position: fixed;
+  top: -4px; left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, rgba(0,229,255,0.35), transparent);
+  pointer-events: none;
+  z-index: 3;
+  animation: scanline-sweep 6s linear infinite;
+  opacity: 0;
+}
+@keyframes scanline-sweep {
+  0%   { top: -4px; opacity: 0; }
+  5%   { opacity: 1; }
+  95%  { opacity: 1; }
+  100% { top: 100vh; opacity: 0; }
+}

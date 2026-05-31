@@ -349,3 +349,128 @@ function initApp() {
 
   /* === cerebro fixed, sin parallax === */
 }
+
+/* ===== CUSTOM CURSOR ===== */
+(function () {
+  const dot  = document.getElementById('cursorDot');
+  const ring = document.getElementById('cursorRing');
+  if (!dot || !ring) return;
+
+  let mx = 0, my = 0, rx = 0, ry = 0;
+
+  document.addEventListener('mousemove', (e) => {
+    mx = e.clientX; my = e.clientY;
+    dot.style.left = mx + 'px';
+    dot.style.top  = my + 'px';
+  });
+
+  document.addEventListener('mousedown', () => dot.classList.add('clicking'));
+  document.addEventListener('mouseup',   () => dot.classList.remove('clicking'));
+
+  // Ring sigue con lag suave
+  (function animateRing() {
+    rx += (mx - rx) * 0.13;
+    ry += (my - ry) * 0.13;
+    ring.style.left = rx + 'px';
+    ring.style.top  = ry + 'px';
+    requestAnimationFrame(animateRing);
+  })();
+
+  // Hover en elementos interactivos
+  document.querySelectorAll('a, button, .btn-primary, .btn-outline, .service-header, .hamburger').forEach(el => {
+    el.addEventListener('mouseenter', () => ring.classList.add('hover'));
+    el.addEventListener('mouseleave', () => ring.classList.remove('hover'));
+  });
+})();
+
+/* ===== SCRAMBLE TEXT ===== */
+(function () {
+  const el = document.querySelector('.nexora-brand');
+  if (!el) return;
+  const finalText = el.textContent;
+  const chars = 'X@#$%&!?0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ ';
+  let frame = 0;
+  const totalFrames = 38;
+
+  const iv = setInterval(() => {
+    el.textContent = finalText.split('').map((ch, i) => {
+      if (ch === ' ') return ' ';
+      if (frame / totalFrames > i / finalText.length) return ch;
+      return chars[Math.floor(Math.random() * chars.length)];
+    }).join('');
+    frame++;
+    if (frame > totalFrames) { el.textContent = finalText; clearInterval(iv); }
+  }, 55);
+})();
+
+/* ===== NEURAL NETWORK ===== */
+(function () {
+  const nc = document.getElementById('neural-canvas');
+  if (!nc) return;
+  const nCtx = nc.getContext('2d');
+
+  function resize() {
+    nc.width  = window.innerWidth;
+    nc.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const DOTS = 55;
+  const MAX_DIST = 160;
+  let mouse = { x: -999, y: -999 };
+  document.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+
+  const dots = Array.from({ length: DOTS }, () => ({
+    x: Math.random() * window.innerWidth,
+    y: Math.random() * window.innerHeight,
+    vx: (Math.random() - 0.5) * 0.45,
+    vy: (Math.random() - 0.5) * 0.45,
+    r: Math.random() * 1.8 + 0.8,
+  }));
+
+  function drawNeural() {
+    nCtx.clearRect(0, 0, nc.width, nc.height);
+
+    // Mover puntos
+    dots.forEach(d => {
+      d.x += d.vx; d.y += d.vy;
+      if (d.x < 0 || d.x > nc.width)  d.vx *= -1;
+      if (d.y < 0 || d.y > nc.height) d.vy *= -1;
+
+      // Atracción suave al cursor
+      const dx = mouse.x - d.x, dy = mouse.y - d.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < 200) { d.vx += dx * 0.00015; d.vy += dy * 0.00015; }
+    });
+
+    // Líneas entre puntos cercanos
+    for (let i = 0; i < dots.length; i++) {
+      for (let j = i + 1; j < dots.length; j++) {
+        const dx = dots[i].x - dots[j].x;
+        const dy = dots[i].y - dots[j].y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < MAX_DIST) {
+          const alpha = (1 - dist / MAX_DIST) * 0.35;
+          nCtx.beginPath();
+          nCtx.strokeStyle = `rgba(0,229,255,${alpha})`;
+          nCtx.lineWidth = 0.7;
+          nCtx.moveTo(dots[i].x, dots[i].y);
+          nCtx.lineTo(dots[j].x, dots[j].y);
+          nCtx.stroke();
+        }
+      }
+      // Punto
+      nCtx.beginPath();
+      nCtx.arc(dots[i].x, dots[i].y, dots[i].r, 0, Math.PI * 2);
+      nCtx.fillStyle = 'rgba(0,229,255,0.55)';
+      nCtx.shadowColor = '#00e5ff';
+      nCtx.shadowBlur = 5;
+      nCtx.fill();
+      nCtx.shadowBlur = 0;
+    }
+
+    requestAnimationFrame(drawNeural);
+  }
+  drawNeural();
+})();
