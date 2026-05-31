@@ -358,55 +358,79 @@ function initApp() {
   if (!btn) return;
 
   let actx = null, playing = false, masterGain = null;
-  const nodes = [];
+
+  function createReverb(ctx) {
+    const conv = ctx.createConvolver();
+    const len  = ctx.sampleRate * 4;
+    const buf  = ctx.createBuffer(2, len, ctx.sampleRate);
+    for (let c = 0; c < 2; c++) {
+      const d = buf.getChannelData(c);
+      for (let i = 0; i < len; i++)
+        d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3);
+    }
+    conv.buffer = buf;
+    return conv;
+  }
+
+  function playNote(ctx, freq, when, dur, vol, dest) {
+    const osc = ctx.createOscillator();
+    const env = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    env.gain.setValueAtTime(0, when);
+    env.gain.linearRampToValueAtTime(vol, when + 0.15);
+    env.gain.exponentialRampToValueAtTime(0.0001, when + dur);
+    osc.connect(env); env.connect(dest);
+    osc.start(when); osc.stop(when + dur + 0.2);
+  }
 
   function buildAmbient(ctx) {
     masterGain = ctx.createGain();
     masterGain.gain.setValueAtTime(0, ctx.currentTime);
-    masterGain.gain.linearRampToValueAtTime(0.55, ctx.currentTime + 2.5);
+    masterGain.gain.linearRampToValueAtTime(0.75, ctx.currentTime + 3.5);
     masterGain.connect(ctx.destination);
 
-    // Drone base — tono profundo
-    [[55, 0.18], [110, 0.10], [165, 0.06]].forEach(([freq, vol]) => {
-      const osc = ctx.createOscillator();
-      const g   = ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.value = freq;
-      g.gain.value = vol;
-      osc.connect(g); g.connect(masterGain);
-      osc.start();
-      nodes.push(osc);
-    });
+    const reverb = createReverb(ctx);
+    const wet = ctx.createGain(); wet.gain.value = 0.7;
+    reverb.connect(wet); wet.connect(masterGain);
 
-    // Tono medio — melodía ambient suave
-    const osc2 = ctx.createOscillator();
-    const lfo  = ctx.createOscillator();
-    const lfoG = ctx.createGain();
-    osc2.type = 'sine';
-    osc2.frequency.value = 220;
-    lfo.type = 'sine';
-    lfo.frequency.value = 0.12;
-    lfoG.gain.value = 6;
-    lfo.connect(lfoG); lfoG.connect(osc2.frequency);
-    const g2 = ctx.createGain(); g2.gain.value = 0.07;
-    osc2.connect(g2); g2.connect(masterGain);
-    osc2.start(); lfo.start();
-    nodes.push(osc2, lfo);
+    // Acordes C menor — tipo Zimmer/ambient cinematográfico
+    const chords = [
+      [130.81, 155.56, 196.00, 261.63],  // Cm
+      [103.83, 130.81, 155.56, 207.65],  // Ab
+      [116.54, 146.83, 174.61, 233.08],  // Bb
+      [98.00,  123.47, 155.56, 196.00],  // G
+    ];
 
-    // Shimmer alto — brillo espacial
-    const osc3 = ctx.createOscillator();
-    const lfo3 = ctx.createOscillator();
-    const lfoG3= ctx.createGain();
-    osc3.type = 'sine';
-    osc3.frequency.value = 880;
-    lfo3.type = 'sine';
-    lfo3.frequency.value = 0.07;
-    lfoG3.gain.value = 3;
-    lfo3.connect(lfoG3); lfoG3.connect(osc3.frequency);
-    const g3 = ctx.createGain(); g3.gain.value = 0.025;
-    osc3.connect(g3); g3.connect(masterGain);
-    osc3.start(); lfo3.start();
-    nodes.push(osc3, lfo3);
+    let ci = 0;
+    function scheduleChord() {
+      if (!playing) return;
+      const now = ctx.currentTime;
+      chords[ci % chords.length].forEach(f => playNote(ctx, f, now, 5.5, 0.10, reverb));
+      playNote(ctx, chords[ci % chords.length][0] * 2, now, 5.5, 0.04, reverb);
+      ci++;
+      setTimeout(scheduleChord, 4500);
+    }
+    scheduleChord();
+
+    // Melodía suave sobre los acordes
+    const melody = [523.25, 659.25, 783.99, 659.25, 587.33, 523.25, 493.88, 523.25];
+    let mi = 0;
+    function scheduleNote() {
+      if (!playing) return;
+      playNote(ctx, melody[mi % melody.length], ctx.currentTime, 1.2, 0.05, reverb);
+      mi++;
+      setTimeout(scheduleNote, 600);
+    }
+    setTimeout(scheduleNote, 2000);
+
+    // Sub-bass suave
+    const bass = ctx.createOscillator();
+    const bassG = ctx.createGain();
+    bass.type = 'sine'; bass.frequency.value = 65;
+    bassG.gain.value = 0.15;
+    bass.connect(bassG); bassG.connect(masterGain);
+    bass.start();
   }
 
   function startAmbient() {
@@ -423,19 +447,16 @@ function initApp() {
 
   function stopAmbient() {
     if (actx && masterGain) {
-      masterGain.gain.linearRampToValueAtTime(0, actx.currentTime + 0.8);
-      setTimeout(() => { if (actx) actx.suspend(); }, 900);
+      masterGain.gain.linearRampToValueAtTime(0, actx.currentTime + 1.5);
+      setTimeout(() => { if (actx) actx.suspend(); }, 1700);
     }
     playing = false;
     iconOn.style.display  = 'none';
     iconOff.style.display = 'block';
   }
 
-  btn.addEventListener('click', () => {
-    playing ? stopAmbient() : startAmbient();
-  });
+  btn.addEventListener('click', () => playing ? stopAmbient() : startAmbient());
 
-  // Primer click en la página arranca el audio
   document.addEventListener('click', function onFirst(e) {
     if (!btn.contains(e.target)) startAmbient();
     document.removeEventListener('click', onFirst);
