@@ -350,92 +350,36 @@ function initApp() {
   /* === cerebro fixed, sin parallax === */
 }
 
-/* ===== AMBIENT AUDIO — BRISA SUAVE ===== */
+/* ===== BACKGROUND AUDIO ===== */
 (function () {
+  const audio  = document.getElementById('bgAudio');
   const btn    = document.getElementById('audioToggle');
   const iconOn = document.getElementById('audioIconOn');
   const iconOff= document.getElementById('audioIconOff');
-  if (!btn) return;
+  if (!audio || !btn) return;
 
-  let actx = null, playing = false, masterGain = null;
+  audio.volume = 0.5;
+  let playing = false;
 
-  function buildBreeze(ctx) {
-    masterGain = ctx.createGain();
-    masterGain.gain.setValueAtTime(0, ctx.currentTime);
-    masterGain.gain.linearRampToValueAtTime(0.7, ctx.currentTime + 4);
-    masterGain.connect(ctx.destination);
-
-    // Ruido blanco — base del viento
-    function makeWind(freq, q, vol) {
-      const bufSize = ctx.sampleRate * 3;
-      const noiseBuf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
-      const data = noiseBuf.getChannelData(0);
-      for (let i = 0; i < bufSize; i++) data[i] = Math.random() * 2 - 1;
-      const src = ctx.createBufferSource();
-      src.buffer = noiseBuf;
-      src.loop = true;
-
-      const filter = ctx.createBiquadFilter();
-      filter.type = 'bandpass';
-      filter.frequency.value = freq;
-      filter.Q.value = q;
-
-      // LFO para que el viento suba y baje suavemente
-      const lfo = ctx.createOscillator();
-      const lfoG = ctx.createGain();
-      lfo.type = 'sine';
-      lfo.frequency.value = 0.08 + Math.random() * 0.06;
-      lfoG.gain.value = freq * 0.18;
-      lfo.connect(lfoG); lfoG.connect(filter.frequency);
-      lfo.start();
-
-      const g = ctx.createGain(); g.gain.value = vol;
-      src.connect(filter); filter.connect(g); g.connect(masterGain);
-      src.start();
-    }
-
-    // Tres capas de viento en frecuencias distintas
-    makeWind(400,  1.2, 0.28);   // viento grave
-    makeWind(900,  0.8, 0.12);   // viento medio
-    makeWind(2200, 0.5, 0.05);   // brisa aguda suave
-
-    // LFO global — hace que la brisa respire
-    const breathLfo = ctx.createOscillator();
-    const breathG   = ctx.createGain();
-    breathLfo.type = 'sine';
-    breathLfo.frequency.value = 0.05;
-    breathG.gain.value = 0.25;
-    breathLfo.connect(breathG);
-    breathG.connect(masterGain.gain);
-    breathLfo.start();
+  function tryPlay() {
+    audio.play().then(() => {
+      playing = true;
+      iconOn.style.display  = 'block';
+      iconOff.style.display = 'none';
+    }).catch(() => {});
   }
 
-  function startAmbient() {
-    if (!actx) {
-      actx = new (window.AudioContext || window.webkitAudioContext)();
-      buildBreeze(actx);
-    } else if (actx.state === 'suspended') {
-      actx.resume();
-    }
-    playing = true;
-    iconOn.style.display  = 'block';
-    iconOff.style.display = 'none';
-  }
-
-  function stopAmbient() {
-    if (actx && masterGain) {
-      masterGain.gain.linearRampToValueAtTime(0, actx.currentTime + 2);
-      setTimeout(() => { if (actx) actx.suspend(); }, 2200);
-    }
-    playing = false;
-    iconOn.style.display  = 'none';
-    iconOff.style.display = 'block';
-  }
-
-  btn.addEventListener('click', () => playing ? stopAmbient() : startAmbient());
+  btn.addEventListener('click', () => {
+    if (playing) {
+      audio.pause();
+      playing = false;
+      iconOn.style.display  = 'none';
+      iconOff.style.display = 'block';
+    } else { tryPlay(); }
+  });
 
   document.addEventListener('click', function onFirst(e) {
-    if (!btn.contains(e.target)) startAmbient();
+    if (!btn.contains(e.target)) tryPlay();
     document.removeEventListener('click', onFirst);
   });
 })();
