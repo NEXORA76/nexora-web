@@ -840,13 +840,13 @@ html {
 * { cursor: none !important; }
 .cursor-dot {
   position: fixed;
-  width: 7px; height: 7px;
+  width: 10px; height: 10px;
   background: #00e5ff;
   border-radius: 50%;
   pointer-events: none;
   z-index: 99999;
   transform: translate(-50%, -50%);
-  box-shadow: 0 0 8px #00e5ff, 0 0 18px rgba(0,229,255,0.6);
+  box-shadow: 0 0 12px #00e5ff, 0 0 24px rgba(0,229,255,0.8);
   transition: width 0.15s, height 0.15s, background 0.15s;
 }
 .cursor-ring {
@@ -872,8 +872,8 @@ html {
   top: 0; left: 0;
   width: 100%; height: 100%;
   pointer-events: none;
-  z-index: 2;
-  opacity: 0.45;
+  z-index: 55;
+  opacity: 0.6;
 }
 
 /* ===== BRAIN HALO ===== */
