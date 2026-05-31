@@ -444,35 +444,17 @@ function initApp() {
 
 /* ===== CUSTOM CURSOR ===== */
 (function () {
-  const dot  = document.getElementById('cursorDot');
-  const ring = document.getElementById('cursorRing');
-  if (!dot || !ring) return;
-
-  let mx = 0, my = 0, rx = 0, ry = 0;
+  const dot = document.getElementById('cursorDot');
+  if (!dot) return;
 
   document.addEventListener('mousemove', (e) => {
-    mx = e.clientX; my = e.clientY;
-    dot.style.left = mx + 'px';
-    dot.style.top  = my + 'px';
+    dot.style.left = e.clientX + 'px';
+    dot.style.top  = e.clientY + 'px';
   });
 
   document.addEventListener('mousedown', () => dot.classList.add('clicking'));
   document.addEventListener('mouseup',   () => dot.classList.remove('clicking'));
 
-  // Ring sigue con lag suave
-  (function animateRing() {
-    rx += (mx - rx) * 0.13;
-    ry += (my - ry) * 0.13;
-    ring.style.left = rx + 'px';
-    ring.style.top  = ry + 'px';
-    requestAnimationFrame(animateRing);
-  })();
-
-  // Hover en elementos interactivos
-  document.querySelectorAll('a, button, .btn-primary, .btn-outline, .service-header, .hamburger').forEach(el => {
-    el.addEventListener('mouseenter', () => ring.classList.add('hover'));
-    el.addEventListener('mouseleave', () => ring.classList.remove('hover'));
-  });
 })();
 
 /* ===== SCRAMBLE TEXT ===== */
