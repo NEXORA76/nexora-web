@@ -383,7 +383,15 @@ img { display: block; max-width: 100%; }
   cursor: pointer;
   user-select: none;
 }
-.service-icon { font-size: 1.2rem; }
+.service-icon {
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--cyan);
+  filter: drop-shadow(0 0 6px rgba(0,229,255,0.7));
+  flex-shrink: 0;
+}
 .service-name {
   flex: 1;
   font-size: 0.92rem;
