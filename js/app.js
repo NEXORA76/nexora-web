@@ -350,6 +350,45 @@ function initApp() {
   /* === cerebro fixed, sin parallax === */
 }
 
+/* ===== BACKGROUND AUDIO ===== */
+(function () {
+  const audio  = document.getElementById('bgAudio');
+  const btn    = document.getElementById('audioToggle');
+  const iconOn = document.getElementById('audioIconOn');
+  const iconOff= document.getElementById('audioIconOff');
+  if (!audio || !btn) return;
+
+  let playing = false;
+
+  function startAudio() {
+    audio.volume = 0.35;
+    audio.play().then(() => {
+      playing = true;
+      iconOn.style.display  = 'block';
+      iconOff.style.display = 'none';
+    }).catch(() => {});
+  }
+
+  // Arrancar en el primer click del usuario (política del browser)
+  document.addEventListener('click', function initAudio() {
+    if (!playing) startAudio();
+    document.removeEventListener('click', initAudio);
+  }, { once: true });
+
+  // Botón toggle
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (playing) {
+      audio.pause();
+      playing = false;
+      iconOn.style.display  = 'none';
+      iconOff.style.display = 'block';
+    } else {
+      startAudio();
+    }
+  });
+})();
+
 /* ===== CUSTOM CURSOR ===== */
 (function () {
   const dot  = document.getElementById('cursorDot');

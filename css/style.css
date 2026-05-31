@@ -836,6 +836,30 @@ html {
   box-shadow: 0 0 12px rgba(0,229,255,0.4);
 }
 
+/* ===== AUDIO TOGGLE ===== */
+#audioToggle {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 99997;
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  background: rgba(0,229,255,0.12);
+  backdrop-filter: blur(20px) saturate(1.5);
+  border: 1px solid rgba(0,229,255,0.6);
+  color: var(--cyan);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: none !important;
+  box-shadow: 0 0 12px rgba(0,229,255,0.3);
+  transition: box-shadow 0.3s, background 0.3s;
+}
+#audioToggle:hover {
+  background: rgba(0,229,255,0.2);
+  box-shadow: 0 0 20px rgba(0,229,255,0.5);
+}
+
 /* ===== CUSTOM CURSOR ===== */
 * { cursor: none !important; }
 .cursor-dot {
