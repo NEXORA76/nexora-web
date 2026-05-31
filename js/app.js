@@ -350,7 +350,7 @@ function initApp() {
   /* === cerebro fixed, sin parallax === */
 }
 
-/* ===== AMBIENT AUDIO (Web Audio API) ===== */
+/* ===== AMBIENT AUDIO — BRISA SUAVE ===== */
 (function () {
   const btn    = document.getElementById('audioToggle');
   const iconOn = document.getElementById('audioIconOn');
@@ -359,84 +359,61 @@ function initApp() {
 
   let actx = null, playing = false, masterGain = null;
 
-  function createReverb(ctx) {
-    const conv = ctx.createConvolver();
-    const len  = ctx.sampleRate * 4;
-    const buf  = ctx.createBuffer(2, len, ctx.sampleRate);
-    for (let c = 0; c < 2; c++) {
-      const d = buf.getChannelData(c);
-      for (let i = 0; i < len; i++)
-        d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3);
-    }
-    conv.buffer = buf;
-    return conv;
-  }
-
-  function playNote(ctx, freq, when, dur, vol, dest) {
-    const osc = ctx.createOscillator();
-    const env = ctx.createGain();
-    osc.type = 'sine';
-    osc.frequency.value = freq;
-    env.gain.setValueAtTime(0, when);
-    env.gain.linearRampToValueAtTime(vol, when + 0.15);
-    env.gain.exponentialRampToValueAtTime(0.0001, when + dur);
-    osc.connect(env); env.connect(dest);
-    osc.start(when); osc.stop(when + dur + 0.2);
-  }
-
-  function buildAmbient(ctx) {
+  function buildBreeze(ctx) {
     masterGain = ctx.createGain();
     masterGain.gain.setValueAtTime(0, ctx.currentTime);
-    masterGain.gain.linearRampToValueAtTime(0.75, ctx.currentTime + 3.5);
+    masterGain.gain.linearRampToValueAtTime(0.7, ctx.currentTime + 4);
     masterGain.connect(ctx.destination);
 
-    const reverb = createReverb(ctx);
-    const wet = ctx.createGain(); wet.gain.value = 0.7;
-    reverb.connect(wet); wet.connect(masterGain);
+    // Ruido blanco — base del viento
+    function makeWind(freq, q, vol) {
+      const bufSize = ctx.sampleRate * 3;
+      const noiseBuf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+      const data = noiseBuf.getChannelData(0);
+      for (let i = 0; i < bufSize; i++) data[i] = Math.random() * 2 - 1;
+      const src = ctx.createBufferSource();
+      src.buffer = noiseBuf;
+      src.loop = true;
 
-    // Acordes C menor — tipo Zimmer/ambient cinematográfico
-    const chords = [
-      [130.81, 155.56, 196.00, 261.63],  // Cm
-      [103.83, 130.81, 155.56, 207.65],  // Ab
-      [116.54, 146.83, 174.61, 233.08],  // Bb
-      [98.00,  123.47, 155.56, 196.00],  // G
-    ];
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.value = freq;
+      filter.Q.value = q;
 
-    let ci = 0;
-    function scheduleChord() {
-      if (!playing) return;
-      const now = ctx.currentTime;
-      chords[ci % chords.length].forEach(f => playNote(ctx, f, now, 5.5, 0.10, reverb));
-      playNote(ctx, chords[ci % chords.length][0] * 2, now, 5.5, 0.04, reverb);
-      ci++;
-      setTimeout(scheduleChord, 4500);
+      // LFO para que el viento suba y baje suavemente
+      const lfo = ctx.createOscillator();
+      const lfoG = ctx.createGain();
+      lfo.type = 'sine';
+      lfo.frequency.value = 0.08 + Math.random() * 0.06;
+      lfoG.gain.value = freq * 0.18;
+      lfo.connect(lfoG); lfoG.connect(filter.frequency);
+      lfo.start();
+
+      const g = ctx.createGain(); g.gain.value = vol;
+      src.connect(filter); filter.connect(g); g.connect(masterGain);
+      src.start();
     }
-    scheduleChord();
 
-    // Melodía suave sobre los acordes
-    const melody = [523.25, 659.25, 783.99, 659.25, 587.33, 523.25, 493.88, 523.25];
-    let mi = 0;
-    function scheduleNote() {
-      if (!playing) return;
-      playNote(ctx, melody[mi % melody.length], ctx.currentTime, 1.2, 0.05, reverb);
-      mi++;
-      setTimeout(scheduleNote, 600);
-    }
-    setTimeout(scheduleNote, 2000);
+    // Tres capas de viento en frecuencias distintas
+    makeWind(400,  1.2, 0.28);   // viento grave
+    makeWind(900,  0.8, 0.12);   // viento medio
+    makeWind(2200, 0.5, 0.05);   // brisa aguda suave
 
-    // Sub-bass suave
-    const bass = ctx.createOscillator();
-    const bassG = ctx.createGain();
-    bass.type = 'sine'; bass.frequency.value = 65;
-    bassG.gain.value = 0.15;
-    bass.connect(bassG); bassG.connect(masterGain);
-    bass.start();
+    // LFO global — hace que la brisa respire
+    const breathLfo = ctx.createOscillator();
+    const breathG   = ctx.createGain();
+    breathLfo.type = 'sine';
+    breathLfo.frequency.value = 0.05;
+    breathG.gain.value = 0.25;
+    breathLfo.connect(breathG);
+    breathG.connect(masterGain.gain);
+    breathLfo.start();
   }
 
   function startAmbient() {
     if (!actx) {
       actx = new (window.AudioContext || window.webkitAudioContext)();
-      buildAmbient(actx);
+      buildBreeze(actx);
     } else if (actx.state === 'suspended') {
       actx.resume();
     }
@@ -447,8 +424,8 @@ function initApp() {
 
   function stopAmbient() {
     if (actx && masterGain) {
-      masterGain.gain.linearRampToValueAtTime(0, actx.currentTime + 1.5);
-      setTimeout(() => { if (actx) actx.suspend(); }, 1700);
+      masterGain.gain.linearRampToValueAtTime(0, actx.currentTime + 2);
+      setTimeout(() => { if (actx) actx.suspend(); }, 2200);
     }
     playing = false;
     iconOn.style.display  = 'none';
