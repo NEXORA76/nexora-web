@@ -360,29 +360,28 @@ function initApp() {
 
   let playing = false;
 
-  function startAudio() {
-    audio.volume = 0.35;
-    audio.play().then(() => {
-      playing = true;
-      iconOn.style.display  = 'block';
-      iconOff.style.display = 'none';
-    }).catch(() => {});
+  function setIcon(on) {
+    iconOn.style.display  = on ? 'block' : 'none';
+    iconOff.style.display = on ? 'none'  : 'block';
   }
 
-  // Arrancar en el primer click del usuario (política del browser)
-  document.addEventListener('click', function initAudio() {
-    if (!playing) startAudio();
-    document.removeEventListener('click', initAudio);
-  }, { once: true });
+  function startAudio() {
+    audio.volume = 0.4;
+    audio.currentTime = 0;
+    const p = audio.play();
+    if (p !== undefined) {
+      p.then(() => { playing = true; setIcon(true); })
+       .catch((e) => { console.warn('Audio blocked:', e); });
+    }
+  }
 
-  // Botón toggle
+  // Botón toggle — click directo arranca el audio
   btn.addEventListener('click', (e) => {
     e.stopPropagation();
     if (playing) {
       audio.pause();
       playing = false;
-      iconOn.style.display  = 'none';
-      iconOff.style.display = 'block';
+      setIcon(false);
     } else {
       startAudio();
     }
