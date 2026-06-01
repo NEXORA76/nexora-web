@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OceanLab — Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --font-h: 'Space Grotesk', sans-serif;
+  --font-b: 'Inter', sans-serif;
+  --sidebar-w: 200px;
+  --text-bright: rgba(255,255,255,0.95);
+  --text-mid:   rgba(255,255,255,0.60);
+  --text-dim:   rgba(255,255,255,0.35);
+}
+
+@keyframes fadeInUp {
+  from { opacity:0; transform:translateY(18px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+@keyframes blink {
+  0%,100% { opacity:1; } 50% { opacity:0.3; }
+}
+@keyframes pulse-ring {
+  0%   { transform:scale(0.8); opacity:0.8; }
+  100% { transform:scale(2.2); opacity:0; }
+}
+@keyframes float {
+  0%,100% { transform: translateY(0px); }
+  50%      { transform: translateY(-6px); }
+}
+
+/* ─── VIDEO FONDO ─── */
+.video-bg {
+  position: fixed; inset: 0; z-index: 0; overflow: hidden;
+}
+.video-bg video {
+  width:100%; height:100%;
+  object-fit:cover; object-position:center;
+}
+.video-bg::after {
+  content:'';
+  position:absolute; inset:0;
+  background: linear-gradient(
+    135deg,
+    rgba(2,62,138,0.30) 0%,
+    rgba(0,50,100,0.15) 50%,
+    rgba(0,119,182,0.20) 100%
+  );
+}
+
+/* ─── BODY ─── */
+body {
+  font-family: var(--font-b);
+  min-height: 100vh;
+  display: flex;
+  color: var(--text-bright);
+  overflow: hidden;
+}
+
+/* ─── GLASS ─── */
+.glass {
+  background: rgba(255,255,255,0.12);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255,255,255,0.28);
+  border-radius: 22px;
+  box-shadow:
+    inset 0 2px 3px rgba(255,255,255,0.30),
+    inset 0 -1px 1px rgba(0,0,0,0.08),
+    0 12px 40px rgba(0,0,0,0.22);
+}
+
+/* ─── SIDEBAR ─── */
+.sidebar {
+  width: var(--sidebar-w);
+  min-height: 100vh;
+  position: fixed; top:0; left:0; bottom:0; z-index:10;
+  padding: 24px 14px;
+  display: flex; flex-direction: column;
+  background: rgba(2,40,100,0.40);
+  backdrop-filter: blur(30px) saturate(180%);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  border-right: 1px solid rgba(255,255,255,0.15);
+}
+
+.logo {
+  display:flex; align-items:center; gap:10px;
+  padding: 0 6px 24px;
+}
+
+.logo-cube {
+  width:38px; height:38px; border-radius:11px;
+  background: linear-gradient(135deg,#00b4d8,#0077b6);
+  box-shadow: 0 0 22px rgba(0,180,216,0.65), inset 0 2px 2px rgba(255,255,255,0.40);
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+
+.logo-name {
+  font-family:var(--font-h); font-size:1.05rem; font-weight:700; color:#fff;
+}
+.logo-name span {
+  background: linear-gradient(90deg,#90e0ef,#caf0f8);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+}
+
+.nav-label {
+  font-size:0.58rem; text-transform:uppercase; letter-spacing:0.14em;
+  color:var(--text-dim); padding:4px 10px 6px; margin-top:12px;
+}
+
+.nav-item {
+  display:flex; align-items:center; gap:9px;
+  padding:9px 12px; border-radius:11px;
+  font-size:0.80rem; color:var(--text-mid);
+  cursor:pointer; transition:all 0.18s; margin-bottom:2px; font-weight:500;
+  position:relative;
+}
+.nav-item:hover { background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.90); }
+.nav-item.active {
+  background:rgba(0,180,216,0.20); color:#fff;
+  border:1px solid rgba(0,180,216,0.38);
+}
+.nav-item.active::before {
+  content:''; position:absolute; left:0; top:25%; bottom:25%;
+  width:3px; border-radius:0 3px 3px 0;
+  background:linear-gradient(180deg,#90e0ef,#00b4d8);
+  box-shadow:0 0 10px rgba(0,180,216,0.9);
+}
+.nav-item svg { width:16px; height:16px; flex-shrink:0; }
+
+.sidebar-bottom {
+  margin-top:auto; padding:14px; border-radius:14px;
+  background:rgba(0,180,216,0.12);
+  border:1px solid rgba(0,180,216,0.25);
+}
+.user-row { display:flex; align-items:center; gap:9px; }
+.user-av {
+  width:34px; height:34px; border-radius:10px;
+  background:linear-gradient(135deg,#00b4d8,#48cae4);
+  display:flex; align-items:center; justify-content:center;
+  font-size:0.68rem; font-weight:700; color:#023e8a;
+  box-shadow:0 0 16px rgba(0,180,216,0.5); flex-shrink:0;
+}
+.user-name { font-size:0.78rem; font-weight:600; color:#fff; }
+.user-role { font-size:0.65rem; color:var(--text-mid); margin-top:1px; }
+
+/* ─── MAIN ─── */
+.main {
+  margin-left: var(--sidebar-w);
+  flex:1; position:relative; z-index:1;
+  display:flex; flex-direction:column;
+  height:100vh; overflow:hidden;
+  padding: 20px 20px 20px;
+}
+
+/* ─── TOPBAR ─── */
+.topbar {
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:18px;
+  animation: fadeInUp 0.5s ease both;
+}
+
+.page-title {
+  font-family:var(--font-h); font-size:1.5rem; font-weight:800;
+  color:#fff; letter-spacing:-0.02em;
+  text-shadow:0 2px 20px rgba(0,0,0,0.30);
+}
+.page-title span {
+  background:linear-gradient(90deg,#90e0ef,#caf0f8);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+}
+.page-sub { font-size:0.78rem; color:var(--text-mid); margin-top:3px; }
+
+.topbar-right { display:flex; align-items:center; gap:9px; }
+
+.pill-live {
+  display:flex; align-items:center; gap:7px;
+  padding:6px 14px; border-radius:30px;
+  background:rgba(0,180,216,0.16);
+  border:1px solid rgba(0,180,216,0.32);
+  font-size:0.73rem; color:#90e0ef; font-weight:600;
+  backdrop-filter:blur(12px);
+}
+.dot-wrap { position:relative; width:10px; height:10px; }
+.dot {
+  width:8px; height:8px; border-radius:50%; background:#00b4d8;
+  position:absolute; top:1px; left:1px;
+  box-shadow:0 0 8px rgba(0,180,216,0.9);
+  animation:blink 2s ease infinite;
+}
+.dot-ring {
+  width:10px; height:10px; border-radius:50%;
+  border:1.5px solid #00b4d8;
+  position:absolute; top:0; left:0;
+  animation:pulse-ring 2s ease infinite;
+}
+
+.btn {
+  padding:8px 16px; border-radius:11px;
+  border:1px solid rgba(255,255,255,0.20);
+  background:rgba(255,255,255,0.10); backdrop-filter:blur(12px);
+  color:var(--text-mid); font-size:0.78rem; font-weight:500;
+  cursor:pointer; font-family:var(--font-b); transition:all 0.2s;
+  display:flex; align-items:center; gap:6px;
+}
+.btn:hover { border-color:rgba(0,180,216,0.40); color:#90e0ef; }
+.btn-primary {
+  background:linear-gradient(135deg,#0096c7,#00b4d8);
+  border-color:rgba(255,255,255,0.28); color:#fff; font-weight:600;
+  box-shadow:0 0 24px rgba(0,180,216,0.42), inset 0 1px 1px rgba(255,255,255,0.35);
+}
+.btn-primary:hover { transform:translateY(-2px); box-shadow:0 0 36px rgba(0,180,216,0.58); }
+
+/* ─── CONTENT: DOS COLUMNAS + CENTRO ABIERTO ─── */
+.content {
+  flex:1;
+  display:grid;
+  grid-template-columns: 260px 1fr 260px;
+  gap:16px;
+  min-height:0;
+}
+
+/* ─── COLUMNA IZQUIERDA ─── */
+.col-left, .col-right {
+  display:flex; flex-direction:column; gap:14px;
+  min-height:0; overflow:hidden;
+}
+
+/* ─── CENTRO ABIERTO ─── */
+.col-center {
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:flex-end;
+  gap:14px; min-height:0;
+  padding-bottom:8px;
+}
+
+/* ─── KPI CARD PEQUEÑA ─── */
+.kpi-card {
+  padding:20px 18px 18px;
+  border-radius:20px;
+  position:relative; overflow:hidden;
+  transition:all 0.3s cubic-bezier(0.22,1,0.36,1);
+  animation: fadeInUp 0.7s ease both;
+  flex-shrink:0;
+}
+.kpi-card:hover { transform:translateY(-4px) scale(1.01); }
+
+/* Stripe base */
+.kpi-card::after {
+  content:''; position:absolute; bottom:0; left:0; right:0; height:3px;
+  border-radius:0 0 20px 20px;
+}
+.c-aqua::after { background:linear-gradient(90deg,#00b4d8,#90e0ef); box-shadow:0 0 12px rgba(0,180,216,0.9); }
+.c-teal::after { background:linear-gradient(90deg,#48cae4,#caf0f8); box-shadow:0 0 12px rgba(72,202,228,0.9); }
+.c-deep::after { background:linear-gradient(90deg,#0077b6,#00b4d8); box-shadow:0 0 12px rgba(0,119,182,0.9); }
+.c-foam::after { background:linear-gradient(90deg,#90e0ef,#fff);    box-shadow:0 0 12px rgba(144,224,239,0.9); }
+
+/* Orb interno */
+.kpi-orb {
+  position:absolute; width:110px; height:110px;
+  border-radius:50%; top:-28px; right:-28px;
+  filter:blur(35px); opacity:0.28; pointer-events:none;
+}
+.c-aqua .kpi-orb { background:#00b4d8; }
+.c-teal .kpi-orb { background:#48cae4; }
+.c-deep .kpi-orb { background:#0077b6; }
+.c-foam .kpi-orb { background:#90e0ef; }
+
+.kpi-top {
+  display:flex; align-items:flex-start; justify-content:space-between;
+  margin-bottom:14px; position:relative;
+}
+
+.kpi-icon {
+  width:42px; height:42px; border-radius:13px;
+  display:flex; align-items:center; justify-content:center;
+  border:1px solid rgba(255,255,255,0.28);
+  box-shadow:inset 0 2px 2px rgba(255,255,255,0.35), 0 4px 14px rgba(0,0,0,0.15);
+}
+.icon-aqua { background:rgba(0,180,216,0.22); }
+.icon-teal { background:rgba(72,202,228,0.20); }
+.icon-deep { background:rgba(0,119,182,0.25); }
+.icon-foam { background:rgba(144,224,239,0.18); }
+
+.kpi-badge {
+  font-size:0.65rem; font-weight:700;
+  padding:3px 9px; border-radius:30px;
+}
+.badge-up   { background:rgba(144,224,239,0.16); color:#caf0f8; border:1px solid rgba(144,224,239,0.30); }
+.badge-warn { background:rgba(255,183,77,0.16);  color:#ffe082; border:1px solid rgba(255,183,77,0.28); }
+.badge-ok   { background:rgba(0,180,216,0.16);   color:#90e0ef; border:1px solid rgba(0,180,216,0.28); }
+
+.kpi-value {
+  font-family:var(--font-h); font-size:2.4rem; font-weight:800;
+  line-height:1; margin-bottom:5px; letter-spacing:-0.03em;
+}
+.color-aqua { color:#90e0ef; text-shadow:0 0 24px rgba(0,180,216,0.7); }
+.color-teal { color:#caf0f8; text-shadow:0 0 24px rgba(72,202,228,0.7); }
+.color-deep { color:#48cae4; text-shadow:0 0 24px rgba(0,119,182,0.6); }
+.color-foam { color:#fff;    text-shadow:0 0 18px rgba(144,224,239,0.8); }
+
+.kpi-label { font-size:0.74rem; color:var(--text-mid); font-weight:500; }
+
+/* ─── WIDGET GRÁFICA ─── */
+.widget {
+  padding:18px 20px;
+  border-radius:20px;
+  flex:1; min-height:0;
+  display:flex; flex-direction:column;
+  animation: fadeInUp 0.7s ease 0.2s both;
+}
+
+.widget-title {
+  font-family:var(--font-h); font-size:0.85rem; font-weight:700;
+  color:#fff; margin-bottom:14px;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.widget-title small { font-size:0.66rem; color:var(--text-dim); font-weight:400; font-family:var(--font-b); }
+
+.chart-wrap { flex:1; min-height:0; position:relative; }
+
+/* ─── WIDGET DONUT ─── */
+.donut-wrap {
+  flex:1; display:flex; align-items:center; justify-content:center;
+  position:relative;
+}
+.donut-center {
+  position:absolute;
+  text-align:center;
+  pointer-events:none;
+}
+.donut-num {
+  font-family:var(--font-h); font-size:1.5rem; font-weight:800;
+  color:#90e0ef; text-shadow:0 0 16px rgba(0,180,216,0.8);
+  line-height:1;
+}
+.donut-sub { font-size:0.62rem; color:var(--text-mid); margin-top:2px; }
+
+/* ─── TABLA COMPACTA (centro abajo) ─── */
+.table-widget {
+  width:100%;
+  padding:18px 22px 16px;
+  border-radius:20px;
+  animation: fadeInUp 0.7s ease 0.4s both;
+  flex-shrink:0;
+}
+
+.table-top {
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:14px;
+}
+
+.sec-title {
+  font-family:var(--font-h); font-size:0.88rem; font-weight:700;
+  color:#fff; display:flex; align-items:center; gap:8px;
+}
+.sec-title small { font-size:0.66rem; color:var(--text-dim); font-weight:400; font-family:var(--font-b); }
+
+.search-box {
+  padding:7px 14px; border-radius:30px;
+  border:1px solid rgba(255,255,255,0.20);
+  background:rgba(255,255,255,0.09); backdrop-filter:blur(12px);
+  font-size:0.75rem; font-family:var(--font-b);
+  color:#fff; outline:none; width:170px; transition:all 0.2s;
+}
+.search-box::placeholder { color:var(--text-dim); }
+.search-box:focus {
+  border-color:rgba(0,180,216,0.45);
+  box-shadow:0 0 0 3px rgba(0,180,216,0.10);
+}
+
+table { width:100%; border-collapse:collapse; }
+th {
+  text-align:left; font-size:0.60rem; text-transform:uppercase;
+  letter-spacing:0.12em; color:var(--text-dim);
+  padding:0 10px 10px; font-weight:600;
+  border-bottom:1px solid rgba(255,255,255,0.08);
+}
+td {
+  padding:11px 10px; font-size:0.78rem; color:var(--text-mid);
+  border-bottom:1px solid rgba(255,255,255,0.05);
+  vertical-align:middle;
+}
+tr:last-child td { border-bottom:none; }
+tbody tr:hover td { background:rgba(0,180,216,0.05); color:#fff; }
+
+.pac-cell { display:flex; align-items:center; gap:9px; }
+.pac-av {
+  width:30px; height:30px; border-radius:9px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:0.60rem; font-weight:700; color:#023e8a; flex-shrink:0;
+}
+.pac-name { font-size:0.78rem; font-weight:600; color:#fff; }
+.pac-id   { font-size:0.63rem; color:var(--text-dim); }
+
+/* ─── TAGS VIDRIO ESMERILADO ─── */
+.tag {
+  display:inline-flex; align-items:center; gap:4px;
+  padding:4px 11px; border-radius:30px;
+  font-size:0.64rem; font-weight:700; letter-spacing:0.02em;
+  backdrop-filter:blur(12px) saturate(180%);
+  -webkit-backdrop-filter:blur(12px) saturate(180%);
+  position:relative; overflow:hidden;
+}
+.tag::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:50%;
+  background:linear-gradient(180deg,rgba(255,255,255,0.22),transparent);
+  border-radius:30px 30px 0 0; pointer-events:none;
+}
+.tag-ok  { background:rgba(144,224,239,0.16); color:#caf0f8; border:1px solid rgba(144,224,239,0.30); box-shadow:inset 0 1px 1px rgba(255,255,255,0.25); }
+.tag-alt { background:rgba(255,138,101,0.16); color:#ffccbc; border:1px solid rgba(255,138,101,0.28); box-shadow:inset 0 1px 1px rgba(255,255,255,0.20); }
+.tag-rev { background:rgba(255,224,130,0.14); color:#fff9c4; border:1px solid rgba(255,224,130,0.26); box-shadow:inset 0 1px 1px rgba(255,255,255,0.20); }
+.tag-pro { background:rgba(0,180,216,0.18);   color:#b3e5fc; border:1px solid rgba(0,180,216,0.32);   box-shadow:inset 0 1px 1px rgba(255,255,255,0.25); }
+</style>
+</head>
+<body>
+
+<!-- VIDEO FONDO -->
+<div class="video-bg">
+  <video autoplay muted loop playsinline>
+    <source src="video fondo marino.mp4" type="video/mp4">
+  </video>
+</div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-cube">
+      <svg width="18" height="18" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+    </div>
+    <div class="logo-name">Ocean<span>Lab</span></div>
+  </div>
+
+  <div class="nav-label">Principal</div>
+  <div class="nav-item active">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5" stroke-width="1.8"/><rect x="14" y="3" width="7" height="7" rx="1.5" stroke-width="1.8"/><rect x="3" y="14" width="7" height="7" rx="1.5" stroke-width="1.8"/><rect x="14" y="14" width="7" height="7" rx="1.5" stroke-width="1.8"/></svg>
+    Dashboard
+  </div>
+  <div class="nav-item">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="1.8" d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4" stroke-width="1.8"/></svg>
+    Pacientes
+  </div>
+  <div class="nav-item">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="1.8" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+    Análisis
+  </div>
+  <div class="nav-item">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="1.8" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+    Reportes
+  </div>
+
+  <div class="nav-label">Laboratorio</div>
+  <div class="nav-item">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="1.8" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+    Muestras
+  </div>
+  <div class="nav-item">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" stroke-width="1.8"/><path stroke-width="1.8" d="M12 8v4l3 3"/></svg>
+    Historial
+  </div>
+
+  <div class="sidebar-bottom">
+    <div class="user-row">
+      <div class="user-av">DR</div>
+      <div>
+        <div class="user-name">Dra. Ramírez</div>
+        <div class="user-role">Jefe Lab.</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div>
+      <div class="page-title">Dashboard <span>Marino</span></div>
+      <div class="page-sub">Miércoles, 28 mayo 2026 · Turno Matutino</div>
+    </div>
+    <div class="topbar-right">
+      <div class="pill-live">
+        <div class="dot-wrap"><div class="dot"></div><div class="dot-ring"></div></div>
+        En vivo
+      </div>
+      <button class="btn btn-primary">+ Nueva Muestra</button>
+    </div>
+  </div>
+
+  <!-- CONTENT: IZQUIERDA — CENTRO — DERECHA -->
+  <div class="content">
+
+    <!-- COLUMNA IZQUIERDA -->
+    <div class="col-left">
+
+      <div class="glass kpi-card c-aqua" style="animation-delay:0.10s">
+        <div class="kpi-orb"></div>
+        <div class="kpi-top">
+          <div class="kpi-icon icon-aqua">
+            <svg width="20" height="20" fill="none" stroke="#90e0ef" stroke-width="1.8" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+          </div>
+          <span class="kpi-badge badge-up">↑ 12%</span>
+        </div>
+        <div class="kpi-value color-aqua">1,284</div>
+        <div class="kpi-label">Pacientes Activos</div>
+      </div>
+
+      <div class="glass kpi-card c-deep" style="animation-delay:0.18s">
+        <div class="kpi-orb"></div>
+        <div class="kpi-top">
+          <div class="kpi-icon icon-deep">
+            <svg width="20" height="20" fill="none" stroke="#48cae4" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3"/></svg>
+          </div>
+          <span class="kpi-badge badge-warn">⚠ 3</span>
+        </div>
+        <div class="kpi-value color-deep">42</div>
+        <div class="kpi-label">Resultados Pendientes</div>
+      </div>
+
+      <!-- Widget Donut -->
+      <div class="glass widget" style="animation-delay:0.26s">
+        <div class="widget-title">
+          Distribución <small>Por tipo</small>
+        </div>
+        <div class="donut-wrap">
+          <canvas id="donut" style="max-height:160px;max-width:160px;"></canvas>
+          <div class="donut-center">
+            <div class="donut-num">347</div>
+            <div class="donut-sub">análisis</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- COLUMNA CENTRO — ABIERTA, solo océano visible -->
+    <div class="col-center"></div>
+
+    <!-- COLUMNA DERECHA -->
+    <div class="col-right">
+
+      <div class="glass kpi-card c-teal" style="animation-delay:0.14s">
+        <div class="kpi-orb"></div>
+        <div class="kpi-top">
+          <div class="kpi-icon icon-teal">
+            <svg width="20" height="20" fill="none" stroke="#caf0f8" stroke-width="1.8" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+          </div>
+          <span class="kpi-badge badge-up">↑ 8%</span>
+        </div>
+        <div class="kpi-value color-teal">347</div>
+        <div class="kpi-label">Análisis Hoy</div>
+      </div>
+
+      <div class="glass kpi-card c-foam" style="animation-delay:0.22s">
+        <div class="kpi-orb"></div>
+        <div class="kpi-top">
+          <div class="kpi-icon icon-foam">
+            <svg width="20" height="20" fill="none" stroke="#fff" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <span class="kpi-badge badge-ok">98.7%</span>
+        </div>
+        <div class="kpi-value color-foam">2,891</div>
+        <div class="kpi-label">Resultados Este Mes</div>
+      </div>
+
+      <!-- Widget Línea de tiempo -->
+      <div class="glass widget" style="animation-delay:0.30s">
+        <div class="widget-title">
+          Semana <small>Últimos 7 días</small>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="linea"></canvas>
+        </div>
+      </div>
+
+    </div>
+
+  </div><!-- /content -->
+
+</main>
+
+<script>
+// ─── DONUT ───
+const ctxD = document.getElementById('donut').getContext('2d');
+new Chart(ctxD, {
+  type: 'doughnut',
+  data: {
+    labels: ['Hematología','Bioquímica','Orina','Tiroides'],
+    datasets:[{
+      data: [38, 30, 20, 12],
+      backgroundColor:[
+        'rgba(0,180,216,0.75)',
+        'rgba(72,202,228,0.70)',
+        'rgba(144,224,239,0.65)',
+        'rgba(202,240,248,0.60)'
+      ],
+      borderColor:[
+        'rgba(0,180,216,0.90)',
+        'rgba(72,202,228,0.85)',
+        'rgba(144,224,239,0.80)',
+        'rgba(202,240,248,0.75)'
+      ],
+      borderWidth: 2,
+      hoverOffset: 8
+    }]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:true,
+    cutout:'72%',
+    plugins:{
+      legend:{
+        position:'bottom',
+        labels:{
+          color:'rgba(255,255,255,0.50)',
+          font:{ family:'Inter', size:10 },
+          boxWidth:8, boxHeight:8,
+          padding:8
+        }
+      },
+      tooltip:{
+        backgroundColor:'rgba(2,62,138,0.90)',
+        borderColor:'rgba(0,180,216,0.40)',
+        borderWidth:1,
+        titleColor:'#caf0f8',
+        bodyColor:'#90e0ef',
+        padding:10, cornerRadius:12
+      }
+    }
+  }
+});
+
+// ─── LÍNEA ───
+const ctxL = document.getElementById('linea').getContext('2d');
+const gL = ctxL.createLinearGradient(0,0,0,140);
+gL.addColorStop(0,'rgba(0,180,216,0.50)');
+gL.addColorStop(1,'rgba(0,180,216,0.00)');
+
+new Chart(ctxL, {
+  type:'line',
+  data:{
+    labels:['L','M','M','J','V','S','D'],
+    datasets:[{
+      label:'Análisis',
+      data:[280,310,295,340,315,290,347],
+      borderColor:'#00b4d8',
+      backgroundColor:gL,
+      borderWidth:2.5,
+      pointBackgroundColor:'#023e8a',
+      pointBorderColor:'#00b4d8',
+      pointBorderWidth:2,
+      pointRadius:4, pointHoverRadius:7,
+      tension:0.45, fill:true
+    }]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    interaction:{ intersect:false, mode:'index' },
+    plugins:{
+      legend:{ display:false },
+      tooltip:{
+        backgroundColor:'rgba(2,62,138,0.90)',
+        borderColor:'rgba(0,180,216,0.40)',
+        borderWidth:1,
+        titleColor:'#caf0f8',
+        bodyColor:'#90e0ef',
+        padding:10, cornerRadius:12
+      }
+    },
+    scales:{
+      x:{ grid:{color:'rgba(255,255,255,0.05)',drawBorder:false}, ticks:{color:'rgba(255,255,255,0.30)',font:{family:'Inter',size:10}}, border:{display:false} },
+      y:{ grid:{color:'rgba(255,255,255,0.05)',drawBorder:false}, ticks:{color:'rgba(255,255,255,0.30)',font:{family:'Inter',size:10}}, border:{display:false} }
+    }
+  }
+});
+
+document.querySelectorAll('.nav-item:not(.active)').forEach(el=>{
+  el.addEventListener('click',function(){
+    document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>
