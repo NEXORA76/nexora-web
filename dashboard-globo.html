@@ -30,23 +30,32 @@
   background:var(--bg);
 }
 .video-bg video {
-  width:100%; height:100%; object-fit:cover;
-  transform:translateZ(0); will-change:transform;
+  position:absolute;
+  right:-2%; top:50%; width:78%; height:auto;
+  transform:translateY(-50%) translateZ(0);
+  will-change:transform;
 }
-/* Overlay oscuro para legibilidad de los charts */
+/* Degradado oscuro izquierda → transparente derecha */
 .video-bg::after {
   content:''; position:absolute; inset:0;
-  background:rgba(4,8,18,0.60);
+  background: linear-gradient(
+    to right,
+    rgba(8,14,26,1.00)  0%,
+    rgba(8,14,26,0.96) 28%,
+    rgba(8,14,26,0.45) 50%,
+    rgba(8,14,26,0.05) 68%,
+    rgba(8,14,26,0.00) 82%
+  );
 }
 /* Luz atmosférica cyan sobre el globo */
 .video-bg::before {
   content:''; position:absolute; z-index:1;
   inset:0;
   background: radial-gradient(
-    ellipse at 62% 48%,
-    rgba(0,150,255,0.18) 0%,
-    rgba(0,80,200,0.08) 35%,
-    transparent 65%
+    ellipse at 68% 44%,
+    rgba(0,160,255,0.22) 0%,
+    rgba(0,80,200,0.10) 35%,
+    transparent 62%
   );
   pointer-events:none;
 }
