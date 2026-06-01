@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>World Population — Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts-liquidfill/dist/echarts-liquidfill.min.js"></script>
+<style>
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+:root {
+  --fh:'Space Grotesk',sans-serif;
+  --fb:'Inter',sans-serif;
+  --c1:#00d4ff; --c2:#00ff88; --c3:#f59e0b; --c4:#f472b6; --c5:#818cf8;
+}
+
+@keyframes fadeInLeft { from{opacity:0;transform:translateX(-24px)} to{opacity:1;transform:translateX(0)} }
+@keyframes fadeIn     { from{opacity:0} to{opacity:1} }
+@keyframes fadeInUp   { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+@keyframes floatPin   { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+@keyframes countUp    { from{opacity:0;transform:scale(.8)} to{opacity:1;transform:scale(1)} }
+@keyframes pulseRing  { 0%{transform:scale(.8);opacity:.9} 100%{transform:scale(3);opacity:0} }
+@keyframes blink      { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+/* ── VIDEO BG ── */
+.video-bg {
+  position:fixed; inset:0; z-index:0; overflow:hidden;
+  background:#04080f;
+}
+.video-bg video {
+  position:absolute; right:-2%; top:50%;
+  width:75%; height:auto;
+  transform:translateY(-50%) translateZ(0);
+  will-change:transform;
+}
+.video-bg::before {
+  content:''; position:absolute; z-index:1;
+  right:0; top:0; width:75%; height:100%;
+  background: radial-gradient(ellipse at 65% 38%,
+    rgba(0,180,255,0.18) 0%, rgba(0,80,160,0.10) 35%, transparent 65%);
+  pointer-events:none;
+}
+.video-bg::after {
+  content:''; position:absolute; inset:0; z-index:2;
+  background: linear-gradient(to right,
+    rgba(4,8,15,1.0) 0%,
+    rgba(4,8,15,0.97) 28%,
+    rgba(4,8,15,0.42) 46%,
+    rgba(4,8,15,0.05) 62%,
+    rgba(4,8,15,0.00) 100%
+  );
+}
+
+/* ── APP ── */
+.app { position:relative; z-index:3; display:flex; height:100vh; overflow:hidden; }
+
+/* ── ICON SIDEBAR ── */
+.icon-bar {
+  width:54px; flex-shrink:0;
+  display:flex; flex-direction:column; align-items:center;
+  padding:22px 0; gap:4px;
+  background:rgba(4,8,18,0.65);
+  border-right:1px solid rgba(0,212,255,0.08);
+  animation:fadeInLeft .5s ease both;
+}
+.icon-logo {
+  width:36px; height:36px; border-radius:10px; margin-bottom:18px;
+  background:linear-gradient(135deg,#00d4ff,#0055cc);
+  display:flex; align-items:center; justify-content:center; font-size:18px;
+  box-shadow:0 4px 16px rgba(0,212,255,.4);
+}
+.ib { width:34px; height:34px; border-radius:9px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:rgba(255,255,255,.30); transition:all .2s; }
+.ib:hover { background:rgba(0,212,255,.10); color:var(--c1); }
+.ib.active { background:rgba(0,212,255,.18); color:var(--c1); box-shadow:inset 0 0 0 1px rgba(0,212,255,.28); }
+.ib svg { width:16px; height:16px; }
+.ib-bot { margin-top:auto; display:flex; flex-direction:column; align-items:center; gap:4px; }
+
+/* ── LEFT PANEL ── */
+.left-panel {
+  width:320px; flex-shrink:0;
+  display:flex; flex-direction:column;
+  animation:fadeInLeft .6s ease both .08s;
+  background: rgba(4,8,18,0.68);
+  border-right:1px solid rgba(0,212,255,0.10);
+  box-shadow: inset 1px 0 0 rgba(255,255,255,0.04), 4px 0 28px rgba(0,0,0,.35);
+}
+
+.panel-header {
+  padding:16px 20px 12px;
+  background:linear-gradient(180deg,rgba(0,212,255,0.05) 0%,transparent 100%);
+  border-bottom:1px solid rgba(0,212,255,0.10);
+  position:relative;
+  flex-shrink:0;
+}
+.panel-header::after {
+  content:''; position:absolute; bottom:0; left:16px; right:16px; height:1px;
+  background:linear-gradient(90deg,transparent,rgba(0,212,255,.35),transparent);
+}
+.panel-title {
+  font-family:var(--fh); font-size:10px; font-weight:700;
+  letter-spacing:2.5px; text-transform:uppercase;
+  color:rgba(255,255,255,.90);
+  text-shadow:0 0 18px rgba(0,212,255,.35);
+}
+.panel-sub {
+  font-size:11px; color:rgba(255,255,255,.38); margin-top:3px;
+  font-family:var(--fb); letter-spacing:.3px;
+}
+
+/* big world population number */
+.big-stat {
+  padding:14px 20px 10px;
+  border-bottom:1px solid rgba(0,212,255,0.07);
+  flex-shrink:0;
+  background:rgba(0,212,255,0.02);
+}
+.bs-label { font-size:9px; color:rgba(255,255,255,.35); text-transform:uppercase; letter-spacing:1.5px; font-family:var(--fb); }
+.bs-num {
+  font-family:var(--fh); font-size:36px; font-weight:800; color:#fff; line-height:1.1;
+  text-shadow:0 0 30px rgba(0,212,255,.25);
+  animation:countUp .8s ease both .4s;
+}
+.bs-num span { color:var(--c1); }
+.bs-change { font-size:11px; margin-top:3px; font-family:var(--fb); }
+.bs-change .up { color:var(--c2); } .bs-change .dim { color:rgba(255,255,255,.30); }
+
+/* chart sections */
+.chart-section {
+  flex:1; display:flex; flex-direction:column;
+  border-bottom:1px solid rgba(0,212,255,0.06);
+  position:relative; overflow:hidden;
+  background:linear-gradient(145deg, rgba(8,16,32,0.70) 0%, rgba(4,10,22,0.80) 100%);
+}
+.chart-section::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:1px;
+  background:linear-gradient(90deg,transparent,rgba(0,212,255,0.28),rgba(255,255,255,0.08),transparent);
+}
+.chart-section::after {
+  content:''; position:absolute; top:0; left:0; bottom:0; width:1px;
+  background:linear-gradient(180deg,transparent,rgba(0,212,255,0.18),transparent);
+}
+.cs-header { padding:10px 18px 4px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+.cs-title { font-family:var(--fh); font-size:9px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,.65); text-shadow:0 0 10px rgba(0,212,255,.20); }
+.cs-badge { font-size:9px; font-weight:600; padding:2px 7px; border-radius:50px; font-family:var(--fb); background:rgba(0,212,255,.12); color:var(--c1); border:1px solid rgba(0,212,255,.22); }
+.chart-div { flex:1; min-height:0; }
+
+/* ── GLOBE AREA ── */
+.globe-area { flex:1; position:relative; overflow:hidden; animation:fadeIn 1s ease both .2s; }
+
+/* top info bar */
+.globe-topbar {
+  position:absolute; top:0; left:0; right:0;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:16px 22px;
+  animation:fadeInUp .6s ease both .3s;
+}
+.globe-title { font-family:var(--fh); font-size:20px; font-weight:800; color:#fff; text-shadow:0 0 30px rgba(0,212,255,.3); }
+.globe-title span { color:var(--c1); }
+.globe-sub { font-size:11px; color:rgba(255,255,255,.40); margin-top:2px; font-family:var(--fb); }
+.live-pill {
+  display:flex; align-items:center; gap:7px;
+  background:rgba(4,8,18,0.85); border:1px solid rgba(0,212,255,.28);
+  border-radius:50px; padding:7px 14px;
+  font-size:11px; font-weight:600; color:var(--c1); font-family:var(--fb);
+}
+.dot { width:7px; height:7px; border-radius:50%; background:var(--c2); animation:blink 1.5s infinite; position:relative; }
+.dot::after { content:''; position:absolute; inset:0; border-radius:50%; border:2px solid var(--c2); animation:pulseRing 1.5s ease-out infinite; }
+
+/* scatter chart overlay */
+#scatterChart { position:absolute; inset:0; }
+
+/* floating city pins */
+.city-pin { position:absolute; animation:floatPin 4s ease-in-out infinite; cursor:pointer; }
+.city-card {
+  background:rgba(4,10,24,0.90);
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:8px; padding:8px 12px;
+  display:flex; align-items:center; gap:8px;
+  box-shadow:0 6px 24px rgba(0,0,0,.40);
+  white-space:nowrap;
+  position:relative; overflow:hidden;
+}
+.city-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:40%;
+  background:linear-gradient(180deg,rgba(255,255,255,.07),transparent);
+}
+.city-dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; position:relative; }
+.city-dot::after { content:''; position:absolute; inset:-3px; border-radius:50%; border:1.5px solid currentColor; animation:pulseRing 2.2s ease-out infinite; }
+.city-name { font-family:var(--fh); font-size:11px; font-weight:700; color:#fff; }
+.city-pop  { font-family:var(--fh); font-size:15px; font-weight:800; }
+.city-lbl  { font-size:9px; color:rgba(255,255,255,.40); font-family:var(--fb); }
+
+/* bottom stats */
+.globe-bottom {
+  position:absolute; bottom:20px; left:20px; right:20px;
+  display:grid; grid-template-columns:repeat(5,1fr); gap:10px;
+  animation:fadeInUp .7s ease both .5s;
+}
+.stat-card {
+  background:rgba(4,10,24,0.88);
+  border:1px solid rgba(0,212,255,0.15);
+  border-radius:14px; padding:12px 14px;
+  position:relative; overflow:hidden;
+  transition:all .2s;
+}
+.stat-card:hover { border-color:rgba(0,212,255,0.35); transform:translateY(-2px); }
+.stat-card::after {
+  content:''; position:absolute; bottom:0; left:0; right:0; height:2px;
+  border-radius:0 0 14px 14px;
+}
+.sc1::after { background:linear-gradient(90deg,transparent,var(--c1),transparent); }
+.sc2::after { background:linear-gradient(90deg,transparent,var(--c2),transparent); }
+.sc3::after { background:linear-gradient(90deg,transparent,var(--c3),transparent); }
+.sc4::after { background:linear-gradient(90deg,transparent,var(--c4),transparent); }
+.sc5::after { background:linear-gradient(90deg,transparent,var(--c5),transparent); }
+.stat-icon { font-size:18px; margin-bottom:6px; }
+.stat-val { font-family:var(--fh); font-size:18px; font-weight:800; color:#fff; line-height:1; }
+.stat-lbl { font-size:9px; color:rgba(255,255,255,.40); text-transform:uppercase; letter-spacing:.8px; margin-top:3px; font-family:var(--fb); }
+.stat-chg { font-size:10px; font-weight:600; margin-top:4px; font-family:var(--fh); }
+</style>
+</head>
+<body>
+
+<div class="video-bg">
+  <video autoplay muted loop playsinline>
+    <source src="GLOBO MAPA.mp4" type="video/mp4">
+  </video>
+</div>
+
+<div class="app">
+
+  <!-- ICON SIDEBAR -->
+  <div class="icon-bar">
+    <div class="icon-logo">🌍</div>
+    <div class="ib active">
+      <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+    </div>
+    <div class="ib">
+      <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
+    </div>
+    <div class="ib">
+      <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+    </div>
+    <div class="ib">
+      <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+    </div>
+    <div class="ib-bot">
+      <div class="ib">
+        <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg>
+      </div>
+      <div class="ib">
+        <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- LEFT PANEL -->
+  <div class="left-panel">
+    <div class="panel-header">
+      <div class="panel-title">World Population</div>
+      <div class="panel-sub">Estadísticas globales en tiempo real</div>
+    </div>
+
+    <!-- BIG NUMBER -->
+    <div class="big-stat">
+      <div class="bs-label">Población Mundial Total</div>
+      <div class="bs-num">8.<span>1</span>B</div>
+      <div class="bs-change">
+        <span class="up">↑ +0.9%</span>
+        <span class="dim"> · +73M personas este año</span>
+      </div>
+    </div>
+
+    <!-- CHART 1: Liquid Fill — Urbanización -->
+    <div class="chart-section" style="animation:fadeInLeft .6s ease both .15s">
+      <div class="cs-header">
+        <span class="cs-title">Urbanización Global</span>
+        <span class="cs-badge">57%</span>
+      </div>
+      <div id="liquidChart" class="chart-div"></div>
+    </div>
+
+    <!-- CHART 2: Sunburst — Continentes -->
+    <div class="chart-section" style="animation:fadeInLeft .6s ease both .25s">
+      <div class="cs-header">
+        <span class="cs-title">Distribución Continental</span>
+        <span class="cs-badge">7 regiones</span>
+      </div>
+      <div id="sunburstChart" class="chart-div"></div>
+    </div>
+
+    <!-- CHART 3: Horizontal bar — Top países -->
+    <div class="chart-section" style="animation:fadeInLeft .6s ease both .35s; border-bottom:none;">
+      <div class="cs-header">
+        <span class="cs-title">Top Países · Miles M</span>
+        <span class="cs-badge">2026</span>
+      </div>
+      <div id="barChart" class="chart-div"></div>
+    </div>
+  </div>
+
+  <!-- GLOBE AREA -->
+  <div class="globe-area">
+
+    <!-- TOP BAR -->
+    <div class="globe-topbar">
+      <div>
+        <div class="globe-title">Population <span>Density</span></div>
+        <div class="globe-sub">Distribución mundial · Actualizado en tiempo real</div>
+      </div>
+      <div class="live-pill">
+        <div class="dot"></div> Live Data
+      </div>
+    </div>
+
+    <!-- SCATTER EFFECT sobre el globo -->
+    <div id="scatterChart"></div>
+
+    <!-- CITY PINS flotantes -->
+    <div class="city-pin" style="top:16%;left:22%;animation-delay:0s">
+      <div class="city-card">
+        <div class="city-dot" style="background:#f59e0b;color:#f59e0b"></div>
+        <div>
+          <div class="city-name">Tokyo</div>
+          <div class="city-pop" style="color:#f59e0b">37.4M</div>
+          <div class="city-lbl">habitantes</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="city-pin" style="top:9%;left:52%;animation-delay:.7s">
+      <div class="city-card">
+        <div class="city-dot" style="background:#00d4ff;color:#00d4ff"></div>
+        <div>
+          <div class="city-name">Shanghai</div>
+          <div class="city-pop" style="color:#00d4ff">26.3M</div>
+          <div class="city-lbl">habitantes</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="city-pin" style="top:38%;left:40%;animation-delay:1.3s">
+      <div class="city-card">
+        <div class="city-dot" style="background:#f472b6;color:#f472b6"></div>
+        <div>
+          <div class="city-name">Mumbai</div>
+          <div class="city-pop" style="color:#f472b6">20.7M</div>
+          <div class="city-lbl">habitantes</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="city-pin" style="top:25%;left:68%;animation-delay:.4s">
+      <div class="city-card">
+        <div class="city-dot" style="background:#00ff88;color:#00ff88"></div>
+        <div>
+          <div class="city-name">São Paulo</div>
+          <div class="city-pop" style="color:#00ff88">22.4M</div>
+          <div class="city-lbl">habitantes</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTTOM STATS -->
+    <div class="globe-bottom">
+      <div class="stat-card sc1">
+        <div class="stat-icon">🌏</div>
+        <div class="stat-val" style="color:var(--c1)">4.8B</div>
+        <div class="stat-lbl">Área Asiática</div>
+        <div class="stat-chg" style="color:var(--c2)">↑ 59% mundial</div>
+      </div>
+      <div class="stat-card sc2">
+        <div class="stat-icon">🌍</div>
+        <div class="stat-val" style="color:var(--c2)">1.4B</div>
+        <div class="stat-lbl">África</div>
+        <div class="stat-chg" style="color:var(--c2)">↑ +2.5% año</div>
+      </div>
+      <div class="stat-card sc3">
+        <div class="stat-icon">🌎</div>
+        <div class="stat-val" style="color:var(--c3)">1.0B</div>
+        <div class="stat-lbl">Américas</div>
+        <div class="stat-chg" style="color:var(--c3)">↑ +0.8% año</div>
+      </div>
+      <div class="stat-card sc4">
+        <div class="stat-icon">👶</div>
+        <div class="stat-val" style="color:var(--c4)">26%</div>
+        <div class="stat-lbl">Menores 15</div>
+        <div class="stat-chg" style="color:var(--c4)">↓ -0.3%</div>
+      </div>
+      <div class="stat-card sc5">
+        <div class="stat-icon">📈</div>
+        <div class="stat-val" style="color:var(--c5)">73M</div>
+        <div class="stat-lbl">Crecimiento/año</div>
+        <div class="stat-chg" style="color:var(--c5)">2,300/hora</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const FH = "'Space Grotesk',sans-serif";
+const FB = "'Inter',sans-serif";
+const glow = (c,b=12) => ({ shadowBlur:b, shadowColor:c, shadowOffsetX:0, shadowOffsetY:0 });
+const TT = {
+  backgroundColor:'rgba(4,8,20,0.96)',
+  borderColor:'rgba(0,212,255,0.28)', borderWidth:1,
+  textStyle:{ color:'rgba(255,255,255,.88)', fontSize:11, fontFamily:FB },
+  extraCssText:'border-radius:10px;padding:10px 14px;box-shadow:0 8px 32px rgba(0,0,0,.5);'
+};
+
+// ══════════════════════════════════════════
+// LIQUID FILL — ola de urbanización
+// ══════════════════════════════════════════
+const liq = echarts.init(document.getElementById('liquidChart'), null, {renderer:'canvas'});
+liq.setOption({
+  backgroundColor:'transparent',
+  series:[{
+    type:'liquidFill',
+    data:[
+      { value:0.57, itemStyle:{ color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'rgba(0,212,255,0.95)'},{offset:1,color:'rgba(0,80,180,0.60)'}]) }},
+      { value:0.50, itemStyle:{ color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'rgba(0,180,255,0.65)'},{offset:1,color:'rgba(0,60,140,0.40)'}]) }},
+      { value:0.43, itemStyle:{ color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'rgba(0,140,220,0.45)'},{offset:1,color:'rgba(0,40,110,0.25)'}]) }},
+    ],
+    radius:'72%',
+    center:['50%','52%'],
+    outline:{
+      borderDistance:4,
+      itemStyle:{
+        borderWidth:3,
+        borderColor:'rgba(0,212,255,0.50)',
+        shadowBlur:20, shadowColor:'rgba(0,212,255,0.40)',
+      }
+    },
+    backgroundStyle:{
+      color:'rgba(0,20,60,0.50)',
+      borderWidth:1, borderColor:'rgba(0,212,255,0.15)',
+    },
+    label:{
+      formatter:'57%\nUrbanización',
+      fontSize:20, fontWeight:'800', fontFamily:FH,
+      color:'#fff',
+      textShadowBlur:16, textShadowColor:'rgba(0,212,255,0.6)',
+    },
+    ...glow('rgba(0,212,255,0.3)',20),
+  }]
+});
+
+// ══════════════════════════════════════════
+// SUNBURST — continentes → regiones
+// ══════════════════════════════════════════
+const sun = echarts.init(document.getElementById('sunburstChart'), null, {renderer:'canvas'});
+sun.setOption({
+  backgroundColor:'transparent',
+  tooltip:{ ...TT, trigger:'item', formatter:p=>`<b>${p.name}</b><br/>${p.value ? (p.value/1000).toFixed(1)+'B' : ''}` },
+  series:[{
+    type:'sunburst',
+    radius:['18%','88%'],
+    center:['50%','50%'],
+    sort:null,
+    emphasis:{ focus:'ancestor', itemStyle:{ shadowBlur:20, shadowColor:'rgba(0,212,255,0.5)' }},
+    data:[
+      {
+        name:'Asia', value:4800,
+        itemStyle:{ color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'#00d4ff'},{offset:1,color:'#0044cc'}]), ...glow('#00d4ff',16) },
+        children:[
+          { name:'China', value:1410, itemStyle:{ color:'rgba(0,200,255,0.85)' }},
+          { name:'India', value:1440, itemStyle:{ color:'rgba(0,160,240,0.80)' }},
+          { name:'SE Asia', value:680, itemStyle:{ color:'rgba(0,120,210,0.75)' }},
+          { name:'Otros', value:1270, itemStyle:{ color:'rgba(0,80,180,0.70)' }},
+        ]
+      },
+      {
+        name:'África', value:1400,
+        itemStyle:{ color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'#00ffaa'},{offset:1,color:'#006633'}]), ...glow('#00ff88',14) },
+        children:[
+          { name:'E. África', value:460, itemStyle:{ color:'rgba(0,255,140,0.85)' }},
+          { name:'O. África', value:420, itemStyle:{ color:'rgba(0,220,110,0.78)' }},
+          { name:'N. África', value:260, itemStyle:{ color:'rgba(0,180,90,0.72)' }},
+          { name:'Otros', value:260, itemStyle:{ color:'rgba(0,140,70,0.65)' }},
+        ]
+      },
+      {
+        name:'Europa', value:748,
+        itemStyle:{ color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'#818cf8'},{offset:1,color:'#3730a3'}]), ...glow('#818cf8',12) },
+        children:[
+          { name:'Occidental', value:290, itemStyle:{ color:'rgba(140,150,255,0.85)' }},
+          { name:'Oriental', value:290, itemStyle:{ color:'rgba(100,110,230,0.78)' }},
+          { name:'Otros', value:168, itemStyle:{ color:'rgba(80,90,200,0.70)' }},
+        ]
+      },
+      {
+        name:'Américas', value:1020,
+        itemStyle:{ color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'#f59e0b'},{offset:1,color:'#92400e'}]), ...glow('#f59e0b',12) },
+        children:[
+          { name:'Latinoam.', value:660, itemStyle:{ color:'rgba(250,170,40,0.85)' }},
+          { name:'N. América', value:360, itemStyle:{ color:'rgba(220,130,20,0.78)' }},
+        ]
+      },
+      {
+        name:'Oceanía', value:43,
+        itemStyle:{ color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'#f472b6'},{offset:1,color:'#9d174d'}]), ...glow('#f472b6',10) },
+      },
+    ],
+    label:{ rotate:'radial', fontSize:8, fontFamily:FB, color:'rgba(255,255,255,0.80)', minAngle:8 },
+    itemStyle:{ borderWidth:1.5, borderColor:'rgba(4,8,20,0.90)', borderRadius:3 },
+  }]
+});
+
+// ══════════════════════════════════════════
+// HORIZONTAL BAR — top 10 países
+// ══════════════════════════════════════════
+const bar = echarts.init(document.getElementById('barChart'), null, {renderer:'canvas'});
+const countries  = ['Nigeria','Brasil','Pakistán','Indonesia','EE.UU','Bangladesh','Rusia','India','China','(otros)'];
+const population = [230, 218, 230, 278, 340, 173, 144, 1440, 1410, 2200];
+const colors     = ['#f472b6','#f59e0b','#818cf8','#34d399','#00d4ff','#fb923c','#a78bfa','#4ade80','#38bdf8','rgba(255,255,255,0.25)'];
+
+bar.setOption({
+  backgroundColor:'transparent',
+  animation:true, animationDuration:1400, animationEasing:'elasticOut',
+  grid:{ top:4, right:52, bottom:8, left:4, containLabel:true },
+  tooltip:{ ...TT, trigger:'axis', axisPointer:{ type:'shadow' }, formatter:p=>`<b>${p[0].name}</b><br/>${(p[0].value/1000).toFixed(2)}B hab.` },
+  xAxis:{
+    type:'value', show:false,
+    max: d => d.max * 1.18,
+  },
+  yAxis:{
+    type:'category', data:countries,
+    axisLine:{ show:false }, axisTick:{ show:false },
+    axisLabel:{ color:'rgba(255,255,255,0.55)', fontSize:9, fontFamily:FB, fontWeight:'500' },
+  },
+  series:[
+    // track
+    {
+      type:'bar', barWidth:7, barGap:'-100%',
+      data: population.map(()=>3000),
+      itemStyle:{ color:'rgba(255,255,255,0.04)', borderRadius:[0,4,4,0] },
+      silent:true, animation:false,
+    },
+    // datos reales
+    {
+      type:'bar', barWidth:7,
+      data: population.map((v,i)=>({
+        value:v,
+        itemStyle:{
+          borderRadius:[0,4,4,0],
+          color: new echarts.graphic.LinearGradient(0,0,1,0,[
+            { offset:0,   color:colors[i] },
+            { offset:0.7, color:colors[i]+'cc' },
+            { offset:1,   color:colors[i]+'44' },
+          ]),
+          shadowBlur:12, shadowColor:colors[i], shadowOffsetX:0, shadowOffsetY:0,
+        }
+      })),
+      label:{
+        show:true, position:'right',
+        color:'rgba(255,255,255,0.55)', fontSize:8, fontFamily:FH, fontWeight:'600',
+        formatter: p => p.value >= 1000 ? (p.value/1000).toFixed(2)+'B' : p.value+'M',
+      },
+    }
+  ]
+});
+
+// ══════════════════════════════════════════
+// EFFECT SCATTER — ciudades pulsando sobre globo
+// ══════════════════════════════════════════
+const scatter = echarts.init(document.getElementById('scatterChart'), null, {renderer:'canvas'});
+scatter.setOption({
+  backgroundColor:'transparent',
+  animation:true,
+  xAxis:{ show:false, type:'value', min:0, max:100 },
+  yAxis:{ show:false, type:'value', min:0, max:100 },
+  series:[
+    {
+      type:'effectScatter',
+      coordinateSystem:'cartesian2d',
+      symbolSize: d => Math.sqrt(d[2]) * 2.5,
+      rippleEffect:{ brushType:'stroke', scale:4, period:3 },
+      label:{ show:false },
+      itemStyle:{ color:'rgba(0,212,255,0.85)', ...glow('#00d4ff',20) },
+      data:[
+        [72, 70, 100], // Tokyo
+        [85, 65, 85],  // Shanghai
+        [80, 55, 78],  // Beijing
+        [78, 52, 72],  // Delhi
+        [35, 58, 68],  // NYC
+        [38, 45, 60],  // São Paulo
+        [62, 68, 55],  // Moscow
+        [55, 72, 52],  // Istanbul
+        [58, 60, 48],  // Cairo
+        [68, 48, 44],  // Jakarta
+        [40, 65, 40],  // Mexico DF
+        [76, 58, 38],  // Osaka
+      ]
+    },
+    {
+      type:'effectScatter',
+      coordinateSystem:'cartesian2d',
+      symbolSize: d => Math.sqrt(d[2]) * 1.8,
+      rippleEffect:{ brushType:'fill', scale:3, period:4 },
+      label:{ show:false },
+      itemStyle:{ color:'rgba(0,255,136,0.70)', ...glow('#00ff88',16) },
+      data:[
+        [82, 58, 80], // Mumbai
+        [30, 62, 60], // Los Angeles
+        [54, 68, 50], // Paris
+        [55, 70, 46], // London
+        [88, 50, 42], // Sydney
+        [25, 55, 36], // Buenos Aires
+      ]
+    },
+    {
+      type:'effectScatter',
+      coordinateSystem:'cartesian2d',
+      symbolSize: d => Math.sqrt(d[2]) * 1.5,
+      rippleEffect:{ brushType:'fill', scale:2.5, period:5 },
+      label:{ show:false },
+      itemStyle:{ color:'rgba(244,114,182,0.75)', ...glow('#f472b6',14) },
+      data:[
+        [65, 72, 60], // Tehran
+        [70, 62, 50], // Dhaka
+        [45, 70, 44], // Chicago
+        [59, 65, 40], // Madrid
+        [60, 67, 36], // Rome
+        [50, 72, 32], // Berlin
+      ]
+    }
+  ]
+});
+
+// Resize
+window.addEventListener('resize', ()=>{
+  liq.resize(); sun.resize(); bar.resize(); scatter.resize();
+});
+</script>
+</body>
+</html>
