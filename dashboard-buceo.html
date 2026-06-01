@@ -3,283 +3,156 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ReefDive — Dashboard</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
+<title>Centro de Buceo — Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts-liquidfill@3.1.0/dist/echarts-liquidfill.min.js"></script>
 <style>
-*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
-:root {
-  --cyan:   #00c8f0;
-  --turq:   #00cfcf;
-  --coral:  #ff6b35;
-  --yellow: #ffd166;
-  --foam:   #ade8f4;
-  --deep:   #0a3d5c;
-  --fh: 'Space Grotesk', sans-serif;
-  --fb: 'Inter', sans-serif;
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --cyan:#00c8f0; --coral:#ff6b35; --yellow:#ffd166; --turq:#00cfcf; --green:#00ff88;
+  --fh:'Space Grotesk',sans-serif; --fb:'Inter',sans-serif;
 }
+@keyframes fadeInDown{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes floatPin{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes pulseRing{0%{transform:scale(.8);opacity:.9}100%{transform:scale(2.6);opacity:0}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 
-@keyframes fadeInLeft  { from{opacity:0;transform:translateX(-24px)} to{opacity:1;transform:translateX(0)} }
-@keyframes fadeInUp    { from{opacity:0;transform:translateY(20px)}   to{opacity:1;transform:translateY(0)} }
-@keyframes fadeIn      { from{opacity:0} to{opacity:1} }
-@keyframes blink       { 0%,100%{opacity:1} 50%{opacity:.3} }
-@keyframes pulseRing   { 0%{transform:scale(.8);opacity:.8} 100%{transform:scale(2.6);opacity:0} }
-@keyframes bubbleUp    { 0%{transform:translateY(0) scale(1);opacity:.7} 100%{transform:translateY(-140px) scale(.3);opacity:0} }
-@keyframes floatPin    { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
-@keyframes shimmer     { 0%{transform:translateX(-100%)} 100%{transform:translateX(200%)} }
-
-/* ── VIDEO HERO (fondo completo) ── */
-.video-bg {
-  position:fixed; inset:0; z-index:0; overflow:hidden;
+/* VIDEO HALF-SIDE */
+.video-bg{position:fixed;inset:0;z-index:0;background:#030d10;}
+.video-bg video{
+  position:absolute;right:-2%;top:50%;width:78%;height:auto;
+  transform:translateY(-50%) translateZ(0);will-change:transform;
 }
-.video-bg video {
-  width:100%; height:100%;
-  object-fit:cover; object-position:center 40%;
-  transform:translateZ(0);
-  will-change:transform;
-}
-.video-bg::after {
-  content:''; position:absolute; inset:0;
-  background: linear-gradient(
-    to right,
-    rgba(5,20,40,0.90) 0%,
-    rgba(5,20,40,0.85) 26%,
-    rgba(5,20,40,0.28) 44%,
-    rgba(5,20,40,0.04) 60%,
-    rgba(0,0,0,0.00) 100%
+.video-bg::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(to right,
+    rgba(3,13,16,0.88) 0%,
+    rgba(3,13,16,0.72) 28%,
+    rgba(3,13,16,0.20) 50%,
+    rgba(3,13,16,0.00) 62%
   );
 }
-
-/* ── BURBUJAS ── */
-.bubbles { position:fixed; inset:0; z-index:1; pointer-events:none; overflow:hidden; }
-.bubble  {
-  position:absolute; border-radius:50%;
-  border:1px solid rgba(173,232,244,.30);
-  background:rgba(0,200,240,.05);
-  animation:bubbleUp linear infinite;
+.video-bg::before{
+  content:'';position:absolute;z-index:1;inset:0;
+  background:radial-gradient(ellipse at 68% 46%,rgba(0,200,240,0.20) 0%,rgba(0,100,160,0.08) 35%,transparent 62%);
+  pointer-events:none;
 }
 
-/* ── APP ── */
-.app { position:relative; z-index:2; display:flex; height:100vh; overflow:hidden; }
+/* APP */
+.app{position:relative;z-index:2;display:flex;flex-direction:column;height:100vh;padding:12px 14px;gap:10px;overflow:hidden;}
 
-/* ── ICON SIDEBAR ── */
-.icon-bar {
-  width:56px; flex-shrink:0;
-  display:flex; flex-direction:column; align-items:center;
-  padding:24px 0;
-  background:rgba(5,15,30,0.60);
-  backdrop-filter:blur(20px);
-  border-right:1px solid rgba(0,200,240,0.10);
-  animation:fadeInLeft .5s ease both;
-  gap:6px;
-}
-.icon-logo {
-  width:36px; height:36px; border-radius:10px; margin-bottom:20px;
-  background:linear-gradient(135deg,#00c8f0,#0077b6);
-  display:flex; align-items:center; justify-content:center;
-  font-size:18px;
-  box-shadow:0 4px 14px rgba(0,200,240,.4);
-}
-.icon-btn {
-  width:36px; height:36px; border-radius:10px;
-  display:flex; align-items:center; justify-content:center;
-  cursor:pointer; color:rgba(255,255,255,.35);
-  transition:all .2s;
-}
-.icon-btn:hover { background:rgba(0,200,240,.12); color:var(--cyan); }
-.icon-btn.active { background:rgba(0,200,240,.20); color:var(--cyan); box-shadow:inset 0 0 0 1px rgba(0,200,240,.30); }
-.icon-btn svg { width:17px; height:17px; }
-.icon-bar-bottom { margin-top:auto; display:flex; flex-direction:column; align-items:center; gap:6px; }
-
-/* ── LEFT PANEL ── */
-.left-panel {
-  width:300px; flex-shrink:0;
-  display:flex; flex-direction:column;
-  padding:28px 20px;
-  gap:18px;
-  overflow-y:auto;
-  animation:fadeInLeft .6s ease both .08s;
-}
-.left-panel::-webkit-scrollbar { width:0; }
-
-.page-label { font-family:var(--fb); font-size:11px; color:rgba(255,255,255,.40); text-transform:uppercase; letter-spacing:1.5px; }
-.page-title { font-family:var(--fh); font-size:26px; font-weight:800; color:#fff; margin-top:4px; line-height:1.15; }
-.page-title span { color:var(--cyan); }
-
-/* big number */
-.big-num { font-family:var(--fh); font-size:52px; font-weight:800; color:#fff; line-height:1; }
-.big-num-sub { font-size:12px; color:rgba(255,255,255,.45); margin-top:4px; }
-
-/* ring stats */
-.ring-row { display:flex; gap:16px; }
-.ring-stat { flex:1; display:flex; align-items:center; gap:10px; }
-.ring-canvas-wrap { position:relative; width:52px; height:52px; flex-shrink:0; }
-.ring-canvas-wrap canvas { position:absolute; inset:0; }
-.ring-pct { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:var(--fh); font-size:12px; font-weight:700; color:#fff; }
-.ring-info-val { font-family:var(--fh); font-size:18px; font-weight:700; color:#fff; }
-.ring-info-lbl { font-size:11px; color:rgba(255,255,255,.45); }
-
-/* month table */
-.month-table { width:100%; border-collapse:collapse; }
-.month-table th { font-size:9px; text-transform:uppercase; letter-spacing:1px; color:rgba(255,255,255,.30); padding:0 0 8px; text-align:left; font-weight:500; }
-.month-table td { font-size:12px; color:rgba(255,255,255,.70); padding:6px 0; border-top:1px solid rgba(255,255,255,.05); }
-.month-table td:not(:first-child) { text-align:right; color:rgba(255,255,255,.50); }
-.month-table tr:hover td { color:#fff; }
-
-/* divider */
-.divider { height:1px; background:rgba(255,255,255,.07); flex-shrink:0; }
-
-/* destination bars */
-.dest-list { display:flex; flex-direction:column; gap:8px; }
-.dest-row { display:flex; align-items:center; gap:10px; }
-.dest-name {
-  font-size:12px; font-weight:600; color:#fff;
-  background:rgba(0,200,240,.14);
-  border:1px solid rgba(0,200,240,.22);
-  border-radius:8px; padding:5px 10px;
-  width:130px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-  font-family:var(--fb);
-}
-.dest-bar-wrap { flex:1; height:5px; background:rgba(255,255,255,.08); border-radius:4px; overflow:hidden; }
-.dest-bar { height:100%; border-radius:4px; }
-.dest-num { font-size:11px; color:rgba(255,255,255,.50); width:44px; text-align:right; font-family:var(--fb); }
-
-/* mini sparkline */
-.spark-card {
-  background:rgba(0,200,240,.08);
-  border:1px solid rgba(0,200,240,.18);
-  border-radius:16px; padding:14px 16px;
-}
-.spark-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
-.spark-title  { font-size:12px; color:rgba(255,255,255,.60); font-family:var(--fb); }
-.spark-val    { font-family:var(--fh); font-size:20px; font-weight:700; color:var(--cyan); }
-.spark-change { font-size:11px; color:var(--turq); }
-
-/* ── OCEAN AREA (right, with floating pins) ── */
-.ocean-area {
-  flex:1; position:relative; overflow:hidden;
-  animation:fadeIn 1s ease both .2s;
-}
-
-/* floating location pins */
-.pin {
-  position:absolute;
-  animation:floatPin 3s ease-in-out infinite;
-  cursor:pointer;
-  transition:transform .2s;
-}
-.pin:hover { transform:scale(1.08) !important; z-index:10; }
-.pin-bubble {
-  background:rgba(8,25,50,0.88);
-  border:1px solid rgba(0,200,240,.30);
+/* NAVBAR */
+.navbar{
+  display:flex;align-items:center;gap:14px;
+  padding:0 18px;height:48px;flex-shrink:0;
   border-radius:14px;
-  padding:10px 14px;
-  display:flex; align-items:center; gap:10px;
-  box-shadow:0 8px 28px rgba(0,0,0,.30), inset 0 1px 0 rgba(255,255,255,.12);
-  white-space:nowrap;
-  position:relative; overflow:hidden;
+  background:rgba(3,13,20,0.50);
+  border:1px solid rgba(0,200,240,0.18);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.07),0 4px 24px rgba(0,0,0,0.35);
+  position:relative;animation:fadeInDown .5s ease both;
 }
-.pin-bubble::before {
-  content:''; position:absolute; top:0; left:0; right:0; height:45%;
-  background:linear-gradient(180deg,rgba(255,255,255,.10),transparent);
-  border-radius:14px 14px 0 0;
+.navbar::before{
+  content:'';position:absolute;top:0;left:20px;right:20px;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(0,200,240,0.50),rgba(255,255,255,0.14),transparent);
 }
-.pin-icon { font-size:20px; flex-shrink:0; }
-.pin-info {}
-.pin-name { font-family:var(--fh); font-size:13px; font-weight:700; color:#fff; }
-.pin-num  { font-family:var(--fh); font-size:18px; font-weight:800; }
-.pin-sub  { font-size:10px; color:rgba(255,255,255,.45); }
-/* pin dot connector */
-.pin-dot {
-  width:10px; height:10px; border-radius:50%;
-  position:absolute; bottom:-6px; left:50%; transform:translateX(-50%);
-  box-shadow:0 0 10px currentColor;
-}
-.pin-dot::after {
-  content:''; position:absolute; inset:0; border-radius:50%;
-  border:2px solid currentColor;
-  animation:pulseRing 1.8s ease-out infinite;
+.nav-icon{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#00c8f0,#005588);display:flex;align-items:center;justify-content:center;font-size:15px;box-shadow:0 0 14px rgba(0,200,240,0.40);}
+.nav-title{font-family:var(--fh);font-size:13px;font-weight:700;color:#fff;}
+.nav-title span{color:var(--cyan);}
+.nav-sep{width:1px;height:24px;background:rgba(0,200,240,0.14);margin:0 2px;}
+.nav-links{display:flex;gap:3px;}
+.nav-link{font-family:var(--fb);font-size:11px;color:rgba(255,255,255,.38);padding:5px 12px;border-radius:7px;cursor:pointer;transition:all .2s;}
+.nav-link:hover{background:rgba(0,200,240,.07);color:rgba(255,255,255,.70);}
+.nav-link.active{background:rgba(0,200,240,.13);color:var(--cyan);border:1px solid rgba(0,200,240,.22);}
+.nav-right{margin-left:auto;display:flex;align-items:center;gap:10px;}
+.nav-date{font-family:var(--fb);font-size:11px;color:rgba(255,255,255,.32);}
+.nav-conds{display:flex;gap:6px;}
+.cond-tag{font-family:var(--fb);font-size:10px;font-weight:600;padding:3px 9px;border-radius:50px;background:rgba(0,200,240,0.10);border:1px solid rgba(0,200,240,0.20);color:rgba(255,255,255,.70);}
+.nav-live{display:flex;align-items:center;gap:6px;background:rgba(0,255,136,0.08);border:1px solid rgba(0,255,136,0.22);border-radius:50px;padding:4px 11px;font-family:var(--fb);font-size:10px;font-weight:600;color:var(--green);}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:blink 1.4s infinite;}
+
+/* GRID */
+.main-grid{
+  flex:1;min-height:0;
+  display:grid;
+  grid-template-columns:190px 190px 1fr 210px;
+  grid-template-rows:1fr 1fr;
+  gap:10px;
 }
 
-/* bottom stats bar */
-.ocean-bottom {
-  position:absolute; bottom:24px; left:24px; right:24px;
-  display:flex; gap:14px;
-  animation:fadeInUp .7s ease both .5s;
-}
-.stat-pill {
-  flex:1;
-  background:rgba(8,25,50,0.88);
-  border:1px solid rgba(0,200,240,.18);
+/* GLASS CARD */
+.gc{
   border-radius:16px;
-  padding:14px 18px;
-  display:flex; align-items:center; gap:12px;
-  box-shadow:0 4px 20px rgba(0,0,0,.20), inset 0 1px 0 rgba(255,255,255,.10);
-  position:relative; overflow:hidden;
+  background:rgba(3,13,20,0.40);
+  border:1px solid rgba(0,200,240,0.16);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.07),inset 1px 0 0 rgba(0,200,240,0.08),0 8px 32px rgba(0,0,0,0.28);
+  position:relative;overflow:hidden;animation:fadeIn .7s ease both;
 }
-.stat-pill::after {
-  content:''; position:absolute; bottom:0; left:0; right:0; height:2px;
-  border-radius:0 0 16px 16px;
+.gc::before{
+  content:'';position:absolute;top:0;left:14px;right:14px;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(0,200,240,0.55),rgba(255,255,255,0.12),transparent);
 }
-.sp-cyan::after  { background:linear-gradient(90deg,transparent,var(--cyan),transparent); }
-.sp-coral::after { background:linear-gradient(90deg,transparent,var(--coral),transparent); }
-.sp-yellow::after{ background:linear-gradient(90deg,transparent,var(--yellow),transparent); }
-.sp-turq::after  { background:linear-gradient(90deg,transparent,var(--turq),transparent); }
+.gc::after{
+  content:'';position:absolute;top:14px;left:0;bottom:14px;width:1px;
+  background:linear-gradient(180deg,transparent,rgba(0,200,240,0.25),rgba(0,200,240,0.12),transparent);
+}
+.gc-glow{position:absolute;top:0;left:0;right:0;height:40%;background:linear-gradient(180deg,rgba(255,255,255,0.034) 0%,transparent 100%);pointer-events:none;border-radius:16px 16px 0 0;z-index:1;}
+.gc-header{display:flex;align-items:center;justify-content:space-between;padding:11px 15px 5px;position:relative;z-index:2;}
+.gc-title{font-family:var(--fh);font-size:9px;font-weight:700;color:rgba(255,255,255,.62);letter-spacing:2px;text-transform:uppercase;text-shadow:0 0 10px rgba(0,200,240,.22);}
+.gc-badge{font-size:9px;font-weight:600;padding:2px 7px;border-radius:50px;font-family:var(--fb);background:rgba(0,200,240,.10);color:var(--cyan);border:1px solid rgba(0,200,240,.22);}
+.gc-badge.coral{background:rgba(255,107,53,.10);color:var(--coral);border-color:rgba(255,107,53,.22);}
+.gc-badge.yellow{background:rgba(255,209,102,.10);color:var(--yellow);border-color:rgba(255,209,102,.22);}
+.gc-badge.green{background:rgba(0,255,136,.10);color:var(--green);border-color:rgba(0,255,136,.22);}
+.chart-fill{position:absolute;inset:38px 0 0 0;z-index:2;}
 
-.stat-pill-icon { width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-.sp-cyan   .stat-pill-icon { background:rgba(0,200,240,.15); }
-.sp-coral  .stat-pill-icon { background:rgba(255,107,53,.15); }
-.sp-yellow .stat-pill-icon { background:rgba(255,209,102,.15); }
-.sp-turq   .stat-pill-icon { background:rgba(0,207,207,.15); }
-.stat-pill-val  { font-family:var(--fh); font-size:22px; font-weight:800; color:#fff; line-height:1; }
-.stat-pill-lbl  { font-size:11px; color:rgba(255,255,255,.45); margin-top:3px; }
-.stat-pill-badge { margin-left:auto; font-size:11px; font-weight:600; padding:3px 8px; border-radius:50px; font-family:var(--fb); }
-.badge-up   { background:rgba(0,207,207,.18); color:var(--turq); }
-.badge-warn { background:rgba(255,107,53,.18); color:var(--coral); }
-.badge-yel  { background:rgba(255,209,102,.18); color:var(--yellow); }
+/* CARD 1 — Big stat + LiquidFills (col1, row1+2) */
+.card-left{grid-column:1;grid-row:1/span 2;display:flex;flex-direction:column;animation-delay:.05s;}
+.big-block{padding:16px 16px 10px;border-bottom:1px solid rgba(0,200,240,0.08);flex-shrink:0;position:relative;z-index:2;}
+.bs-label{font-family:var(--fb);font-size:9px;color:rgba(255,255,255,.32);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px;}
+.bs-num{font-family:var(--fh);font-size:28px;font-weight:800;color:#fff;line-height:1;text-shadow:0 0 24px rgba(0,200,240,.22);}
+.bs-num em{color:var(--cyan);font-style:normal;}
+.bs-chg{font-family:var(--fb);font-size:11px;margin-top:5px;}
+.bs-up{color:var(--green);font-weight:600;}
+.bs-dim{color:rgba(255,255,255,.28);}
+.liquid-grid{flex:1;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:0;position:relative;z-index:2;}
+.liq-cell{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 0;border-right:1px solid rgba(0,200,240,0.07);border-bottom:1px solid rgba(0,200,240,0.07);}
+.liq-cell:nth-child(2n){border-right:none;}
+.liq-cell:nth-child(3),.liq-cell:nth-child(4){border-bottom:none;}
+.liq-chart{width:68px;height:68px;position:relative;}
+.liq-lbl{font-family:var(--fh);font-size:9px;font-weight:700;color:rgba(255,255,255,.55);margin-top:4px;text-align:center;letter-spacing:.5px;}
 
-/* top-right live pill */
-.topright {
-  position:absolute; top:24px; right:24px;
-  display:flex; align-items:center; gap:10px;
-  animation:fadeIn .8s ease both .3s;
-}
-.pill-live {
-  display:flex; align-items:center; gap:7px;
-  background:rgba(8,25,50,0.88);
-  border:1px solid rgba(0,207,207,.30);
-  border-radius:50px; padding:7px 16px;
-  font-size:12px; font-weight:500; color:var(--turq);
-  font-family:var(--fb);
-}
-.dot-wrap { position:relative; width:8px; height:8px; }
-.dot { width:8px; height:8px; border-radius:50%; background:var(--turq); animation:blink 1.5s infinite; }
-.dot-ring { position:absolute; inset:0; border-radius:50%; border:2px solid var(--turq); animation:pulseRing 1.5s ease-out infinite; }
-.btn {
-  border:none; cursor:pointer; font-family:var(--fb); font-weight:600;
-  border-radius:12px; padding:9px 18px; font-size:13px;
-  background:linear-gradient(135deg,#00c8f0,#0077b6);
-  color:#fff; box-shadow:0 4px 20px rgba(0,200,240,.35);
-  transition:all .2s;
-}
-.btn:hover { transform:translateY(-1px); box-shadow:0 6px 24px rgba(0,200,240,.5); }
+/* CARD 2 — Track bars destinos (col2, row1+2) */
+.card-destinos{grid-column:2;grid-row:1/span 2;animation-delay:.10s;}
 
-/* condition badge top-left of ocean */
-.condition-bar {
-  position:absolute; top:24px; left:24px;
-  display:flex; gap:10px;
-  animation:fadeIn .8s ease both .4s;
-}
-.cond-pill {
-  background:rgba(8,25,50,0.88);
-  border:1px solid rgba(0,200,240,.18);
-  border-radius:12px; padding:8px 14px;
-  font-size:12px; color:rgba(255,255,255,.75);
-  font-family:var(--fb);
-  display:flex; align-items:center; gap:6px;
-}
-.cond-pill strong { color:var(--foam); font-weight:600; }
+/* CARD 3 — Area sparkline (col3, row1) */
+.card-spark{grid-column:3;grid-row:1;animation-delay:.15s;}
+
+/* CARD 4 — KPI pills (col4, row1+2) */
+.card-kpis{grid-column:4;grid-row:1/span 2;display:flex;flex-direction:column;animation-delay:.20s;}
+.kpi-list{flex:1;display:flex;flex-direction:column;gap:0;padding:0 14px 14px;}
+.kpi-row{flex:1;display:flex;flex-direction:column;justify-content:center;padding:10px 0;border-bottom:1px solid rgba(0,200,240,0.07);}
+.kpi-row:last-child{border-bottom:none;}
+.kr-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;}
+.kr-icon{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;}
+.kr-badge{font-family:var(--fb);font-size:9px;font-weight:700;padding:2px 7px;border-radius:50px;}
+.badge-up{background:rgba(0,255,136,.12);color:#00ff88;border:1px solid rgba(0,255,136,.22);}
+.badge-full{background:rgba(255,107,53,.12);color:var(--coral);border:1px solid rgba(255,107,53,.22);}
+.badge-yel{background:rgba(255,209,102,.12);color:var(--yellow);border:1px solid rgba(255,209,102,.22);}
+.badge-star{background:rgba(0,207,207,.12);color:var(--turq);border:1px solid rgba(0,207,207,.22);}
+.kr-val{font-family:var(--fh);font-size:22px;font-weight:800;color:#fff;line-height:1;text-shadow:0 0 18px rgba(0,200,240,.20);}
+.kr-lbl{font-family:var(--fb);font-size:10px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.8px;margin-top:3px;}
+.kr-bar{height:2px;border-radius:3px;margin-top:6px;}
+
+/* CARD 5 — Tabla meses (col3, row2) */
+.card-tabla{grid-column:3;grid-row:2;display:flex;flex-direction:column;animation-delay:.25s;}
+.month-grid{flex:1;display:grid;grid-template-columns:repeat(5,1fr);padding:0 14px 14px;gap:8px;align-content:center;}
+.mg-col{display:flex;flex-direction:column;gap:5px;}
+.mg-head{font-family:var(--fh);font-size:8px;font-weight:700;color:rgba(255,255,255,.40);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;}
+.mg-cell{font-family:var(--fh);font-size:12px;font-weight:700;color:rgba(255,255,255,.80);padding:5px 0;}
+.mg-cell.up{color:var(--cyan);}
+.mg-cell.trend-up{color:var(--green);}
+.mg-sep{height:1px;background:rgba(0,200,240,0.08);}
 </style>
 </head>
 <body>
@@ -290,335 +163,264 @@
   </video>
 </div>
 
-<div class="bubbles">
-  <div class="bubble" style="width:10px;height:10px;left:40%;bottom:-10px;animation-duration:8s;animation-delay:0s"></div>
-  <div class="bubble" style="width:7px;height:7px;left:55%;bottom:-10px;animation-duration:11s;animation-delay:2s"></div>
-  <div class="bubble" style="width:14px;height:14px;left:65%;bottom:-10px;animation-duration:9s;animation-delay:1s"></div>
-  <div class="bubble" style="width:6px;height:6px;left:72%;bottom:-10px;animation-duration:7s;animation-delay:3s"></div>
-  <div class="bubble" style="width:9px;height:9px;left:80%;bottom:-10px;animation-duration:12s;animation-delay:1.5s"></div>
-  <div class="bubble" style="width:11px;height:11px;left:90%;bottom:-10px;animation-duration:8s;animation-delay:4s"></div>
-</div>
-
 <div class="app">
 
-  <!-- ICON SIDEBAR -->
-  <div class="icon-bar">
-    <div class="icon-logo">🤿</div>
-    <div class="icon-btn active">
-      <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="nav-icon">🤿</div>
+    <div class="nav-title">Buceo <span>Dashboard</span></div>
+    <div class="nav-sep"></div>
+    <div class="nav-links">
+      <div class="nav-link active">Overview</div>
+      <div class="nav-link">Reservas</div>
+      <div class="nav-link">Destinos</div>
+      <div class="nav-link">Instructores</div>
     </div>
-    <div class="icon-btn">
-      <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-    </div>
-    <div class="icon-btn">
-      <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
-    </div>
-    <div class="icon-btn">
-      <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-    </div>
-    <div class="icon-btn">
-      <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
-    </div>
-    <div class="icon-bar-bottom">
-      <div class="icon-btn">
-        <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+    <div class="nav-right">
+      <div class="nav-conds">
+        <span class="cond-tag">🌊 Oleaje 0.4m</span>
+        <span class="cond-tag">👁 Visib. 18m</span>
+        <span class="cond-tag">🌡 28°C</span>
       </div>
-      <div class="icon-btn">
-        <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>
+      <div class="nav-live"><div class="dot"></div>EN VIVO</div>
+    </div>
+  </nav>
+
+  <!-- GRID -->
+  <div class="main-grid">
+
+    <!-- CARD 1: BIG STAT + 4 LIQUIDFILLS -->
+    <div class="gc card-left" style="animation-delay:.05s">
+      <div class="gc-glow"></div>
+      <div class="big-block">
+        <div class="bs-label">Buceadores · Temporada</div>
+        <div class="bs-num">8,<em>430</em></div>
+        <div class="bs-chg"><span class="bs-up">▲ +22%</span><span class="bs-dim"> vs temporada anterior</span></div>
+      </div>
+      <div class="liquid-grid">
+        <div class="liq-cell">
+          <div class="liq-chart"><div id="liq1" style="position:absolute;inset:0"></div></div>
+          <div class="liq-lbl">Certificados</div>
+        </div>
+        <div class="liq-cell">
+          <div class="liq-chart"><div id="liq2" style="position:absolute;inset:0"></div></div>
+          <div class="liq-lbl">Principiantes</div>
+        </div>
+        <div class="liq-cell">
+          <div class="liq-chart"><div id="liq3" style="position:absolute;inset:0"></div></div>
+          <div class="liq-lbl">Ocupación</div>
+        </div>
+        <div class="liq-cell">
+          <div class="liq-chart"><div id="liq4" style="position:absolute;inset:0"></div></div>
+          <div class="liq-lbl">Satisfacción</div>
+        </div>
       </div>
     </div>
+
+    <!-- CARD 2: TRACK BARS DESTINOS -->
+    <div class="gc card-destinos" style="animation-delay:.10s">
+      <div class="gc-glow"></div>
+      <div class="gc-header">
+        <span class="gc-title">Top Destinos</span>
+        <span class="gc-badge coral">Temporada</span>
+      </div>
+      <div class="chart-fill" id="destChart"></div>
+    </div>
+
+    <!-- CARD 3: SPARKLINE DOBLE -->
+    <div class="gc card-spark" style="animation-delay:.15s">
+      <div class="gc-glow"></div>
+      <div class="gc-header">
+        <span class="gc-title">Tendencia de Reservas</span>
+        <span class="gc-badge green">+12% semana</span>
+      </div>
+      <div class="chart-fill" id="sparkLine"></div>
+    </div>
+
+    <!-- CARD 4: KPI PILLS -->
+    <div class="gc card-kpis" style="animation-delay:.20s">
+      <div class="gc-glow"></div>
+      <div class="gc-header"><span class="gc-title">Hoy</span></div>
+      <div class="kpi-list">
+        <div class="kpi-row">
+          <div class="kr-top">
+            <div class="kr-icon" style="background:rgba(0,200,240,.14)">🤿</div>
+            <span class="kr-badge badge-up">↑ 22%</span>
+          </div>
+          <div class="kr-val" style="color:var(--cyan)">84</div>
+          <div class="kr-lbl">Buceadores Hoy</div>
+          <div class="kr-bar" style="background:linear-gradient(90deg,var(--cyan),rgba(0,200,240,.08));width:84%"></div>
+        </div>
+        <div class="kpi-row">
+          <div class="kr-top">
+            <div class="kr-icon" style="background:rgba(255,107,53,.12)">🗺</div>
+            <span class="kr-badge badge-full">⚡ Lleno</span>
+          </div>
+          <div class="kr-val" style="color:var(--coral)">12</div>
+          <div class="kr-lbl">Tours Activos</div>
+          <div class="kr-bar" style="background:linear-gradient(90deg,var(--coral),rgba(255,107,53,.08));width:60%"></div>
+        </div>
+        <div class="kpi-row">
+          <div class="kr-top">
+            <div class="kr-icon" style="background:rgba(255,209,102,.12)">💰</div>
+            <span class="kr-badge badge-yel">↑ 14%</span>
+          </div>
+          <div class="kr-val" style="color:var(--yellow)">$6.4k</div>
+          <div class="kr-lbl">Ingresos del Día</div>
+          <div class="kr-bar" style="background:linear-gradient(90deg,var(--yellow),rgba(255,209,102,.08));width:72%"></div>
+        </div>
+        <div class="kpi-row">
+          <div class="kr-top">
+            <div class="kr-icon" style="background:rgba(0,207,207,.12)">⭐</div>
+            <span class="kr-badge badge-star">Top</span>
+          </div>
+          <div class="kr-val" style="color:var(--turq)">4.9★</div>
+          <div class="kr-lbl">Satisfacción</div>
+          <div class="kr-bar" style="background:linear-gradient(90deg,var(--turq),rgba(0,207,207,.08));width:98%"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CARD 5: TABLA MENSUAL -->
+    <div class="gc card-tabla" style="animation-delay:.25s">
+      <div class="gc-glow"></div>
+      <div class="gc-header">
+        <span class="gc-title">Resumen Mensual</span>
+        <span class="gc-badge yellow">Mayo 2026</span>
+      </div>
+      <div class="month-grid">
+        <div class="mg-col">
+          <div class="mg-head">Mes</div>
+          <div class="mg-sep"></div>
+          <div class="mg-cell">Abril</div>
+          <div class="mg-cell">Mayo</div>
+          <div class="mg-cell">Jun.est</div>
+        </div>
+        <div class="mg-col">
+          <div class="mg-head">Reservas</div>
+          <div class="mg-sep"></div>
+          <div class="mg-cell up">1,240</div>
+          <div class="mg-cell up">1,876</div>
+          <div class="mg-cell" style="color:rgba(255,255,255,.40)">~2,100</div>
+        </div>
+        <div class="mg-col">
+          <div class="mg-head">Únicos</div>
+          <div class="mg-sep"></div>
+          <div class="mg-cell">892</div>
+          <div class="mg-cell">1,340</div>
+          <div class="mg-cell" style="color:rgba(255,255,255,.40)">~1,500</div>
+        </div>
+        <div class="mg-col">
+          <div class="mg-head">Tend.</div>
+          <div class="mg-sep"></div>
+          <div class="mg-cell trend-up">↑18%</div>
+          <div class="mg-cell trend-up">↑31%</div>
+          <div class="mg-cell" style="color:rgba(255,255,255,.40)">↑12%</div>
+        </div>
+        <div class="mg-col">
+          <div class="mg-head">Total</div>
+          <div class="mg-sep"></div>
+          <div class="mg-cell">3,100</div>
+          <div class="mg-cell" style="color:var(--cyan)">5,280</div>
+          <div class="mg-cell" style="color:rgba(255,255,255,.40)">~6,000</div>
+        </div>
+      </div>
+    </div>
+
   </div>
-
-  <!-- LEFT PANEL -->
-  <div class="left-panel">
-
-    <div>
-      <div class="page-label">Centro de Buceo</div>
-      <div class="page-title">Estadísticas<br><span>Generales</span></div>
-    </div>
-
-    <div>
-      <div style="font-size:11px;color:rgba(255,255,255,.40);font-family:var(--fb);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Buceadores totales · Temporada</div>
-      <div class="big-num">8,430</div>
-      <div class="big-num-sub">+22% vs temporada anterior</div>
-    </div>
-
-    <!-- 2 ring stats -->
-    <div class="ring-row">
-      <div class="ring-stat">
-        <div class="ring-canvas-wrap">
-          <div id="ring1" style="position:absolute;inset:0;"></div>
-        </div>
-        <div class="ring-info">
-          <div class="ring-info-val">6,070</div>
-          <div class="ring-info-lbl">Certificados</div>
-        </div>
-      </div>
-      <div class="ring-stat">
-        <div class="ring-canvas-wrap">
-          <div id="ring2" style="position:absolute;inset:0;"></div>
-        </div>
-        <div class="ring-info">
-          <div class="ring-info-val">2,360</div>
-          <div class="ring-info-lbl">Principiantes</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="divider"></div>
-
-    <!-- Monthly table -->
-    <table class="month-table">
-      <thead>
-        <tr>
-          <th>Mes</th><th>Reservas</th><th>Únicos</th><th>Tend.</th><th>Total</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr><td>Abril</td><td>1,240</td><td>892</td><td style="color:var(--turq)">↑18%</td><td>3,100</td></tr>
-        <tr><td>Mayo</td><td>1,876</td><td>1,340</td><td style="color:var(--turq)">↑31%</td><td>5,280</td></tr>
-      </tbody>
-    </table>
-
-    <div class="divider"></div>
-
-    <!-- Destination bars -->
-    <div style="font-size:11px;color:rgba(255,255,255,.40);font-family:var(--fb);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Top Destinos</div>
-    <div class="dest-list">
-      <div class="dest-row">
-        <div class="dest-name" style="background:rgba(0,200,240,.18);border-color:rgba(0,200,240,.35)">🐠 Los Colorados</div>
-        <div class="dest-bar-wrap"><div class="dest-bar" style="width:88%;background:var(--cyan)"></div></div>
-        <div class="dest-num">2,840</div>
-      </div>
-      <div class="dest-row">
-        <div class="dest-name" style="background:rgba(255,107,53,.14);border-color:rgba(255,107,53,.28)">🦈 Cueva Tiburón</div>
-        <div class="dest-bar-wrap"><div class="dest-bar" style="width:72%;background:var(--coral)"></div></div>
-        <div class="dest-num">1,960</div>
-      </div>
-      <div class="dest-row">
-        <div class="dest-name" style="background:rgba(255,209,102,.14);border-color:rgba(255,209,102,.28)">🐢 B. Tortugas</div>
-        <div class="dest-bar-wrap"><div class="dest-bar" style="width:58%;background:var(--yellow)"></div></div>
-        <div class="dest-num">1,580</div>
-      </div>
-      <div class="dest-row">
-        <div class="dest-name" style="background:rgba(0,207,207,.14);border-color:rgba(0,207,207,.28)">⚓ El Naufragio</div>
-        <div class="dest-bar-wrap"><div class="dest-bar" style="width:44%;background:var(--turq)"></div></div>
-        <div class="dest-num">1,200</div>
-      </div>
-      <div class="dest-row">
-        <div class="dest-name" style="background:rgba(173,232,244,.10);border-color:rgba(173,232,244,.22)">🪸 Punta Norte</div>
-        <div class="dest-bar-wrap"><div class="dest-bar" style="width:30%;background:var(--foam)"></div></div>
-        <div class="dest-num">850</div>
-      </div>
-    </div>
-
-    <div class="divider"></div>
-
-    <!-- mini sparkline -->
-    <div class="spark-card">
-      <div class="spark-header">
-        <div>
-          <div class="spark-title">Tendencia semanal</div>
-          <div class="spark-val">92,980 <span class="spark-change">↑ 12%</span></div>
-        </div>
-      </div>
-      <div id="sparkLine" style="height:60px;width:100%;"></div>
-    </div>
-
-  </div>
-
-  <!-- OCEAN / MAP AREA -->
-  <div class="ocean-area">
-
-    <!-- top-left conditions -->
-    <div class="condition-bar">
-      <div class="cond-pill">🌊 Oleaje <strong>0.4m</strong></div>
-      <div class="cond-pill">👁 Visibilidad <strong>18m</strong></div>
-      <div class="cond-pill">🌡 Agua <strong>28°C</strong></div>
-    </div>
-
-    <!-- top-right live -->
-    <div class="topright">
-      <div class="pill-live">
-        <div class="dot-wrap"><div class="dot"></div><div class="dot-ring"></div></div>
-        En vivo
-      </div>
-      <button class="btn">+ Nueva Reserva</button>
-    </div>
-
-    <!-- FLOATING PINS sobre el océano -->
-
-    <div class="pin" style="top:12%;left:18%;animation-delay:0s">
-      <div class="pin-bubble">
-        <div class="pin-icon">🐠</div>
-        <div class="pin-info">
-          <div class="pin-name">Los Colorados</div>
-          <div class="pin-num" style="color:var(--cyan)">2,840,001</div>
-          <div class="pin-sub">buceadores · temporada</div>
-        </div>
-      </div>
-      <div class="pin-dot" style="color:var(--cyan);background:var(--cyan)"></div>
-    </div>
-
-    <div class="pin" style="top:8%;left:52%;animation-delay:.6s">
-      <div class="pin-bubble">
-        <div class="pin-icon">🦈</div>
-        <div class="pin-info">
-          <div class="pin-name">Cueva del Tiburón</div>
-          <div class="pin-num" style="color:var(--coral)">1,960,300</div>
-          <div class="pin-sub">buceadores · temporada</div>
-        </div>
-      </div>
-      <div class="pin-dot" style="color:var(--coral);background:var(--coral)"></div>
-    </div>
-
-    <div class="pin" style="top:40%;left:38%;animation-delay:1.2s">
-      <div class="pin-bubble">
-        <div class="pin-icon">🐢</div>
-        <div class="pin-info">
-          <div class="pin-name">Bahía Tortugas</div>
-          <div class="pin-num" style="color:var(--yellow)">1,580,290</div>
-          <div class="pin-sub">buceadores · temporada</div>
-        </div>
-      </div>
-      <div class="pin-dot" style="color:var(--yellow);background:var(--yellow)"></div>
-    </div>
-
-    <div class="pin" style="top:25%;left:68%;animation-delay:.4s">
-      <div class="pin-bubble">
-        <div class="pin-icon">⚓</div>
-        <div class="pin-info">
-          <div class="pin-name">El Naufragio</div>
-          <div class="pin-num" style="color:var(--turq)">1,200,190</div>
-          <div class="pin-sub">buceadores · temporada</div>
-        </div>
-      </div>
-      <div class="pin-dot" style="color:var(--turq);background:var(--turq)"></div>
-    </div>
-
-    <!-- BOTTOM STATS BAR -->
-    <div class="ocean-bottom">
-
-      <div class="stat-pill sp-cyan">
-        <div class="stat-pill-icon">
-          <svg width="20" height="20" fill="none" stroke="var(--cyan)" stroke-width="1.8" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
-        </div>
-        <div>
-          <div class="stat-pill-val">84</div>
-          <div class="stat-pill-lbl">Buceadores Hoy</div>
-        </div>
-        <div class="stat-pill-badge badge-up">↑ 22%</div>
-      </div>
-
-      <div class="stat-pill sp-coral">
-        <div class="stat-pill-icon">
-          <svg width="20" height="20" fill="none" stroke="var(--coral)" stroke-width="1.8" viewBox="0 0 24 24"><path d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
-        </div>
-        <div>
-          <div class="stat-pill-val">12</div>
-          <div class="stat-pill-lbl">Tours Activos</div>
-        </div>
-        <div class="stat-pill-badge badge-warn">⚡ Lleno</div>
-      </div>
-
-      <div class="stat-pill sp-yellow">
-        <div class="stat-pill-icon">
-          <svg width="20" height="20" fill="none" stroke="var(--yellow)" stroke-width="1.8" viewBox="0 0 24 24"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-        </div>
-        <div>
-          <div class="stat-pill-val">$6.4k</div>
-          <div class="stat-pill-lbl">Ingresos del Día</div>
-        </div>
-        <div class="stat-pill-badge badge-yel">↑ 14%</div>
-      </div>
-
-      <div class="stat-pill sp-turq">
-        <div class="stat-pill-icon">
-          <svg width="20" height="20" fill="none" stroke="var(--turq)" stroke-width="1.8" viewBox="0 0 24 24"><path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
-        </div>
-        <div>
-          <div class="stat-pill-val">4.9 ★</div>
-          <div class="stat-pill-lbl">Satisfacción</div>
-        </div>
-        <div class="stat-pill-badge badge-up">Top</div>
-      </div>
-
-    </div>
-  </div>
-
 </div>
 
 <script>
 const FF = "'Space Grotesk',sans-serif";
 const glow = (c,b=12) => ({ shadowBlur:b, shadowColor:c, shadowOffsetX:0, shadowOffsetY:0 });
+const TT = {
+  backgroundColor:'rgba(3,13,20,0.97)',
+  borderColor:'rgba(0,200,240,0.30)', borderWidth:1,
+  textStyle:{ color:'rgba(255,255,255,.86)', fontSize:11, fontFamily:FF },
+  extraCssText:'border-radius:10px;padding:10px 14px;box-shadow:0 8px 32px rgba(0,0,0,.5);'
+};
 
-// ══════════════════════════════════
-// RING 1 — LiquidFill Certificados 72%
-// ══════════════════════════════════
-const ring1 = echarts.init(document.getElementById('ring1'), null, {renderer:'canvas'});
-ring1.setOption({
-  backgroundColor:'transparent',
-  series:[{
+// LIQUID FILLS
+function makeLiq(id, val, c1, c2, gc) {
+  const ch = echarts.init(document.getElementById(id), null, {renderer:'canvas'});
+  ch.setOption({ backgroundColor:'transparent', series:[{
     type:'liquidFill',
     data:[
-      { value:0.72, itemStyle:{ color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'rgba(0,200,240,0.95)'},{offset:1,color:'rgba(0,100,180,0.65)'}]) }},
-      { value:0.64, itemStyle:{ color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'rgba(0,170,220,0.65)'},{offset:1,color:'rgba(0,80,160,0.40)'}]) }},
+      { value:val, itemStyle:{ color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:c1},{offset:1,color:c2}]) }},
+      { value:val-0.09, itemStyle:{ color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:c1+'bb'},{offset:1,color:c2+'88'}]) }},
     ],
-    radius:'95%', center:['50%','50%'],
-    outline:{ borderDistance:2, itemStyle:{ borderWidth:2, borderColor:'rgba(0,200,240,0.55)', shadowBlur:14, shadowColor:'rgba(0,200,240,0.40)' }},
-    backgroundStyle:{ color:'rgba(0,20,50,0.45)' },
-    label:{ formatter:'72%', fontSize:13, fontWeight:'800', fontFamily:FF, color:'#fff', textShadowBlur:12, textShadowColor:'rgba(0,200,240,0.7)' },
-  }]
-});
+    radius:'90%', center:['50%','50%'],
+    outline:{ borderDistance:2, itemStyle:{ borderWidth:2, borderColor:gc+'88', shadowBlur:12, shadowColor:gc+'66' }},
+    backgroundStyle:{ color:'rgba(3,13,20,0.50)' },
+    label:{ formatter:Math.round(val*100)+'%', fontSize:12, fontWeight:'800', fontFamily:FF, color:'#fff', textShadowBlur:10, textShadowColor:gc+'99' },
+  }]});
+  return ch;
+}
+const l1 = makeLiq('liq1', 0.72, 'rgba(0,200,240,0.95)', 'rgba(0,80,160,0.65)', '#00c8f0');
+const l2 = makeLiq('liq2', 0.28, 'rgba(255,209,102,0.95)','rgba(180,80,0,0.65)',  '#ffd166');
+const l3 = makeLiq('liq3', 0.85, 'rgba(0,207,207,0.95)',  'rgba(0,90,90,0.65)',   '#00cfcf');
+const l4 = makeLiq('liq4', 0.97, 'rgba(0,255,136,0.95)',  'rgba(0,100,60,0.65)',  '#00ff88');
 
-// ══════════════════════════════════
-// RING 2 — LiquidFill Principiantes 28%
-// ══════════════════════════════════
-const ring2 = echarts.init(document.getElementById('ring2'), null, {renderer:'canvas'});
-ring2.setOption({
+// TRACK BARS — DESTINOS
+const dest = echarts.init(document.getElementById('destChart'), null, {renderer:'canvas'});
+const destinos = ['🪸 Punta Norte','⚓ El Naufragio','🐢 B.Tortugas','🦈 Cueva Tiburón','🐠 Los Colorados'];
+const vals     = [850, 1200, 1580, 1960, 2840];
+const clrs     = ['#caf0f8','#00cfcf','#ffd166','#ff6b35','#00c8f0'];
+dest.setOption({
   backgroundColor:'transparent',
-  series:[{
-    type:'liquidFill',
-    data:[
-      { value:0.28, itemStyle:{ color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'rgba(255,209,102,0.95)'},{offset:1,color:'rgba(200,120,0,0.65)'}]) }},
-      { value:0.20, itemStyle:{ color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'rgba(255,180,60,0.65)'},{offset:1,color:'rgba(180,80,0,0.40)'}]) }},
-    ],
-    radius:'95%', center:['50%','50%'],
-    outline:{ borderDistance:2, itemStyle:{ borderWidth:2, borderColor:'rgba(255,209,102,0.55)', shadowBlur:14, shadowColor:'rgba(255,209,102,0.40)' }},
-    backgroundStyle:{ color:'rgba(40,20,0,0.45)' },
-    label:{ formatter:'28%', fontSize:13, fontWeight:'800', fontFamily:FF, color:'#fff', textShadowBlur:12, textShadowColor:'rgba(255,209,102,0.7)' },
-  }]
-});
-
-// ══════════════════════════════════
-// SPARKLINE — Area doble con glow
-// ══════════════════════════════════
-const spark = echarts.init(document.getElementById('sparkLine'), null, {renderer:'canvas'});
-spark.setOption({
-  backgroundColor:'transparent',
-  animation:true, animationDuration:1400, animationEasing:'cubicOut',
-  grid:{ top:4, right:2, bottom:2, left:2 },
-  xAxis:{ type:'category', show:false, data:['E','F','M','A','M','J','J'] },
-  yAxis:{ type:'value', show:false },
+  animation:true, animationDuration:1400, animationEasing:'elasticOut',
+  grid:{ top:8, right:55, bottom:8, left:6, containLabel:true },
+  tooltip:{ ...TT, trigger:'axis', axisPointer:{ type:'shadow' }, formatter: p => `<b>${p[0].name}</b><br/>${p[0].value.toLocaleString()} buceadores` },
+  xAxis:{ type:'value', show:false, max: d => d.max * 1.22 },
+  yAxis:{ type:'category', data:destinos, axisLine:{ show:false }, axisTick:{ show:false },
+    axisLabel:{ color:'rgba(255,255,255,0.55)', fontSize:9, fontFamily:FF }},
   series:[
-    {
-      type:'line', data:[320,480,410,620,580,740,700],
-      smooth:0.5, symbolSize:0, showSymbol:false,
-      lineStyle:{ color:'#00c8f0', width:2.5, ...glow('#00c8f0',16) },
-      areaStyle:{ color: new echarts.graphic.LinearGradient(0,0,0,1,[
-        {offset:0,color:'rgba(0,200,240,0.45)'},{offset:1,color:'rgba(0,200,240,0.00)'}]) },
-    },
-    {
-      type:'line', data:[180,210,260,290,320,380,360],
-      smooth:0.5, symbolSize:0, showSymbol:false,
-      lineStyle:{ color:'#ff6b35', width:1.8, ...glow('#ff6b35',12) },
-      areaStyle:{ color: new echarts.graphic.LinearGradient(0,0,0,1,[
-        {offset:0,color:'rgba(255,107,53,0.30)'},{offset:1,color:'rgba(255,107,53,0.00)'}]) },
+    { type:'bar', barWidth:8, barGap:'-100%',
+      data:vals.map(()=>4000),
+      itemStyle:{ color:'rgba(255,255,255,0.04)', borderRadius:[0,5,5,0] },
+      silent:true, animation:false },
+    { type:'bar', barWidth:8,
+      data:vals.map((v,i)=>({ value:v,
+        itemStyle:{ borderRadius:[0,5,5,0],
+          color:new echarts.graphic.LinearGradient(0,0,1,0,[
+            {offset:0,color:clrs[i]},{offset:0.7,color:clrs[i]+'cc'},{offset:1,color:clrs[i]+'33'}]),
+          shadowBlur:12, shadowColor:clrs[i] }
+      })),
+      label:{ show:true, position:'right', color:'rgba(255,255,255,0.55)', fontSize:9, fontFamily:FF, fontWeight:'600',
+        formatter: p => p.value.toLocaleString() }
     }
   ]
 });
 
-window.addEventListener('resize', () => { ring1.resize(); ring2.resize(); spark.resize(); });
+// SPARKLINE DOBLE
+const spark = echarts.init(document.getElementById('sparkLine'), null, {renderer:'canvas'});
+spark.setOption({
+  backgroundColor:'transparent',
+  animation:true, animationDuration:1600, animationEasing:'cubicOut',
+  grid:{ top:10, right:12, bottom:24, left:38, containLabel:false },
+  tooltip:{ trigger:'axis', ...TT, axisPointer:{ type:'cross', crossStyle:{ color:'rgba(0,200,240,0.20)', type:[4,4] }, label:{ show:false }}},
+  xAxis:{ data:['Ene','Feb','Mar','Abr','May','Jun','Jul'], axisLine:{ show:false }, axisTick:{ show:false }, splitLine:{ show:false }, axisLabel:{ color:'rgba(255,255,255,0.28)', fontSize:9, fontFamily:FF }},
+  yAxis:{ type:'value', min:150, splitLine:{ lineStyle:{ color:'rgba(0,200,240,0.07)', type:[4,6] }}, axisLine:{ show:false }, axisTick:{ show:false }, axisLabel:{ color:'rgba(255,255,255,0.26)', fontSize:9, fontFamily:FF }},
+  series:[
+    { name:'Reservas', type:'line', data:[320,480,410,620,580,740,700],
+      smooth:0.6, symbolSize:7, showSymbol:true, symbol:'circle',
+      lineStyle:{ color:'#00c8f0', width:3, ...glow('#00c8f0',18) },
+      itemStyle:{ color:'#fff', borderColor:'#00c8f0', borderWidth:2, ...glow('#00c8f0',20) },
+      areaStyle:{ color:new echarts.graphic.LinearGradient(0,0,0,1,[
+        {offset:0,color:'rgba(0,200,240,0.50)'},{offset:0.5,color:'rgba(0,150,200,0.15)'},{offset:1,color:'rgba(0,80,160,0.00)'}])},
+      markPoint:{ data:[{type:'max'}], symbol:'circle', symbolSize:10, itemStyle:{ color:'#00eeff', ...glow('#00c8f0',22) }, label:{ show:false }},
+    },
+    { name:'Ingresos', type:'line', data:[180,210,260,290,320,380,360],
+      smooth:0.6, symbolSize:6, showSymbol:true, symbol:'circle',
+      lineStyle:{ color:'#ff6b35', width:2.5, ...glow('#ff6b35',14) },
+      itemStyle:{ color:'#fff', borderColor:'#ff6b35', borderWidth:2, ...glow('#ff6b35',18) },
+      areaStyle:{ color:new echarts.graphic.LinearGradient(0,0,0,1,[
+        {offset:0,color:'rgba(255,107,53,0.38)'},{offset:1,color:'rgba(255,107,53,0.00)'}])},
+    }
+  ]
+});
+
+window.addEventListener('resize', () => { l1.resize();l2.resize();l3.resize();l4.resize(); dest.resize();spark.resize(); });
 </script>
 </body>
 </html>
