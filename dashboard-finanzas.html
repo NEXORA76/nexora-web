@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FinSight — Dashboard Financiero</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts-liquidfill@3.1.0/dist/echarts-liquidfill.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --c1:#00d4ff; --c2:#00ffcc; --c3:#ffd700; --c4:#a78bfa;
+  --fh:'Space Grotesk',sans-serif; --fb:'Inter',sans-serif;
+}
+@keyframes fadeInDown{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes countUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes tickUp{0%{transform:translateY(4px);opacity:0}100%{transform:translateY(0);opacity:1}}
+
+/* VIDEO HALF-SIDE — usamos VBRAIN pero con hue verde-dorado para finanzas */
+.video-bg{position:fixed;inset:0;z-index:0;background:#03080f;}
+.video-bg video{
+  position:absolute; right:-2%; top:50%; width:78%; height:auto;
+  transform:translateY(-50%) translateZ(0); will-change:transform;
+  filter:hue-rotate(40deg) saturate(1.3) brightness(0.75);
+}
+.video-bg::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(to right,
+    rgba(3,8,15,0.94) 0%,
+    rgba(3,8,15,0.78) 28%,
+    rgba(3,8,15,0.22) 52%,
+    rgba(3,8,15,0.00) 65%
+  );
+}
+.video-bg::before{
+  content:'';position:absolute;z-index:1;inset:0;
+  background:radial-gradient(ellipse at 66% 44%,rgba(255,215,0,0.12) 0%,rgba(0,212,255,0.06) 35%,transparent 60%);
+  pointer-events:none;
+}
+
+/* TICKER */
+.ticker{
+  height:26px;flex-shrink:0;
+  background:rgba(3,8,15,0.60);
+  border:1px solid rgba(255,215,0,0.12);
+  border-radius:8px;overflow:hidden;
+  display:flex;align-items:center;gap:0;
+  font-family:var(--fb);font-size:10px;font-weight:500;
+}
+.ticker-label{padding:0 12px;color:rgba(255,215,0,.6);letter-spacing:1px;font-size:9px;font-weight:700;border-right:1px solid rgba(255,215,0,0.12);flex-shrink:0;}
+.ticker-track{display:flex;gap:28px;padding:0 16px;overflow:hidden;white-space:nowrap;animation:tickScroll 28s linear infinite;}
+@keyframes tickScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.tick-item{display:flex;gap:6px;align-items:center;}
+.tick-sym{color:rgba(255,255,255,.75);font-weight:600;}
+.tick-val{color:rgba(255,255,255,.52);}
+.tick-up{color:#00ffcc;font-size:9px;}
+.tick-dn{color:#ff4d6d;font-size:9px;}
+
+/* APP */
+.app{position:relative;z-index:2;display:flex;flex-direction:column;height:100vh;padding:12px 14px;gap:8px;overflow:hidden;}
+
+/* NAVBAR */
+.navbar{
+  display:flex;align-items:center;gap:14px;
+  padding:0 18px;height:48px;flex-shrink:0;
+  border-radius:14px;
+  background:rgba(3,8,20,0.54);
+  border:1px solid rgba(255,215,0,0.16);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.06),0 4px 24px rgba(0,0,0,0.40);
+  position:relative;animation:fadeInDown .5s ease both;
+}
+.navbar::before{
+  content:'';position:absolute;top:0;left:20px;right:20px;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,215,0,0.45),rgba(255,255,255,0.12),transparent);
+}
+.nav-icon{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#ffd700,#ff8c00);display:flex;align-items:center;justify-content:center;font-size:15px;box-shadow:0 0 14px rgba(255,215,0,0.40);}
+.nav-title{font-family:var(--fh);font-size:13px;font-weight:700;color:#fff;}
+.nav-title span{color:#ffd700;}
+.nav-sep{width:1px;height:24px;background:rgba(255,215,0,0.14);margin:0 2px;}
+.nav-links{display:flex;gap:3px;}
+.nav-link{font-family:var(--fb);font-size:11px;color:rgba(255,255,255,.38);padding:5px 12px;border-radius:7px;cursor:pointer;transition:all .2s;}
+.nav-link:hover{background:rgba(255,215,0,.07);color:rgba(255,255,255,.70);}
+.nav-link.active{background:rgba(255,215,0,.12);color:#ffd700;border:1px solid rgba(255,215,0,.22);}
+.nav-right{margin-left:auto;display:flex;align-items:center;gap:10px;}
+.nav-date{font-family:var(--fb);font-size:11px;color:rgba(255,255,255,.32);}
+.nav-live{display:flex;align-items:center;gap:6px;background:rgba(0,255,204,0.08);border:1px solid rgba(0,255,204,0.22);border-radius:50px;padding:4px 11px;font-family:var(--fb);font-size:10px;font-weight:600;color:var(--c2);}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--c2);animation:blink 1.4s infinite;}
+
+/* GRID */
+.main-grid{
+  flex:1;min-height:0;
+  display:grid;
+  grid-template-columns:200px 200px 1fr 210px;
+  grid-template-rows:1fr 1fr;
+  gap:10px;
+}
+
+/* GLASS CARD */
+.gc{
+  border-radius:16px;
+  background:rgba(3,8,18,0.20);
+  border:1px solid rgba(255,215,0,0.14);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.06),
+             inset 1px 0 0 rgba(255,215,0,0.07),
+             0 8px 32px rgba(0,0,0,0.30);
+  position:relative;overflow:hidden;
+  animation:fadeIn .7s ease both;
+}
+.gc::before{
+  content:'';position:absolute;top:0;left:14px;right:14px;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,215,0,0.50),rgba(255,255,255,0.10),transparent);
+}
+.gc::after{
+  content:'';position:absolute;top:14px;left:0;bottom:14px;width:1px;
+  background:linear-gradient(180deg,transparent,rgba(255,215,0,0.22),rgba(255,215,0,0.10),transparent);
+}
+.gc-inner{position:relative;z-index:2;height:100%;display:flex;flex-direction:column;padding:14px 12px;}
+.r2{grid-row:span 2;}
+.card-lbl{font-family:var(--fb);font-size:9px;font-weight:600;letter-spacing:1.2px;color:rgba(255,215,0,0.55);text-transform:uppercase;margin-bottom:6px;}
+
+/* KPI BLOCKS */
+.kpi-list{display:flex;flex-direction:column;gap:7px;flex:1;}
+.kpi-block{background:rgba(255,215,0,0.03);border:1px solid rgba(255,215,0,0.09);border-radius:10px;padding:9px 11px;}
+.kpi-top{display:flex;align-items:center;gap:7px;margin-bottom:3px;}
+.kpi-icon{font-size:13px;}
+.kpi-name{font-family:var(--fb);font-size:10px;color:rgba(255,255,255,.42);}
+.kpi-val{font-family:var(--fh);font-size:20px;font-weight:700;color:#fff;line-height:1;margin-bottom:4px;animation:countUp .8s ease both;}
+.kpi-val.gold{color:#ffd700;text-shadow:0 0 10px rgba(255,215,0,0.4);}
+.kpi-val.green{color:#00ffcc;text-shadow:0 0 10px rgba(0,255,204,0.3);}
+.kpi-val.red{color:#ff4d6d;text-shadow:0 0 10px rgba(255,77,109,0.35);}
+.kpi-val.cyan{color:#00d4ff;text-shadow:0 0 10px rgba(0,212,255,0.35);}
+.kpi-bar-track{height:3px;background:rgba(255,255,255,0.07);border-radius:2px;overflow:hidden;}
+.kpi-bar-fill{height:100%;border-radius:2px;}
+
+/* CHART */
+.chart-box{flex:1;min-height:0;}
+
+/* LIQUID GRID */
+.liq-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;flex:1;min-height:0;}
+.liq-cell{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;}
+.liq-wrap{width:78px;height:78px;}
+.liq-label{font-family:var(--fb);font-size:9px;color:rgba(255,255,255,.42);text-align:center;line-height:1.3;}
+
+/* TABLE */
+.vtable{width:100%;border-collapse:collapse;}
+.vtable thead tr th{font-family:var(--fb);font-size:9px;font-weight:600;letter-spacing:.8px;color:rgba(255,215,0,0.50);text-transform:uppercase;padding:0 0 7px 0;border-bottom:1px solid rgba(255,215,0,0.10);}
+.vtable tbody tr td{font-family:var(--fb);font-size:10px;color:rgba(255,255,255,.58);padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
+.vtable tbody tr:last-child td{border-bottom:none;}
+.vtable td:first-child{color:rgba(255,255,255,.80);font-weight:500;}
+.tag{display:inline-block;padding:2px 7px;border-radius:5px;font-size:9px;font-weight:600;}
+.tag-in{background:rgba(0,255,204,0.08);color:#00ffcc;border:1px solid rgba(0,255,204,0.20);}
+.tag-out{background:rgba(255,77,109,0.08);color:#ff4d6d;border:1px solid rgba(255,77,109,0.20);}
+.tag-pend{background:rgba(255,215,0,0.08);color:#ffd700;border:1px solid rgba(255,215,0,0.20);}
+
+/* STAT STRIP */
+.stat-strip{display:flex;gap:8px;flex-shrink:0;height:34px;}
+.stat-chip{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;border-radius:10px;background:rgba(3,8,18,0.24);border:1px solid rgba(255,215,0,0.11);padding:0 10px;font-family:var(--fb);font-size:10px;color:rgba(255,255,255,.48);}
+.stat-chip strong{font-family:var(--fh);font-size:12px;font-weight:700;color:rgba(255,255,255,.88);}
+.dot-sm{width:5px;height:5px;border-radius:50%;}
+</style>
+</head>
+<body>
+<div class="video-bg">
+  <video autoplay muted loop playsinline>
+    <source src="VBRAIN VIDEO 4K.mp4" type="video/mp4">
+  </video>
+</div>
+
+<div class="app">
+  <!-- TICKER -->
+  <div class="ticker">
+    <div class="ticker-label">MERCADOS</div>
+    <div class="ticker-track">
+      <div class="tick-item"><span class="tick-sym">BTC</span><span class="tick-val">$67,420</span><span class="tick-up">▲ 2.1%</span></div>
+      <div class="tick-item"><span class="tick-sym">S&P500</span><span class="tick-val">5,280</span><span class="tick-up">▲ 0.8%</span></div>
+      <div class="tick-item"><span class="tick-sym">EUR/USD</span><span class="tick-val">1.0842</span><span class="tick-dn">▼ 0.3%</span></div>
+      <div class="tick-item"><span class="tick-sym">NASDAQ</span><span class="tick-val">18,945</span><span class="tick-up">▲ 1.2%</span></div>
+      <div class="tick-item"><span class="tick-sym">ORO</span><span class="tick-val">$2,318</span><span class="tick-up">▲ 0.4%</span></div>
+      <div class="tick-item"><span class="tick-sym">ETH</span><span class="tick-val">$3,580</span><span class="tick-up">▲ 3.1%</span></div>
+      <div class="tick-item"><span class="tick-sym">PETRÓLEO</span><span class="tick-val">$78.4</span><span class="tick-dn">▼ 0.7%</span></div>
+      <!-- duplicate for infinite scroll -->
+      <div class="tick-item"><span class="tick-sym">BTC</span><span class="tick-val">$67,420</span><span class="tick-up">▲ 2.1%</span></div>
+      <div class="tick-item"><span class="tick-sym">S&P500</span><span class="tick-val">5,280</span><span class="tick-up">▲ 0.8%</span></div>
+      <div class="tick-item"><span class="tick-sym">EUR/USD</span><span class="tick-val">1.0842</span><span class="tick-dn">▼ 0.3%</span></div>
+      <div class="tick-item"><span class="tick-sym">NASDAQ</span><span class="tick-val">18,945</span><span class="tick-up">▲ 1.2%</span></div>
+      <div class="tick-item"><span class="tick-sym">ORO</span><span class="tick-val">$2,318</span><span class="tick-up">▲ 0.4%</span></div>
+      <div class="tick-item"><span class="tick-sym">ETH</span><span class="tick-val">$3,580</span><span class="tick-up">▲ 3.1%</span></div>
+      <div class="tick-item"><span class="tick-sym">PETRÓLEO</span><span class="tick-val">$78.4</span><span class="tick-dn">▼ 0.7%</span></div>
+    </div>
+  </div>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="nav-icon">💹</div>
+    <div class="nav-title">Fin<span>Sight</span></div>
+    <div class="nav-sep"></div>
+    <div class="nav-links">
+      <div class="nav-link active">Resumen</div>
+      <div class="nav-link">Ingresos</div>
+      <div class="nav-link">Gastos</div>
+      <div class="nav-link">Inversiones</div>
+      <div class="nav-link">Proyecciones IA</div>
+    </div>
+    <div class="nav-right">
+      <div class="nav-date" id="navDate"></div>
+      <div class="nav-live"><span class="dot"></span>Mercado Abierto</div>
+    </div>
+  </nav>
+
+  <!-- MAIN GRID -->
+  <div class="main-grid">
+
+    <!-- CARD 1: KPIs col1 rows1+2 -->
+    <div class="gc r2">
+      <div class="gc-inner">
+        <div class="card-lbl">Finanzas del Mes</div>
+        <div class="kpi-list">
+          <div class="kpi-block">
+            <div class="kpi-top"><span class="kpi-icon">💵</span><span class="kpi-name">Ingresos Totales</span></div>
+            <div class="kpi-val gold">$284,500</div>
+            <div class="kpi-bar-track"><div class="kpi-bar-fill" style="width:78%;background:linear-gradient(90deg,#ffd700,#ff8c00);box-shadow:0 0 8px rgba(255,215,0,0.5);"></div></div>
+          </div>
+          <div class="kpi-block">
+            <div class="kpi-top"><span class="kpi-icon">💳</span><span class="kpi-name">Gastos Operativos</span></div>
+            <div class="kpi-val red">$96,240</div>
+            <div class="kpi-bar-track"><div class="kpi-bar-fill" style="width:34%;background:linear-gradient(90deg,#ff4d6d,#ff8096);box-shadow:0 0 8px rgba(255,77,109,0.5);"></div></div>
+          </div>
+          <div class="kpi-block">
+            <div class="kpi-top"><span class="kpi-icon">📈</span><span class="kpi-name">Utilidad Neta</span></div>
+            <div class="kpi-val green">$188,260</div>
+            <div class="kpi-bar-track"><div class="kpi-bar-fill" style="width:66%;background:linear-gradient(90deg,#00ffcc,#00d4ff);box-shadow:0 0 8px rgba(0,255,204,0.5);"></div></div>
+          </div>
+          <div class="kpi-block">
+            <div class="kpi-top"><span class="kpi-icon">🏦</span><span class="kpi-name">Cartera Activa</span></div>
+            <div class="kpi-val cyan">$1.24M</div>
+            <div class="kpi-bar-track"><div class="kpi-bar-fill" style="width:88%;background:linear-gradient(90deg,#00d4ff,#7c3aed);box-shadow:0 0 8px rgba(0,212,255,0.5);"></div></div>
+          </div>
+          <div class="kpi-block">
+            <div class="kpi-top"><span class="kpi-icon">📊</span><span class="kpi-name">ROI del Trimestre</span></div>
+            <div class="kpi-val gold">+34.8%</div>
+            <div class="kpi-bar-track"><div class="kpi-bar-fill" style="width:70%;background:linear-gradient(90deg,#ffd700,#00ffcc);box-shadow:0 0 8px rgba(255,215,0,0.5);"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CARD 2: Sunburst Portafolio col2 rows1+2 -->
+    <div class="gc r2">
+      <div class="gc-inner">
+        <div class="card-lbl">Distribución Portafolio</div>
+        <div class="chart-box" id="sunburst" style="flex:1;min-height:0;"></div>
+      </div>
+    </div>
+
+    <!-- CARD 3: Area Ingresos col3 row1 -->
+    <div class="gc">
+      <div class="gc-inner">
+        <div class="card-lbl">Flujo de Ingresos — 12 Meses</div>
+        <div class="chart-box" id="lineArea" style="flex:1;min-height:0;"></div>
+      </div>
+    </div>
+
+    <!-- CARD 4: Tabla Movimientos col4 rows1+2 -->
+    <div class="gc r2">
+      <div class="gc-inner">
+        <div class="card-lbl">Últimos Movimientos</div>
+        <table class="vtable">
+          <thead>
+            <tr><th>Concepto</th><th>Monto</th><th>Tipo</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Venta Producto A</td><td style="color:#00ffcc">+$8,400</td><td><span class="tag tag-in">Ingreso</span></td></tr>
+            <tr><td>Pago Proveedor X</td><td style="color:#ff4d6d">-$3,200</td><td><span class="tag tag-out">Gasto</span></td></tr>
+            <tr><td>Servicio SaaS Q2</td><td style="color:#00ffcc">+$12,800</td><td><span class="tag tag-in">Ingreso</span></td></tr>
+            <tr><td>Nómina Mayo</td><td style="color:#ff4d6d">-$22,400</td><td><span class="tag tag-out">Gasto</span></td></tr>
+            <tr><td>Dividendo ETF</td><td style="color:#00ffcc">+$1,840</td><td><span class="tag tag-in">Ingreso</span></td></tr>
+            <tr><td>Alquiler Oficina</td><td style="color:#ff4d6d">-$4,600</td><td><span class="tag tag-out">Gasto</span></td></tr>
+            <tr><td>Consultoría Rigel</td><td style="color:#00ffcc">+$6,200</td><td><span class="tag tag-in">Ingreso</span></td></tr>
+            <tr><td>Marketing Q2</td><td style="color:#ffd700">-$8,100</td><td><span class="tag tag-pend">Revisión</span></td></tr>
+            <tr><td>Licencias Cloud</td><td style="color:#ff4d6d">-$1,280</td><td><span class="tag tag-out">Gasto</span></td></tr>
+            <tr><td>Proyecto Semglee</td><td style="color:#00ffcc">+$9,500</td><td><span class="tag tag-in">Ingreso</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- CARD 5: LiquidFills Métricas col3 row2 -->
+    <div class="gc">
+      <div class="gc-inner">
+        <div class="card-lbl">Salud Financiera</div>
+        <div class="liq-grid">
+          <div class="liq-cell"><div class="liq-wrap" id="liq1"></div><div class="liq-label">Margen<br>Utilidad</div></div>
+          <div class="liq-cell"><div class="liq-wrap" id="liq2"></div><div class="liq-label">Liquidez<br>Corriente</div></div>
+          <div class="liq-cell"><div class="liq-wrap" id="liq3"></div><div class="liq-label">Cobertura<br>Deuda</div></div>
+          <div class="liq-cell"><div class="liq-wrap" id="liq4"></div><div class="liq-label">Cartera<br>Rentable</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main-grid -->
+
+  <!-- STAT STRIP -->
+  <div class="stat-strip">
+    <div class="stat-chip"><span class="dot-sm" style="background:#ffd700;box-shadow:0 0 6px rgba(255,215,0,0.8);"></span><strong>$284,500</strong> Ingresos</div>
+    <div class="stat-chip"><span class="dot-sm" style="background:#ff4d6d;box-shadow:0 0 6px rgba(255,77,109,0.8);"></span><strong>$96,240</strong> Gastos</div>
+    <div class="stat-chip"><span class="dot-sm" style="background:#00ffcc;box-shadow:0 0 6px rgba(0,255,204,0.8);"></span><strong>+34.8%</strong> ROI Q2</div>
+    <div class="stat-chip"><span class="dot-sm" style="background:#00d4ff;box-shadow:0 0 6px rgba(0,212,255,0.8);"></span><strong>$1.24M</strong> Cartera</div>
+    <div class="stat-chip"><span class="dot-sm" style="background:#a78bfa;box-shadow:0 0 6px rgba(167,139,250,0.8);"></span><strong>66.2%</strong> Margen Neto</div>
+    <div class="stat-chip"><span class="dot-sm" style="background:#ffd700;box-shadow:0 0 6px rgba(255,215,0,0.8);"></span><strong>124</strong> Clientes Activos</div>
+    <div class="stat-chip"><span class="dot-sm" style="background:#00ffcc;box-shadow:0 0 6px rgba(0,255,204,0.8);"></span><strong>AA+</strong> Rating Crédito</div>
+  </div>
+
+</div><!-- /app -->
+
+<script>
+document.getElementById('navDate').textContent = new Date().toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+const FF = "'Space Grotesk',sans-serif";
+const glow = (c,b=12)=>({shadowBlur:b,shadowColor:c,shadowOffsetX:0,shadowOffsetY:0});
+const TT = {
+  backgroundColor:'rgba(3,8,18,0.97)',
+  borderColor:'rgba(255,215,0,0.28)',borderWidth:1,
+  textStyle:{color:'rgba(255,255,255,.88)',fontSize:11,fontFamily:FF},
+  extraCssText:'border-radius:10px;padding:10px 14px;box-shadow:0 8px 32px rgba(0,0,0,0.6);'
+};
+
+/* ── SUNBURST PORTAFOLIO ── */
+const sb = echarts.init(document.getElementById('sunburst'),'dark',{renderer:'canvas'});
+sb.setOption({
+  backgroundColor:'transparent',
+  tooltip:{...TT, formatter:p=>`<b>${p.name}</b><br>${p.value}%`},
+  series:[{
+    type:'sunburst', radius:['18%','88%'], center:['50%','50%'], sort:null,
+    emphasis:{focus:'ancestor'},
+    data:[
+      {name:'Renta Fija',value:30,itemStyle:{color:'rgba(255,215,0,0.85)'},
+        children:[
+          {name:'Bonos Gov.',value:18,itemStyle:{color:'rgba(255,215,0,0.55)'}},
+          {name:'Corp. AAA',value:12,itemStyle:{color:'rgba(255,230,80,0.55)'}}
+        ]},
+      {name:'Acciones',value:35,itemStyle:{color:'rgba(0,212,255,0.85)'},
+        children:[
+          {name:'Tech',value:15,itemStyle:{color:'rgba(0,212,255,0.55)'}},
+          {name:'Finanzas',value:12,itemStyle:{color:'rgba(0,240,220,0.55)'}},
+          {name:'Salud',value:8,itemStyle:{color:'rgba(0,180,255,0.55)'}}
+        ]},
+      {name:'Crypto',value:12,itemStyle:{color:'rgba(167,139,250,0.85)'},
+        children:[
+          {name:'BTC',value:7,itemStyle:{color:'rgba(167,139,250,0.55)'}},
+          {name:'ETH',value:5,itemStyle:{color:'rgba(200,180,255,0.55)'}}
+        ]},
+      {name:'Inmuebles',value:15,itemStyle:{color:'rgba(0,255,204,0.85)'},
+        children:[
+          {name:'Comercial',value:8,itemStyle:{color:'rgba(0,255,204,0.55)'}},
+          {name:'Residencial',value:7,itemStyle:{color:'rgba(0,200,160,0.55)'}}
+        ]},
+      {name:'Liquidez',value:8,itemStyle:{color:'rgba(255,140,0,0.85)'},
+        children:[
+          {name:'Efectivo',value:5,itemStyle:{color:'rgba(255,140,0,0.55)'}},
+          {name:'MM Funds',value:3,itemStyle:{color:'rgba(255,170,60,0.55)'}}
+        ]}
+    ],
+    label:{show:true,rotate:'tangential',fontSize:9,color:'rgba(255,255,255,.72)',fontFamily:FF},
+    itemStyle:{borderWidth:2,borderColor:'rgba(3,8,18,0.6)'}
+  }]
+});
+
+/* ── AREA INGRESOS 12 MESES ── */
+const meses=['Jul','Ago','Sep','Oct','Nov','Dic','Ene','Feb','Mar','Abr','May','Jun'];
+const ing=[142,158,171,188,195,220,178,195,210,238,265,284];
+const gas=[62,68,72,80,78,88,76,82,88,90,94,96];
+const la = echarts.init(document.getElementById('lineArea'),'dark',{renderer:'canvas'});
+la.setOption({
+  backgroundColor:'transparent',
+  tooltip:{...TT,trigger:'axis',formatter:p=>`<b>${p[0].axisValue}</b><br>
+    <span style="color:#ffd700">● Ingresos: $${p[0].value}k</span><br>
+    <span style="color:#ff4d6d">● Gastos: $${p[1].value}k</span>`},
+  grid:{left:34,right:16,top:14,bottom:28},
+  xAxis:{type:'category',data:meses,axisLine:{lineStyle:{color:'rgba(255,255,255,.06)'}},
+    axisTick:{show:false},axisLabel:{fontSize:9,color:'rgba(255,255,255,.32)',fontFamily:FF}},
+  yAxis:{type:'value',splitLine:{lineStyle:{color:'rgba(255,255,255,.05)'}},
+    axisLabel:{fontSize:9,color:'rgba(255,255,255,.32)',fontFamily:FF,formatter:v=>v+'k'}},
+  series:[
+    {name:'Ingresos',type:'line',data:ing,smooth:true,
+      lineStyle:{color:'#ffd700',width:2.5,...glow('#ffd700',14)},
+      itemStyle:{color:'#ffd700',...glow('#ffd700',12)},symbol:'circle',symbolSize:4,
+      areaStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[
+        {offset:0,color:'rgba(255,215,0,0.24)'},{offset:1,color:'rgba(255,215,0,0.01)'}
+      ]}},
+      markPoint:{symbol:'circle',symbolSize:9,label:{fontSize:9,fontFamily:FF,color:'#fff'},
+        data:[{type:'max',name:'Pico',itemStyle:{color:'rgba(255,215,0,0.9)',...glow('#ffd700',20)}}]}
+    },
+    {name:'Gastos',type:'line',data:gas,smooth:true,
+      lineStyle:{color:'#ff4d6d',width:2,...glow('#ff4d6d',10)},
+      itemStyle:{color:'#ff4d6d'},symbol:'circle',symbolSize:3,
+      areaStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[
+        {offset:0,color:'rgba(255,77,109,0.16)'},{offset:1,color:'rgba(255,77,109,0.01)'}
+      ]}}
+    }
+  ]
+});
+
+/* ── LIQUIDFILL ── */
+function makeLiq(id,val,color){
+  const c=echarts.init(document.getElementById(id),'dark',{renderer:'canvas'});
+  c.setOption({
+    backgroundColor:'transparent',
+    series:[{
+      type:'liquidFill',radius:'88%',center:['50%','50%'],
+      data:[val,val*0.9,val*0.8],color:[color],
+      backgroundStyle:{color:'rgba(3,8,18,0.50)',borderColor:color,borderWidth:1.5},
+      outline:{borderDistance:2,itemStyle:{borderWidth:2,borderColor:color,shadowBlur:10,shadowColor:color}},
+      label:{fontSize:13,fontFamily:FF,fontWeight:'700',color:'#fff',formatter:()=>Math.round(val*100)+'%'},
+      waveAnimation:true,animationDuration:2000
+    }]
+  });
+  return c;
+}
+let l1,l2,l3,l4;
+setTimeout(()=>{ l1=makeLiq('liq1',0.662,'#ffd700'); },0);
+setTimeout(()=>{ l2=makeLiq('liq2',0.84, '#00d4ff'); },80);
+setTimeout(()=>{ l3=makeLiq('liq3',0.78, '#00ffcc'); },160);
+setTimeout(()=>{ l4=makeLiq('liq4',0.91, '#a78bfa'); },240);
+
+window.addEventListener('resize',()=>{
+  sb.resize();la.resize();
+  [l1,l2,l3,l4].forEach(c=>c&&c.resize());
+});
+</script>
+</body>
+</html>

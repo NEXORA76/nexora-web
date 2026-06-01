@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MedCore — Dashboard Clínica</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts-liquidfill@3.1.0/dist/echarts-liquidfill.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --c1:#00d4ff; --c2:#00ffcc; --c3:#ff4d6d; --c4:#a78bfa;
+  --fh:'Space Grotesk',sans-serif; --fb:'Inter',sans-serif;
+}
+@keyframes fadeInDown{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes pulseRing{0%{transform:scale(.8);opacity:.9}100%{transform:scale(2.8);opacity:0}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes countUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes scanLine{0%{top:-4px}100%{top:100%}}
+
+/* VIDEO HALF-SIDE */
+.video-bg{position:fixed;inset:0;z-index:0;background:#040b1a;}
+.video-bg video{
+  position:absolute; right:-2%; top:50%; width:78%; height:auto;
+  transform:translateY(-50%) translateZ(0); will-change:transform;
+  filter:hue-rotate(190deg) brightness(0.8);
+}
+.video-bg::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(to right,
+    rgba(4,11,26,0.92) 0%,
+    rgba(4,11,26,0.75) 28%,
+    rgba(4,11,26,0.22) 52%,
+    rgba(4,11,26,0.00) 64%
+  );
+}
+.video-bg::before{
+  content:'';position:absolute;z-index:1;inset:0;
+  background:radial-gradient(ellipse at 65% 42%,rgba(0,212,255,0.18) 0%,rgba(100,0,200,0.08) 35%,transparent 60%);
+  pointer-events:none;
+}
+
+/* SCAN LINE OVERLAY */
+.scanline{
+  position:fixed;inset:0;z-index:1;pointer-events:none;overflow:hidden;
+}
+.scanline::after{
+  content:'';position:absolute;left:0;right:0;height:3px;
+  background:linear-gradient(transparent,rgba(0,212,255,0.04),transparent);
+  animation:scanLine 7s linear infinite;
+}
+
+/* APP */
+.app{position:relative;z-index:2;display:flex;flex-direction:column;height:100vh;padding:12px 14px;gap:10px;overflow:hidden;}
+
+/* NAVBAR */
+.navbar{
+  display:flex;align-items:center;gap:14px;
+  padding:0 18px;height:48px;flex-shrink:0;
+  border-radius:14px;
+  background:rgba(4,11,28,0.52);
+  border:1px solid rgba(0,212,255,0.18);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.07),0 4px 24px rgba(0,0,0,0.35);
+  position:relative;animation:fadeInDown .5s ease both;
+}
+.navbar::before{
+  content:'';position:absolute;top:0;left:20px;right:20px;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(0,212,255,0.50),rgba(255,255,255,0.14),transparent);
+}
+.nav-icon{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#00d4ff,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:15px;box-shadow:0 0 14px rgba(0,212,255,0.40);}
+.nav-title{font-family:var(--fh);font-size:13px;font-weight:700;color:#fff;}
+.nav-title span{color:var(--c1);}
+.nav-sep{width:1px;height:24px;background:rgba(0,212,255,0.14);margin:0 2px;}
+.nav-links{display:flex;gap:3px;}
+.nav-link{font-family:var(--fb);font-size:11px;color:rgba(255,255,255,.38);padding:5px 12px;border-radius:7px;cursor:pointer;transition:all .2s;}
+.nav-link:hover{background:rgba(0,212,255,.07);color:rgba(255,255,255,.70);}
+.nav-link.active{background:rgba(0,212,255,.13);color:var(--c1);border:1px solid rgba(0,212,255,.22);}
+.nav-right{margin-left:auto;display:flex;align-items:center;gap:10px;}
+.nav-date{font-family:var(--fb);font-size:11px;color:rgba(255,255,255,.32);}
+.nav-live{display:flex;align-items:center;gap:6px;background:rgba(0,255,204,0.08);border:1px solid rgba(0,255,204,0.22);border-radius:50px;padding:4px 11px;font-family:var(--fb);font-size:10px;font-weight:600;color:var(--c2);}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--c2);animation:blink 1.4s infinite;}
+.nav-alert{display:flex;align-items:center;gap:6px;background:rgba(255,77,109,0.08);border:1px solid rgba(255,77,109,0.28);border-radius:50px;padding:4px 11px;font-family:var(--fb);font-size:10px;font-weight:600;color:#ff4d6d;}
+.dot-red{width:6px;height:6px;border-radius:50%;background:#ff4d6d;animation:blink 1.0s infinite;}
+
+/* GRID */
+.main-grid{
+  flex:1;min-height:0;
+  display:grid;
+  grid-template-columns:200px 200px 1fr 210px;
+  grid-template-rows:1fr 1fr;
+  gap:10px;
+}
+
+/* GLASS CARD */
+.gc{
+  border-radius:16px;
+  background:rgba(4,10,24,0.18);
+  border:1px solid rgba(0,212,255,0.16);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.07),
+             inset 1px 0 0 rgba(0,212,255,0.08),
+             0 8px 32px rgba(0,0,0,0.28);
+  position:relative;overflow:hidden;
+  animation:fadeIn .7s ease both;
+}
+.gc::before{
+  content:'';position:absolute;top:0;left:14px;right:14px;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(0,212,255,0.55),rgba(255,255,255,0.12),transparent);
+}
+.gc::after{
+  content:'';position:absolute;top:14px;left:0;bottom:14px;width:1px;
+  background:linear-gradient(180deg,transparent,rgba(0,212,255,0.25),rgba(0,212,255,0.12),transparent);
+}
+.gc-inner{position:relative;z-index:2;height:100%;display:flex;flex-direction:column;padding:14px 12px;}
+
+/* SPAN HELPERS */
+.r2{grid-row:span 2;}
+
+/* CARD LABEL */
+.card-lbl{font-family:var(--fb);font-size:9px;font-weight:600;letter-spacing:1.2px;color:rgba(0,212,255,0.55);text-transform:uppercase;margin-bottom:6px;}
+
+/* KPI BLOCKS */
+.kpi-list{display:flex;flex-direction:column;gap:8px;flex:1;}
+.kpi-block{
+  background:rgba(0,212,255,0.04);
+  border:1px solid rgba(0,212,255,0.10);
+  border-radius:10px;padding:10px 11px;
+}
+.kpi-top{display:flex;align-items:center;gap:7px;margin-bottom:4px;}
+.kpi-icon{font-size:13px;}
+.kpi-name{font-family:var(--fb);font-size:10px;color:rgba(255,255,255,.42);}
+.kpi-val{font-family:var(--fh);font-size:22px;font-weight:700;color:#fff;line-height:1;margin-bottom:5px;animation:countUp .8s ease both;}
+.kpi-val.red{color:#ff4d6d; text-shadow:0 0 10px rgba(255,77,109,0.4);}
+.kpi-val.green{color:#00ffcc; text-shadow:0 0 10px rgba(0,255,204,0.3);}
+.kpi-val.purple{color:#a78bfa; text-shadow:0 0 10px rgba(167,139,250,0.35);}
+.kpi-bar-track{height:3px;background:rgba(255,255,255,0.07);border-radius:2px;overflow:hidden;}
+.kpi-bar-fill{height:100%;border-radius:2px;transition:width 1.2s ease;}
+
+/* CHART CONTAINERS */
+.chart-box{flex:1;min-height:0;}
+
+/* LIQUID GRID */
+.liq-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;flex:1;min-height:0;}
+.liq-cell{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;}
+.liq-wrap{width:78px;height:78px;}
+.liq-label{font-family:var(--fb);font-size:9px;color:rgba(255,255,255,.45);text-align:center;line-height:1.3;}
+
+/* VITALS TABLE */
+.vtable{width:100%;border-collapse:collapse;flex:1;}
+.vtable thead tr th{font-family:var(--fb);font-size:9px;font-weight:600;letter-spacing:.8px;color:rgba(0,212,255,0.5);text-transform:uppercase;padding:0 0 7px 0;border-bottom:1px solid rgba(0,212,255,0.10);}
+.vtable tbody tr td{font-family:var(--fb);font-size:10px;color:rgba(255,255,255,.62);padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
+.vtable tbody tr:last-child td{border-bottom:none;}
+.vtable td:first-child{color:rgba(255,255,255,.82);font-weight:500;}
+.tag{display:inline-block;padding:2px 7px;border-radius:5px;font-size:9px;font-weight:600;}
+.tag-ok{background:rgba(0,255,204,0.10);color:#00ffcc;border:1px solid rgba(0,255,204,0.22);}
+.tag-warn{background:rgba(255,196,0,0.10);color:#ffc400;border:1px solid rgba(255,196,0,0.22);}
+.tag-crit{background:rgba(255,77,109,0.10);color:#ff4d6d;border:1px solid rgba(255,77,109,0.22);}
+.tag-pend{background:rgba(167,139,250,0.10);color:#a78bfa;border:1px solid rgba(167,139,250,0.22);}
+
+/* STAT STRIP */
+.stat-strip{
+  display:flex;gap:8px;flex-shrink:0;height:36px;
+}
+.stat-chip{
+  flex:1;display:flex;align-items:center;justify-content:center;gap:7px;
+  border-radius:10px;
+  background:rgba(4,10,24,0.22);
+  border:1px solid rgba(0,212,255,0.13);
+  padding:0 10px;
+  font-family:var(--fb);font-size:10px;color:rgba(255,255,255,.50);
+}
+.stat-chip strong{font-family:var(--fh);font-size:13px;font-weight:700;color:rgba(255,255,255,.92);}
+.stat-chip .dot-sm{width:5px;height:5px;border-radius:50%;}
+
+/* AREA URGENCIAS MINI */
+.area-mini{flex:1;min-height:0;}
+
+/* GAUGE ROW */
+.gauge-row{display:flex;gap:6px;flex:1;min-height:0;}
+.gauge-cell{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.gauge-wrap{flex:1;width:100%;min-height:0;}
+.gauge-val{font-family:var(--fh);font-size:14px;font-weight:700;color:#fff;text-align:center;}
+.gauge-sub{font-family:var(--fb);font-size:9px;color:rgba(255,255,255,.38);text-align:center;margin-top:1px;}
+</style>
+</head>
+<body>
+<div class="video-bg">
+  <video autoplay muted loop playsinline>
+    <source src="VBRAIN VIDEO 4K.mp4" type="video/mp4">
+  </video>
+</div>
+<div class="scanline"></div>
+
+<div class="app">
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="nav-icon">🏥</div>
+    <div class="nav-title">Med<span>Core</span></div>
+    <div class="nav-sep"></div>
+    <div class="nav-links">
+      <div class="nav-link active">Resumen</div>
+      <div class="nav-link">Pacientes</div>
+      <div class="nav-link">Laboratorio</div>
+      <div class="nav-link">Facturación</div>
+      <div class="nav-link">IA Diagnóstica</div>
+    </div>
+    <div class="nav-right">
+      <div class="nav-alert"><span class="dot-red"></span>3 Urgentes</div>
+      <div class="nav-date" id="navDate"></div>
+      <div class="nav-live"><span class="dot"></span>En vivo</div>
+    </div>
+  </nav>
+
+  <!-- MAIN GRID -->
+  <div class="main-grid">
+
+    <!-- CARD 1: KPIs col1 rows1+2 -->
+    <div class="gc r2">
+      <div class="gc-inner">
+        <div class="card-lbl">Indicadores Clave</div>
+        <div class="kpi-list">
+
+          <div class="kpi-block">
+            <div class="kpi-top"><span class="kpi-icon">👥</span><span class="kpi-name">Pacientes Hoy</span></div>
+            <div class="kpi-val">284</div>
+            <div class="kpi-bar-track"><div class="kpi-bar-fill" style="width:71%;background:linear-gradient(90deg,#00d4ff,#00ffcc);box-shadow:0 0 8px rgba(0,212,255,0.5);"></div></div>
+          </div>
+
+          <div class="kpi-block">
+            <div class="kpi-top"><span class="kpi-icon">🚨</span><span class="kpi-name">Urgencias Activas</span></div>
+            <div class="kpi-val red">12</div>
+            <div class="kpi-bar-track"><div class="kpi-bar-fill" style="width:24%;background:linear-gradient(90deg,#ff4d6d,#ff8096);box-shadow:0 0 8px rgba(255,77,109,0.5);"></div></div>
+          </div>
+
+          <div class="kpi-block">
+            <div class="kpi-top"><span class="kpi-icon">🧪</span><span class="kpi-name">Análisis Lab.</span></div>
+            <div class="kpi-val">1,847</div>
+            <div class="kpi-bar-track"><div class="kpi-bar-fill" style="width:62%;background:linear-gradient(90deg,#7c3aed,#a78bfa);box-shadow:0 0 8px rgba(124,58,237,0.5);"></div></div>
+          </div>
+
+          <div class="kpi-block">
+            <div class="kpi-top"><span class="kpi-icon">💰</span><span class="kpi-name">Ingresos del Día</span></div>
+            <div class="kpi-val green">$18.4k</div>
+            <div class="kpi-bar-track"><div class="kpi-bar-fill" style="width:84%;background:linear-gradient(90deg,#00ffcc,#00d4ff);box-shadow:0 0 8px rgba(0,255,204,0.5);"></div></div>
+          </div>
+
+          <div class="kpi-block">
+            <div class="kpi-top"><span class="kpi-icon">🛏️</span><span class="kpi-name">Camas Ocupadas</span></div>
+            <div class="kpi-val purple">76%</div>
+            <div class="kpi-bar-track"><div class="kpi-bar-fill" style="width:76%;background:linear-gradient(90deg,#a78bfa,#c4b5fd);box-shadow:0 0 8px rgba(167,139,250,0.5);"></div></div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- CARD 2: Sunburst Especialidades col2 rows1+2 -->
+    <div class="gc r2">
+      <div class="gc-inner">
+        <div class="card-lbl">Especialidades</div>
+        <div class="chart-box" id="sunburst" style="flex:1;min-height:0;"></div>
+      </div>
+    </div>
+
+    <!-- CARD 3: Flujo Diario de Consultas col3 row1 -->
+    <div class="gc">
+      <div class="gc-inner">
+        <div class="card-lbl">Flujo de Consultas — Hoy</div>
+        <div class="chart-box" id="lineArea" style="flex:1;min-height:0;"></div>
+      </div>
+    </div>
+
+    <!-- CARD 4: Tabla Pacientes Recientes col4 rows1+2 -->
+    <div class="gc r2">
+      <div class="gc-inner">
+        <div class="card-lbl">Pacientes Recientes</div>
+        <table class="vtable">
+          <thead>
+            <tr>
+              <th>Paciente</th>
+              <th>Área</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Ramírez, J.</td><td style="color:rgba(255,255,255,.45)">Cardio</td><td><span class="tag tag-ok">OK</span></td></tr>
+            <tr><td>Torres, M.</td><td style="color:rgba(255,255,255,.45)">Urgencias</td><td><span class="tag tag-crit">Crítico</span></td></tr>
+            <tr><td>Vega, L.</td><td style="color:rgba(255,255,255,.45)">Lab.</td><td><span class="tag tag-pend">Pendiente</span></td></tr>
+            <tr><td>Castro, A.</td><td style="color:rgba(255,255,255,.45)">Cirugía</td><td><span class="tag tag-ok">OK</span></td></tr>
+            <tr><td>Muñoz, R.</td><td style="color:rgba(255,255,255,.45)">Pediatría</td><td><span class="tag tag-warn">Seguimiento</span></td></tr>
+            <tr><td>Herrera, P.</td><td style="color:rgba(255,255,255,.45)">Neurología</td><td><span class="tag tag-pend">Pendiente</span></td></tr>
+            <tr><td>Díaz, C.</td><td style="color:rgba(255,255,255,.45)">Ortopedia</td><td><span class="tag tag-ok">OK</span></td></tr>
+            <tr><td>Jiménez, S.</td><td style="color:rgba(255,255,255,.45)">Urgencias</td><td><span class="tag tag-crit">Crítico</span></td></tr>
+            <tr><td>Morales, F.</td><td style="color:rgba(255,255,255,.45)">Gineco</td><td><span class="tag tag-ok">OK</span></td></tr>
+            <tr><td>López, D.</td><td style="color:rgba(255,255,255,.45)">Lab.</td><td><span class="tag tag-warn">Revisar</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- CARD 5: LiquidFills col3 row2 -->
+    <div class="gc">
+      <div class="gc-inner">
+        <div class="card-lbl">Métricas de Calidad</div>
+        <div class="liq-grid">
+          <div class="liq-cell">
+            <div class="liq-wrap" id="liq1"></div>
+            <div class="liq-label">Precisión<br>Diagnóstica</div>
+          </div>
+          <div class="liq-cell">
+            <div class="liq-wrap" id="liq2"></div>
+            <div class="liq-label">Ocupación<br>UCI</div>
+          </div>
+          <div class="liq-cell">
+            <div class="liq-wrap" id="liq3"></div>
+            <div class="liq-label">Satisfacción<br>Paciente</div>
+          </div>
+          <div class="liq-cell">
+            <div class="liq-wrap" id="liq4"></div>
+            <div class="liq-label">Eficiencia<br>Lab.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main-grid -->
+
+  <!-- STAT STRIP -->
+  <div class="stat-strip">
+    <div class="stat-chip"><span class="dot-sm" style="background:#00d4ff;box-shadow:0 0 6px rgba(0,212,255,0.8);"></span><strong>284</strong> Consultas</div>
+    <div class="stat-chip"><span class="dot-sm" style="background:#ff4d6d;box-shadow:0 0 6px rgba(255,77,109,0.8);"></span><strong>12</strong> Urgencias</div>
+    <div class="stat-chip"><span class="dot-sm" style="background:#a78bfa;box-shadow:0 0 6px rgba(167,139,250,0.8);"></span><strong>1,847</strong> Lab. Procesados</div>
+    <div class="stat-chip"><span class="dot-sm" style="background:#00ffcc;box-shadow:0 0 6px rgba(0,255,204,0.8);"></span><strong>$18,420</strong> Ingresos</div>
+    <div class="stat-chip"><span class="dot-sm" style="background:#ffc400;box-shadow:0 0 6px rgba(255,196,0,0.8);"></span><strong>4.8★</strong> Satisfacción</div>
+    <div class="stat-chip"><span class="dot-sm" style="background:#00d4ff;box-shadow:0 0 6px rgba(0,212,255,0.8);"></span><strong>98.4%</strong> Precisión IA</div>
+    <div class="stat-chip"><span class="dot-sm" style="background:#a78bfa;box-shadow:0 0 6px rgba(167,139,250,0.8);"></span><strong>47</strong> Médicos Activos</div>
+  </div>
+
+</div><!-- /app -->
+
+<script>
+// DATE
+document.getElementById('navDate').textContent = new Date().toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+
+const FF = "'Space Grotesk',sans-serif";
+const glow = (c,b=12)=>({shadowBlur:b,shadowColor:c,shadowOffsetX:0,shadowOffsetY:0});
+const TT = {
+  backgroundColor:'rgba(4,10,24,0.97)',
+  borderColor:'rgba(0,212,255,0.28)',borderWidth:1,
+  textStyle:{color:'rgba(255,255,255,.88)',fontSize:11,fontFamily:FF},
+  extraCssText:'border-radius:10px;padding:10px 14px;box-shadow:0 8px 32px rgba(0,0,0,0.6);'
+};
+
+/* ── SUNBURST ESPECIALIDADES ── */
+const sb = echarts.init(document.getElementById('sunburst'),'dark',{renderer:'canvas'});
+sb.setOption({
+  backgroundColor:'transparent',
+  tooltip:{...TT, formatter: p=>`<b>${p.name}</b><br>${p.value} pacientes`},
+  series:[{
+    type:'sunburst',
+    radius:['18%','88%'],
+    center:['50%','50%'],
+    sort:null,
+    emphasis:{focus:'ancestor'},
+    data:[
+      { name:'Urgencias', value:12, itemStyle:{color:'rgba(255,77,109,0.85)'},
+        children:[
+          {name:'Trauma',value:5,itemStyle:{color:'rgba(255,77,109,0.55)'}},
+          {name:'Cardiac',value:4,itemStyle:{color:'rgba(255,120,140,0.55)'}},
+          {name:'Resp.',value:3,itemStyle:{color:'rgba(255,150,165,0.55)'}}
+        ]},
+      { name:'Laboratorio', value:58, itemStyle:{color:'rgba(167,139,250,0.85)'},
+        children:[
+          {name:'Hemato.',value:22,itemStyle:{color:'rgba(167,139,250,0.55)'}},
+          {name:'Bioquím.',value:20,itemStyle:{color:'rgba(192,170,255,0.55)'}},
+          {name:'Micro.',value:16,itemStyle:{color:'rgba(210,195,255,0.55)'}}
+        ]},
+      { name:'Medicina', value:38, itemStyle:{color:'rgba(0,212,255,0.85)'},
+        children:[
+          {name:'Cardio.',value:14,itemStyle:{color:'rgba(0,212,255,0.55)'}},
+          {name:'Neuro.',value:12,itemStyle:{color:'rgba(0,240,220,0.55)'}},
+          {name:'Endo.',value:12,itemStyle:{color:'rgba(0,180,255,0.55)'}}
+        ]},
+      { name:'Cirugía', value:24, itemStyle:{color:'rgba(0,255,204,0.85)'},
+        children:[
+          {name:'Ortoped.',value:10,itemStyle:{color:'rgba(0,255,204,0.55)'}},
+          {name:'General',value:8,itemStyle:{color:'rgba(0,230,180,0.55)'}},
+          {name:'Vascu.',value:6,itemStyle:{color:'rgba(0,200,160,0.55)'}}
+        ]},
+      { name:'Pediatría', value:18, itemStyle:{color:'rgba(255,196,0,0.85)'},
+        children:[
+          {name:'Neo-nato',value:8,itemStyle:{color:'rgba(255,196,0,0.55)'}},
+          {name:'Pediátrico',value:10,itemStyle:{color:'rgba(255,220,60,0.55)'}}
+        ]},
+    ],
+    label:{show:true,rotate:'tangential',fontSize:9,color:'rgba(255,255,255,.72)',fontFamily:FF},
+    itemStyle:{borderWidth:2,borderColor:'rgba(4,10,24,0.6)'}
+  }]
+});
+
+/* ── AREA GLOW CONSULTAS ── */
+const hrs = ['7am','8am','9am','10am','11am','12pm','1pm','2pm','3pm','4pm','5pm','6pm','Ahora'];
+const cons = [8,14,22,31,38,42,35,29,24,27,19,12,16];
+const emer = [1,2,3,4,3,2,1,2,3,2,1,2,3];
+const la = echarts.init(document.getElementById('lineArea'),'dark',{renderer:'canvas'});
+la.setOption({
+  backgroundColor:'transparent',
+  tooltip:{...TT, trigger:'axis', formatter: p=>{
+    return `<b>${p[0].axisValue}</b><br>
+    <span style="color:#00d4ff">● Consultas: ${p[0].value}</span><br>
+    <span style="color:#ff4d6d">● Urgencias: ${p[1].value}</span>`;
+  }},
+  grid:{left:32,right:16,top:14,bottom:28},
+  xAxis:{type:'category',data:hrs,axisLine:{lineStyle:{color:'rgba(255,255,255,.06)'}},
+    axisTick:{show:false},axisLabel:{fontSize:9,color:'rgba(255,255,255,.32)',fontFamily:FF}},
+  yAxis:{type:'value',splitLine:{lineStyle:{color:'rgba(255,255,255,.05)'}},
+    axisLabel:{fontSize:9,color:'rgba(255,255,255,.32)',fontFamily:FF}},
+  series:[
+    {
+      name:'Consultas',type:'line',data:cons,smooth:true,
+      symbol:'circle',symbolSize:5,
+      lineStyle:{color:'#00d4ff',width:2.5,...glow('#00d4ff',14)},
+      itemStyle:{color:'#00d4ff',...glow('#00d4ff',12)},
+      areaStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[
+        {offset:0,color:'rgba(0,212,255,0.22)'},{offset:1,color:'rgba(0,212,255,0.01)'}
+      ]}},
+      markPoint:{symbol:'circle',symbolSize:10,label:{fontSize:9,fontFamily:FF,color:'#fff'},
+        data:[{type:'max',name:'Pico',itemStyle:{color:'rgba(0,212,255,0.9)',...glow('#00d4ff',20)}}]},
+      markLine:{silent:true,lineStyle:{color:'rgba(0,212,255,0.22)',type:'dashed'},
+        label:{color:'rgba(0,212,255,0.65)',fontSize:9,fontFamily:FF},
+        data:[{type:'average',name:'Promedio'}]}
+    },
+    {
+      name:'Urgencias',type:'line',data:emer,smooth:true,
+      symbol:'circle',symbolSize:4,
+      lineStyle:{color:'#ff4d6d',width:2,...glow('#ff4d6d',10)},
+      itemStyle:{color:'#ff4d6d',...glow('#ff4d6d',8)},
+      areaStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[
+        {offset:0,color:'rgba(255,77,109,0.18)'},{offset:1,color:'rgba(255,77,109,0.01)'}
+      ]}}
+    }
+  ]
+});
+
+/* ── LIQUIDFILL ── */
+function makeLiq(id, val, color, waveColor){
+  const c = echarts.init(document.getElementById(id),'dark',{renderer:'canvas'});
+  c.setOption({
+    backgroundColor:'transparent',
+    series:[{
+      type:'liquidFill',
+      radius:'88%',
+      center:['50%','50%'],
+      data:[val, val*0.9, val*0.8],
+      color:[color],
+      backgroundStyle:{color:'rgba(4,10,24,0.50)',borderColor:color,borderWidth:1.5},
+      outline:{borderDistance:2,itemStyle:{borderWidth:2,borderColor:color,shadowBlur:10,shadowColor:color}},
+      label:{fontSize:13,fontFamily:FF,fontWeight:'700',color:'#fff',
+        formatter: ()=>Math.round(val*100)+'%'},
+      waveAnimation:true,
+      animationDuration:2000,
+      animationDurationUpdate:1000
+    }]
+  });
+  return c;
+}
+let l1,l2,l3,l4;
+setTimeout(()=>{ l1 = makeLiq('liq1', 0.984, '#00d4ff'); }, 0);
+setTimeout(()=>{ l2 = makeLiq('liq2', 0.76,  '#a78bfa'); }, 80);
+setTimeout(()=>{ l3 = makeLiq('liq3', 0.96,  '#00ffcc'); }, 160);
+setTimeout(()=>{ l4 = makeLiq('liq4', 0.91,  '#ffc400'); }, 240);
+
+/* ── RESIZE ── */
+window.addEventListener('resize',()=>{
+  sb.resize(); la.resize();
+  [l1,l2,l3,l4].forEach(c=>c&&c.resize());
+});
+</script>
+</body>
+</html>
