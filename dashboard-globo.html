@@ -9,518 +9,540 @@
 <style>
 *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
 :root {
-  --cyan:   #00d4ff;
-  --cyan2:  #00b8cc;
-  --gold:   #f5c518;
-  --green:  #00ff88;
-  --purple: #7c3aed;
-  --bg:     #080e1a;
-  --panel:  rgba(10,22,45,0.82);
-  --border: rgba(0,212,255,0.18);
-  --fh: 'Space Grotesk', sans-serif;
-  --fb: 'Inter', sans-serif;
+  --cyan:#00d4ff; --cyan2:#00b8cc;
+  --green:#00ff88; --gold:#f5c518;
+  --purple:#a78bfa; --pink:#f472b6;
+  --bg:#05080f;
+  --fh:'Space Grotesk',sans-serif;
+  --fb:'Inter',sans-serif;
 }
 
-@keyframes fadeInLeft { from{opacity:0;transform:translateX(-20px)} to{opacity:1;transform:translateX(0)} }
+@keyframes fadeInDown { from{opacity:0;transform:translateY(-12px)} to{opacity:1;transform:translateY(0)} }
 @keyframes fadeInUp   { from{opacity:0;transform:translateY(16px)}  to{opacity:1;transform:translateY(0)} }
 @keyframes fadeIn     { from{opacity:0} to{opacity:1} }
-@keyframes floatPin   { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
-@keyframes pulseRing  { 0%{transform:scale(.8);opacity:.9} 100%{transform:scale(2.8);opacity:0} }
+@keyframes floatPin   { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+@keyframes pulseRing  { 0%{transform:scale(.8);opacity:.9} 100%{transform:scale(2.6);opacity:0} }
 @keyframes blink      { 0%,100%{opacity:1} 50%{opacity:.3} }
-@keyframes rotateSlow { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
-@keyframes glowPulse  { 0%,100%{opacity:.6} 50%{opacity:1} }
 
-/* ── VIDEO GLOBO ── */
+/* ── VIDEO FULL SCREEN ── */
 .video-bg {
-  position:fixed; inset:0; z-index:0; overflow:hidden;
-  background:#080e1a;
+  position:fixed; inset:0; z-index:0;
+  background:var(--bg);
 }
 .video-bg video {
-  position:absolute;
-  right:-2%; top:50%; transform:translateY(-50%);
-  width:72%; height:auto;
-  transform: translateY(-50%) translateZ(0);
-  will-change:transform;
+  width:100%; height:100%; object-fit:cover;
+  transform:translateZ(0); will-change:transform;
+}
+/* Overlay oscuro para legibilidad de los charts */
+.video-bg::after {
+  content:''; position:absolute; inset:0;
+  background:rgba(4,8,18,0.60);
 }
 /* Luz atmosférica cyan sobre el globo */
 .video-bg::before {
   content:''; position:absolute; z-index:1;
-  right:0; top:0; width:72%; height:100%;
+  inset:0;
   background: radial-gradient(
-    ellipse at 68% 40%,
-    rgba(0,180,255,0.22) 0%,
-    rgba(0,100,200,0.12) 30%,
+    ellipse at 62% 48%,
+    rgba(0,150,255,0.18) 0%,
+    rgba(0,80,200,0.08) 35%,
     transparent 65%
   );
   pointer-events:none;
 }
-/* Degradado que integra panel izq con el globo */
-.video-bg::after {
-  content:''; position:absolute; inset:0; z-index:2;
-  background: linear-gradient(
-    to right,
-    rgba(8,14,26,1.0)   0%,
-    rgba(8,14,26,0.97)  30%,
-    rgba(8,14,26,0.55)  46%,
-    rgba(8,14,26,0.08)  58%,
-    rgba(8,14,26,0.00)  70%
-  );
-}
-/* Overlay espacial superior */
-.space-overlay {
-  position:fixed; inset:0; z-index:1; pointer-events:none;
-  background: radial-gradient(ellipse at 20% 50%, rgba(0,50,120,0.18) 0%, transparent 60%);
-}
 
 /* ── APP ── */
 .app {
-  position:relative; z-index:3;
-  display:flex; height:100vh; overflow:hidden;
-}
-
-/* ── LEFT PANEL — biselado glass ── */
-.left-panel {
-  width:340px; flex-shrink:0;
+  position:relative; z-index:2;
   display:flex; flex-direction:column;
-  padding:0;
-  animation: fadeInLeft .6s ease both;
-  /* Bisel: borde exterior brillante arriba-izq, oscuro abajo-der */
-  border-right: 1px solid rgba(0,212,255,0.15);
-  background: rgba(5,12,26,0.70);
-  box-shadow:
-    inset 1px 0 0 rgba(255,255,255,0.06),
-    inset 0 1px 0 rgba(255,255,255,0.08),
-    4px 0 24px rgba(0,0,0,0.40);
+  height:100vh; padding:12px 14px; gap:10px;
+  overflow:hidden;
 }
 
-/* panel header */
-.panel-header {
-  padding:16px 20px 12px;
-  border-bottom:1px solid rgba(0,212,255,0.10);
-  background: linear-gradient(180deg, rgba(0,212,255,0.06) 0%, transparent 100%);
+/* ══════ NAVBAR ══════ */
+.navbar {
+  display:flex; align-items:center; gap:16px;
+  padding:0 18px;
+  height:48px; flex-shrink:0;
+  border-radius:14px;
+  background:rgba(6,12,28,0.72);
+  border:1px solid rgba(0,212,255,0.18);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.07),
+    inset 1px 0 0 rgba(0,212,255,0.10),
+    0 4px 24px rgba(0,0,0,0.35);
+  position:relative;
+  animation:fadeInDown .5s ease both;
+}
+.navbar::before {
+  content:''; position:absolute; top:0; left:20px; right:20px; height:1px;
+  background:linear-gradient(90deg,transparent,rgba(0,212,255,0.50),rgba(255,255,255,0.15),transparent);
+}
+.nav-logo {
+  display:flex; align-items:center; gap:9px; text-decoration:none;
+}
+.nav-logo-icon {
+  width:30px; height:30px; border-radius:8px;
+  background:linear-gradient(135deg,#00d4ff,#0044bb);
+  display:flex; align-items:center; justify-content:center;
+  font-size:15px; box-shadow:0 0 14px rgba(0,212,255,0.45);
+}
+.nav-logo-text {
+  font-family:var(--fh); font-size:13px; font-weight:700;
+  color:#fff; letter-spacing:.5px;
+}
+.nav-logo-text span { color:var(--cyan); }
+.nav-sep { width:1px; height:24px; background:rgba(0,212,255,0.15); margin:0 4px; }
+.nav-links { display:flex; gap:4px; }
+.nav-link {
+  font-family:var(--fb); font-size:11px; font-weight:500;
+  color:rgba(255,255,255,.40); padding:5px 12px;
+  border-radius:7px; cursor:pointer; transition:all .2s;
+}
+.nav-link:hover { background:rgba(0,212,255,.08); color:rgba(255,255,255,.75); }
+.nav-link.active {
+  background:rgba(0,212,255,.14); color:var(--cyan);
+  border:1px solid rgba(0,212,255,.22);
+  box-shadow:0 0 12px rgba(0,212,255,.12);
+}
+.nav-right { margin-left:auto; display:flex; align-items:center; gap:10px; }
+.nav-date {
+  font-family:var(--fb); font-size:11px; color:rgba(255,255,255,.35);
+  letter-spacing:.3px;
+}
+.nav-live {
+  display:flex; align-items:center; gap:6px;
+  background:rgba(0,255,136,0.08); border:1px solid rgba(0,255,136,0.22);
+  border-radius:50px; padding:4px 11px;
+  font-family:var(--fb); font-size:10px; font-weight:600; color:var(--green);
+}
+.dot { width:6px; height:6px; border-radius:50%; background:var(--green); animation:blink 1.4s infinite; }
+.nav-avatar {
+  width:30px; height:30px; border-radius:50%;
+  background:linear-gradient(135deg,#00d4ff33,#0044bb55);
+  border:1.5px solid rgba(0,212,255,.35);
+  display:flex; align-items:center; justify-content:center;
+  font-size:13px;
+}
+
+/* ══════ MAIN GRID ══════ */
+.main-grid {
+  flex:1; min-height:0;
+  display:grid;
+  grid-template-columns: 220px 1fr 1fr 200px;
+  grid-template-rows: 1fr 1fr;
+  gap:10px;
+}
+
+/* ══════ GLASS CARD ══════ */
+.gc {
+  border-radius:16px;
+  background:rgba(6,14,30,0.62);
+  border:1px solid rgba(0,212,255,0.16);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.07),
+    inset 1px 0 0 rgba(0,212,255,0.08),
+    0 8px 32px rgba(0,0,0,0.30);
+  position:relative; overflow:hidden;
+  animation:fadeIn .7s ease both;
+}
+/* Bisel top */
+.gc::before {
+  content:''; position:absolute; top:0; left:14px; right:14px; height:1px;
+  background:linear-gradient(90deg,transparent,rgba(0,212,255,0.55),rgba(255,255,255,0.12),transparent);
+}
+/* Bisel left */
+.gc::after {
+  content:''; position:absolute; top:14px; left:0; bottom:14px; width:1px;
+  background:linear-gradient(180deg,transparent,rgba(0,212,255,0.28),rgba(0,212,255,0.14),transparent);
+}
+/* reflejo glass interior */
+.gc-glow {
+  position:absolute; top:0; left:0; right:0; height:40%;
+  background:linear-gradient(180deg,rgba(255,255,255,0.035) 0%,transparent 100%);
+  pointer-events:none; border-radius:16px 16px 0 0;
+}
+.gc-header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:12px 16px 6px; position:relative; z-index:1;
+}
+.gc-title {
+  font-family:var(--fh); font-size:9px; font-weight:700;
+  color:rgba(255,255,255,.65); letter-spacing:2.2px; text-transform:uppercase;
+  text-shadow:0 0 12px rgba(0,212,255,.25);
+}
+.gc-badge {
+  font-size:9px; font-weight:600; padding:2px 8px; border-radius:50px;
+  font-family:var(--fb); background:rgba(0,212,255,.10);
+  color:var(--cyan); border:1px solid rgba(0,212,255,.22);
+}
+.gc-badge.green { background:rgba(0,255,136,.10); color:var(--green); border-color:rgba(0,255,136,.22); }
+.gc-badge.gold  { background:rgba(245,197,24,.10);  color:var(--gold);  border-color:rgba(245,197,24,.22); }
+
+/* ══════ CARD 1 — BIG STAT ══════ */
+.card-stat {
+  grid-column:1; grid-row:1;
+  display:flex; flex-direction:column; justify-content:center;
+  padding:18px 18px;
+  animation-delay:.05s;
+}
+.stat-label {
+  font-family:var(--fb); font-size:9px; color:rgba(255,255,255,.35);
+  text-transform:uppercase; letter-spacing:1.5px; margin-bottom:8px;
+}
+.stat-big {
+  font-family:var(--fh); font-size:30px; font-weight:800; color:#fff; line-height:1;
+  text-shadow:0 0 30px rgba(0,212,255,.22);
+}
+.stat-big span { color:var(--cyan); }
+.stat-change {
+  margin-top:8px; display:flex; align-items:center; gap:6px;
+  font-family:var(--fb); font-size:11px;
+}
+.stat-up { color:var(--green); font-weight:600; }
+.stat-dim { color:rgba(255,255,255,.30); }
+.stat-divider { height:1px; margin:12px 0; background:rgba(0,212,255,0.10); }
+.mini-stats { display:flex; flex-direction:column; gap:8px; }
+.ms-row { display:flex; align-items:center; justify-content:space-between; }
+.ms-label { font-family:var(--fb); font-size:10px; color:rgba(255,255,255,.38); }
+.ms-value { font-family:var(--fh); font-size:12px; font-weight:600; color:#fff; }
+.ms-bar { height:3px; border-radius:3px; margin-top:3px; }
+
+/* ══════ CARD 2 — LINE CHART ══════ */
+.card-line { grid-column:2; grid-row:1; animation-delay:.1s; }
+.card-line .chart-wrap { position:absolute; inset:42px 0 0 0; }
+
+/* ══════ CARD 3 — BAR CHART ══════ */
+.card-bar { grid-column:3; grid-row:1; animation-delay:.15s; }
+.card-bar .chart-wrap { position:absolute; inset:42px 0 0 0; }
+
+/* ══════ CARD 4 — TABLE ══════ */
+.card-table {
+  grid-column:4; grid-row:1 / span 2;
+  display:flex; flex-direction:column;
+  animation-delay:.2s;
+}
+.table-list { flex:1; overflow:hidden; padding:0 14px 14px; display:flex; flex-direction:column; gap:7px; }
+.t-row {
+  display:flex; align-items:center; gap:10px;
+  padding:8px 10px; border-radius:10px;
+  background:rgba(0,212,255,0.04);
+  border:1px solid rgba(0,212,255,0.08);
+  transition:all .2s; cursor:pointer;
   position:relative;
 }
-.panel-header::after {
-  content:''; position:absolute; bottom:0; left:20px; right:20px; height:1px;
-  background:linear-gradient(90deg,transparent,rgba(0,212,255,0.35),transparent);
+.t-row::before {
+  content:''; position:absolute; top:0; left:8px; right:8px; height:1px;
+  background:linear-gradient(90deg,transparent,rgba(0,212,255,0.25),transparent);
 }
-.panel-title {
-  font-family:var(--fh); font-size:11px; font-weight:700;
-  color:rgba(255,255,255,.95); letter-spacing:2.5px; text-transform:uppercase;
-  text-shadow: 0 0 20px rgba(0,212,255,0.4);
+.t-row:hover { background:rgba(0,212,255,0.09); }
+.t-avatar {
+  width:28px; height:28px; border-radius:8px; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  font-size:13px; font-weight:700; font-family:var(--fh);
 }
+.t-info { flex:1; min-width:0; }
+.t-name { font-family:var(--fh); font-size:11px; font-weight:600; color:rgba(255,255,255,.85); }
+.t-sub  { font-family:var(--fb); font-size:9px; color:rgba(255,255,255,.30); margin-top:1px; }
+.t-val  { font-family:var(--fh); font-size:11px; font-weight:700; }
+.t-val.pos { color:var(--green); }
+.t-val.neg { color:#f87171; }
 
-/* chart cards stacked — cada una biselada */
-.chart-cards { flex:1; display:flex; flex-direction:column; overflow:hidden; }
+/* ══════ CARD 5 — DONUT ══════ */
+.card-donut { grid-column:1; grid-row:2; animation-delay:.25s; }
+.donut-row { position:absolute; inset:42px 0 0 0; display:flex; align-items:center; }
+.donut-canvas { flex:0 0 50%; height:100%; position:relative; }
+.donut-canvas > div { position:absolute; inset:0; }
+.donut-leg { flex:1; display:flex; flex-direction:column; gap:8px; padding:0 10px 10px 4px; justify-content:center; }
+.dl-row { display:flex; align-items:center; gap:7px; }
+.dl-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.dl-lbl { font-family:var(--fb); font-size:9px; color:rgba(255,255,255,.45); flex:1; }
+.dl-pct { font-family:var(--fh); font-size:11px; font-weight:700; color:#fff; }
 
-.chart-card {
-  flex:1; padding:12px 18px 10px;
-  display:flex; flex-direction:column;
-  position:relative; overflow:hidden;
-  /* glass biselado */
-  background: linear-gradient(
-    145deg,
-    rgba(12,28,55,0.75) 0%,
-    rgba(5,14,32,0.85) 50%,
-    rgba(8,18,40,0.80) 100%
-  );
-  border-bottom:1px solid rgba(0,212,255,0.06);
-  transition: all .25s ease;
+/* ══════ CARD 6 — GAUGE 1 ══════ */
+.card-gauge1 { grid-column:2; grid-row:2; animation-delay:.30s; display:flex; flex-direction:column; }
+.gauge-body { flex:1; position:relative; }
+.gauge-center {
+  position:absolute; bottom:28%; left:50%; transform:translateX(-50%);
+  text-align:center; pointer-events:none;
 }
-.chart-card:hover {
-  background: linear-gradient(
-    145deg,
-    rgba(16,36,68,0.85) 0%,
-    rgba(8,20,44,0.90) 100%
-  );
-}
-/* Bisel superior: línea de luz */
-.chart-card::before {
-  content:''; position:absolute; top:0; left:0; right:0; height:1px;
-  background:linear-gradient(90deg,
-    rgba(255,255,255,0.03) 0%,
-    rgba(0,212,255,0.40) 40%,
-    rgba(255,255,255,0.12) 70%,
-    rgba(255,255,255,0.02) 100%
-  );
-}
-/* Bisel izquierdo: línea de luz vertical */
-.chart-card::after {
-  content:''; position:absolute; top:8px; left:0; bottom:8px; width:1px;
-  background:linear-gradient(180deg,
-    transparent 0%,
-    rgba(0,212,255,0.25) 30%,
-    rgba(0,212,255,0.15) 70%,
-    transparent 100%
-  );
-}
+.gauge-num { font-family:var(--fh); font-size:24px; font-weight:800; color:#fff; line-height:1; }
+.gauge-lbl { font-family:var(--fb); font-size:9px; color:rgba(255,255,255,.35); text-transform:uppercase; letter-spacing:1px; margin-top:3px; }
 
-/* Reflejo glass interior en cada card */
-.chart-card-inner-glow {
-  position:absolute; top:0; left:0; right:0; height:35%;
-  background:linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%);
-  pointer-events:none; border-radius:0;
-}
+/* ══════ CARD 7 — GAUGE 2 ══════ */
+.card-gauge2 { grid-column:3; grid-row:2; animation-delay:.35s; display:flex; flex-direction:column; }
 
-.card-header {
-  display:flex; align-items:center; justify-content:space-between;
-  margin-bottom:5px;
-}
-.card-title {
-  font-family:var(--fh); font-size:10px; font-weight:700;
-  color:rgba(255,255,255,.75);
-  letter-spacing:2px; text-transform:uppercase;
-  text-shadow: 0 0 12px rgba(0,212,255,0.30);
-}
-.card-legend { display:flex; gap:10px; }
-.leg {
-  display:flex; align-items:center; gap:5px;
-  font-family:var(--fb); font-size:9px;
-  color:rgba(255,255,255,.40); letter-spacing:.5px;
-}
-.leg-line { width:20px; height:1.5px; border-radius:2px; }
-.leg-cyan  { background:var(--cyan);  box-shadow:0 0 8px rgba(0,212,255,.8); }
-.leg-green { background:var(--green); box-shadow:0 0 8px rgba(0,255,136,.6); }
-/* Y-axis label */
-.card-y-label {
-  font-size:8px; color:rgba(255,255,255,.22);
-  font-family:var(--fb); letter-spacing:1px;
-  text-transform:uppercase; margin-bottom:2px;
-}
-
-/* donut card special layout */
-.donut-row { display:flex; align-items:center; gap:16px; flex:1; min-height:0; }
-.donut-canvas-wrap { width:82px; height:82px; flex-shrink:0; position:relative; }
-.donut-canvas-wrap canvas { position:absolute; inset:0; }
-/* glow central del donut */
-.donut-canvas-wrap::after {
-  content:''; position:absolute; inset:22px; border-radius:50%;
-  box-shadow: 0 0 16px rgba(0,212,255,.18), inset 0 0 10px rgba(0,212,255,.10);
-  pointer-events:none;
-}
-.donut-legend { flex:1; display:flex; flex-direction:column; gap:4px; }
-.dl-row {
-  display:flex; align-items:center; gap:8px;
-  padding:4px 8px; border-radius:6px;
-  background: rgba(255,255,255,0.02);
-  border:1px solid rgba(255,255,255,0.04);
-  transition: all .15s;
-}
-.dl-row:hover {
-  background: rgba(0,212,255,0.06);
-  border-color: rgba(0,212,255,0.15);
-}
-.dl-swatch { width:3px; height:26px; border-radius:3px; flex-shrink:0; }
-.dl-swatch-cyan   { background:linear-gradient(180deg,var(--cyan),rgba(0,212,255,.2)); box-shadow:0 0 8px rgba(0,212,255,.5); }
-.dl-swatch-green  { background:linear-gradient(180deg,var(--green),rgba(0,255,136,.2)); box-shadow:0 0 8px rgba(0,255,136,.4); }
-.dl-swatch-purple { background:linear-gradient(180deg,#c4b5fd,rgba(167,139,250,.2)); box-shadow:0 0 6px rgba(167,139,250,.3); }
-.dl-swatch-gold   { background:linear-gradient(180deg,var(--gold),rgba(245,197,24,.2)); box-shadow:0 0 6px rgba(245,197,24,.3); }
-.dl-info { flex:1; }
-.dl-name { font-size:9px; color:rgba(255,255,255,.38); font-family:var(--fb); letter-spacing:.5px; text-transform:uppercase; }
-.dl-num  { font-family:var(--fh); font-size:13px; font-weight:700; color:rgba(255,255,255,.88); line-height:1.1; }
-.dl-pct  { font-family:var(--fh); font-size:11px; font-weight:600; color:rgba(255,255,255,.45); }
-
-/* ── RIGHT / GLOBE AREA ── */
-.globe-area {
-  flex:1; position:relative; overflow:hidden;
-  animation: fadeIn 1s ease both .15s;
-}
-
-/* top bar */
-.top-bar {
-  position:absolute; top:0; left:0; right:0;
-  display:flex; align-items:center; justify-content:flex-end;
-  padding:16px 22px;
-  animation: fadeInUp .6s ease both .2s;
-}
-.top-info {
-  display:flex; align-items:center; gap:16px;
-  font-size:12px; color:rgba(255,255,255,.55); font-family:var(--fb);
-}
-.top-info span { color:rgba(255,255,255,.80); font-weight:500; }
-
-/* floating location pins */
-.pin {
-  position:absolute;
-  animation:floatPin 3.5s ease-in-out infinite;
-  cursor:pointer;
+/* ══════ CITY PINS (flotantes sobre el globo) ══════ */
+.city-pin {
+  position:fixed; cursor:pointer;
+  animation:floatPin 4s ease-in-out infinite;
+  z-index:10; pointer-events:none;
 }
 .pin-card {
-  background: rgba(10,20,45,0.88);
-  border:1px solid rgba(255,255,255,0.18);
-  border-radius:6px;
-  padding:8px 12px;
+  background:rgba(4,10,24,0.88);
+  border:1px solid rgba(255,255,255,0.14);
+  border-radius:10px; padding:8px 12px;
   display:flex; align-items:center; gap:8px;
-  box-shadow:0 4px 20px rgba(0,0,0,.40), 0 0 0 1px rgba(0,212,255,0.10);
-  white-space:nowrap;
+  position:relative; white-space:nowrap;
 }
-.pin-card-gold { border-color:rgba(245,197,24,0.50); box-shadow:0 4px 20px rgba(0,0,0,.40), 0 0 12px rgba(245,197,24,0.15); }
-.pin-icon-dot {
-  width:10px; height:10px; border-radius:50%; flex-shrink:0;
-  position:relative;
+.pin-card::before {
+  content:''; position:absolute; top:0; left:10px; right:10px; height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.25),transparent);
 }
-.pin-icon-dot::after {
-  content:''; position:absolute; inset:-3px; border-radius:50%;
-  border:1.5px solid currentColor; animation:pulseRing 2s ease-out infinite;
+.pin-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; position:relative; }
+.pin-dot::after {
+  content:''; position:absolute; inset:0; border-radius:50%;
+  animation:pulseRing 1.8s ease-out infinite;
+  border:2px solid currentColor;
 }
-.pin-name  { font-family:var(--fh); font-size:12px; font-weight:700; color:#fff; }
-.pin-stats { display:flex; gap:10px; margin-top:4px; }
-.pin-stat  { font-size:10px; color:rgba(255,255,255,.50); font-family:var(--fb); }
-.pin-stat span { color:rgba(255,255,255,.85); font-weight:600; }
-
-/* bottom gauges */
-.bottom-gauges {
-  position:absolute; bottom:22px; left:50%; transform:translateX(-50%);
-  display:flex; gap:16px; align-items:flex-end;
-  animation: fadeInUp .7s ease both .4s;
-}
-.gauge-block { text-align:center; }
-.gauge-wrap  { position:relative; width:100px; height:100px; }
-.gauge-wrap canvas { position:absolute; inset:0; }
-.gauge-center {
-  position:absolute; inset:0;
-  display:flex; flex-direction:column; align-items:center; justify-content:center;
-}
-.gauge-num { font-family:var(--fh); font-size:22px; font-weight:800; color:#fff; line-height:1; }
-.gauge-lbl { font-size:9px; color:rgba(255,255,255,.40); text-transform:uppercase; letter-spacing:.8px; margin-top:2px; }
-.gauge-title { font-size:10px; color:rgba(255,255,255,.50); margin-top:6px; font-family:var(--fb); letter-spacing:.5px; text-transform:uppercase; }
-
-/* between gauges: mini label */
-.gauge-middle {
-  background: rgba(10,20,45,0.85);
-  border:1px solid var(--border);
-  border-radius:10px; padding:12px 16px; text-align:center;
-  margin-bottom:10px;
-}
-.gm-title { font-size:9px; color:rgba(255,255,255,.40); text-transform:uppercase; letter-spacing:1px; margin-bottom:6px; }
-.gm-num   { font-family:var(--fh); font-size:18px; font-weight:700; color:#fff; }
-.gm-bars  { display:flex; flex-direction:column; gap:4px; margin-top:8px; width:130px; }
-.gm-bar-row { display:flex; align-items:center; justify-content:space-between; gap:8px; }
-.gm-bar-lbl { font-size:9px; color:rgba(255,255,255,.40); font-family:var(--fb); width:48px; }
-.gm-bar-track { flex:1; height:3px; background:rgba(255,255,255,.08); border-radius:2px; overflow:hidden; }
-.gm-bar-fill  { height:100%; border-radius:2px; }
-.gm-bar-val { font-size:9px; color:rgba(255,255,255,.55); font-family:var(--fh); width:28px; text-align:right; }
-
-/* right side stats */
-.right-stats {
-  position:absolute; right:22px; top:50%; transform:translateY(-50%);
-  display:flex; flex-direction:column; gap:10px;
-  animation: fadeIn .8s ease both .5s;
-}
-.rs-card {
-  background: rgba(10,20,45,0.85);
-  border:1px solid var(--border);
-  border-radius:10px; padding:12px 14px;
-  min-width:140px;
-}
-.rs-header { display:flex; align-items:center; gap:6px; margin-bottom:4px; }
-.rs-dot { width:6px; height:6px; border-radius:50%; }
-.rs-title { font-size:9px; color:rgba(255,255,255,.40); text-transform:uppercase; letter-spacing:1px; font-family:var(--fb); }
-.rs-desc  { font-size:9px; color:rgba(255,255,255,.30); font-family:var(--fb); margin-bottom:8px; }
-.rs-num   { font-family:var(--fh); font-size:28px; font-weight:800; color:#fff; line-height:1; }
-.rs-unit  { font-size:10px; color:rgba(255,255,255,.40); font-family:var(--fb); margin-left:2px; }
+.pin-name { font-family:var(--fh); font-size:11px; font-weight:700; color:#fff; }
+.pin-stat { font-family:var(--fb); font-size:9px; color:rgba(255,255,255,.40); margin-top:2px; }
+.pin-stat span { color:rgba(255,255,255,.75); font-weight:600; }
 </style>
 </head>
 <body>
 
+<!-- VIDEO FULL SCREEN -->
 <div class="video-bg">
   <video autoplay muted loop playsinline>
     <source src="GLOBO MAPA.mp4" type="video/mp4">
   </video>
 </div>
-<div class="space-overlay"></div>
 
-<div class="app">
-
-  <!-- LEFT PANEL -->
-  <div class="left-panel">
-    <div class="panel-header">
-      <div class="panel-title">Data Visualization</div>
-    </div>
-
-    <div class="chart-cards">
-
-      <!-- CARD 1: Barras -->
-      <div class="chart-card" style="animation:fadeInLeft .6s ease both .1s">
-        <div class="chart-card-inner-glow"></div>
-        <div class="card-header">
-          <span class="card-title">Title</span>
-          <div class="card-legend">
-            <div class="leg"><div class="leg-line leg-cyan"></div>Series 1</div>
-            <div class="leg"><div class="leg-line leg-green"></div>Series 2</div>
-          </div>
-        </div>
-        <div id="barChart" style="flex:1;min-height:0;width:100%"></div>
-      </div>
-
-      <!-- CARD 2: Donut + leyenda -->
-      <div class="chart-card" style="animation:fadeInLeft .6s ease both .2s">
-        <div class="chart-card-inner-glow"></div>
-        <div class="card-header">
-          <span class="card-title">Title</span>
-        </div>
-        <div class="donut-row">
-          <div class="donut-canvas-wrap">
-            <div id="donutChart" style="position:absolute;inset:0"></div>
-          </div>
-          <div class="donut-legend">
-            <div class="dl-row">
-              <div class="dl-swatch dl-swatch-cyan"></div>
-              <div class="dl-info"><div class="dl-name">Series 1</div><div class="dl-num">550</div></div>
-              <span class="dl-pct">55%</span>
-            </div>
-            <div class="dl-row">
-              <div class="dl-swatch dl-swatch-green"></div>
-              <div class="dl-info"><div class="dl-name">Series 2</div><div class="dl-num">250</div></div>
-              <span class="dl-pct">25%</span>
-            </div>
-            <div class="dl-row">
-              <div class="dl-swatch dl-swatch-purple"></div>
-              <div class="dl-info"><div class="dl-name">Series 3</div><div class="dl-num">120</div></div>
-              <span class="dl-pct">12%</span>
-            </div>
-            <div class="dl-row">
-              <div class="dl-swatch dl-swatch-gold"></div>
-              <div class="dl-info"><div class="dl-name">Series 4</div><div class="dl-num">80</div></div>
-              <span class="dl-pct">8%</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- CARD 3: Línea doble -->
-      <div class="chart-card" style="animation:fadeInLeft .6s ease both .3s; border-bottom:none;">
-        <div class="chart-card-inner-glow"></div>
-        <div class="card-header">
-          <span class="card-title">Title</span>
-          <div class="card-legend">
-            <div class="leg"><div class="leg-line leg-cyan"></div>Series 1</div>
-            <div class="leg"><div class="leg-line leg-green"></div>Series 2</div>
-          </div>
-        </div>
-        <div id="lineChart" style="flex:1;min-height:0;width:100%"></div>
-      </div>
-
+<!-- CITY PINS — flotan sobre el globo -->
+<div class="city-pin" style="top:32%;left:54%;animation-delay:0s">
+  <div class="pin-card">
+    <div class="pin-dot" style="background:var(--gold);color:var(--gold)"></div>
+    <div>
+      <div class="pin-name">NEW YORK</div>
+      <div class="pin-stat">Index <span>287</span> · Rank <span>#1</span></div>
     </div>
   </div>
-
-  <!-- GLOBE AREA -->
-  <div class="globe-area">
-
-    <!-- TOP BAR -->
-    <div class="top-bar">
-      <div class="top-info">
-        ☁ 26°C &nbsp;
-        <span>2026.06.01</span> &nbsp;
-        <span>17:00</span>
-      </div>
+</div>
+<div class="city-pin" style="top:44%;left:40%;animation-delay:.9s">
+  <div class="pin-card">
+    <div class="pin-dot" style="background:var(--cyan);color:var(--cyan)"></div>
+    <div>
+      <div class="pin-name">HOUSTON</div>
+      <div class="pin-stat">Index <span>194</span> · Rank <span>#4</span></div>
     </div>
+  </div>
+</div>
+<div class="city-pin" style="top:58%;left:60%;animation-delay:1.6s">
+  <div class="pin-card">
+    <div class="pin-dot" style="background:var(--green);color:var(--green)"></div>
+    <div>
+      <div class="pin-name">MIAMI</div>
+      <div class="pin-stat">Index <span>156</span> · Rank <span>#7</span></div>
+    </div>
+  </div>
+</div>
 
-    <!-- FLOATING PINS -->
-    <div class="pin" style="top:14%;left:28%;animation-delay:0s">
-      <div class="pin-card pin-card-gold">
-        <div class="pin-icon-dot" style="background:var(--gold);color:var(--gold)"></div>
+<!-- DASHBOARD -->
+<div class="app">
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="nav-logo">
+      <div class="nav-logo-icon">🌍</div>
+      <div class="nav-logo-text">NEXORA <span>Analytics</span></div>
+    </div>
+    <div class="nav-sep"></div>
+    <div class="nav-links">
+      <div class="nav-link active">Overview</div>
+      <div class="nav-link">Markets</div>
+      <div class="nav-link">Global</div>
+      <div class="nav-link">Reports</div>
+    </div>
+    <div class="nav-right">
+      <div class="nav-date">June 01, 2026</div>
+      <div class="nav-live"><div class="dot"></div>LIVE</div>
+      <div class="nav-avatar">👤</div>
+    </div>
+  </nav>
+
+  <!-- MAIN GRID -->
+  <div class="main-grid">
+
+    <!-- CARD 1: BIG STAT -->
+    <div class="gc card-stat" style="animation-delay:.05s">
+      <div class="gc-glow"></div>
+      <div class="stat-label">Global Index Value</div>
+      <div class="stat-big">$<span>23,846</span></div>
+      <div class="stat-change">
+        <span class="stat-up">▲ +4.2%</span>
+        <span class="stat-dim">vs last period</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="mini-stats">
         <div>
-          <div class="pin-name">HOUSTON</div>
-          <div class="pin-stats">
-            <span class="pin-stat">◆ INDEX <span>123</span></span>
-            <span class="pin-stat">◆ INDEX <span>123</span></span>
+          <div class="ms-row">
+            <span class="ms-label">Series 1</span>
+            <span class="ms-value" style="color:var(--cyan)">8,820</span>
           </div>
+          <div class="ms-bar" style="background:linear-gradient(90deg,#00d4ff,rgba(0,212,255,.15));width:88%"></div>
         </div>
-      </div>
-    </div>
-
-    <div class="pin" style="top:30%;left:55%;animation-delay:.8s">
-      <div class="pin-card">
-        <div class="pin-icon-dot" style="background:var(--cyan);color:var(--cyan)"></div>
         <div>
-          <div class="pin-name">NEW YORK</div>
-          <div class="pin-stats">
-            <span class="pin-stat">◆ INDEX <span>287</span></span>
-            <span class="pin-stat">◆ INDEX <span>194</span></span>
+          <div class="ms-row">
+            <span class="ms-label">Series 2</span>
+            <span class="ms-value" style="color:var(--green)">6,200</span>
           </div>
+          <div class="ms-bar" style="background:linear-gradient(90deg,#00ff88,rgba(0,255,136,.12));width:62%"></div>
         </div>
-      </div>
-    </div>
-
-    <div class="pin" style="top:52%;left:38%;animation-delay:1.4s">
-      <div class="pin-card">
-        <div class="pin-icon-dot" style="background:var(--green);color:var(--green)"></div>
         <div>
-          <div class="pin-name">MIAMI</div>
-          <div class="pin-stats">
-            <span class="pin-stat">◆ INDEX <span>156</span></span>
-            <span class="pin-stat">◆ INDEX <span>98</span></span>
+          <div class="ms-row">
+            <span class="ms-label">Series 3</span>
+            <span class="ms-value" style="color:var(--purple)">3,910</span>
+          </div>
+          <div class="ms-bar" style="background:linear-gradient(90deg,#a78bfa,rgba(167,139,250,.12));width:40%"></div>
+        </div>
+        <div>
+          <div class="ms-row">
+            <span class="ms-label">Series 4</span>
+            <span class="ms-value" style="color:var(--gold)">4,916</span>
+          </div>
+          <div class="ms-bar" style="background:linear-gradient(90deg,#f5c518,rgba(245,197,24,.12));width:49%"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CARD 2: LINE CHART -->
+    <div class="gc card-line" style="animation-delay:.10s">
+      <div class="gc-glow"></div>
+      <div class="gc-header">
+        <span class="gc-title">Market Overview</span>
+        <span class="gc-badge green">+12.4%</span>
+      </div>
+      <div class="chart-wrap" id="lineChart"></div>
+    </div>
+
+    <!-- CARD 3: BAR CHART -->
+    <div class="gc card-bar" style="animation-delay:.15s">
+      <div class="gc-glow"></div>
+      <div class="gc-header">
+        <span class="gc-title">Regional Performance</span>
+        <span class="gc-badge">Q2 2026</span>
+      </div>
+      <div class="chart-wrap" id="barChart"></div>
+    </div>
+
+    <!-- CARD 4: TABLE -->
+    <div class="gc card-table" style="animation-delay:.20s">
+      <div class="gc-glow"></div>
+      <div class="gc-header">
+        <span class="gc-title">Recent Activity</span>
+        <span class="gc-badge gold">8 new</span>
+      </div>
+      <div class="table-list">
+        <div class="t-row">
+          <div class="t-avatar" style="background:rgba(0,212,255,.14);color:var(--cyan)">TY</div>
+          <div class="t-info">
+            <div class="t-name">Tyler Chen</div>
+            <div class="t-sub">2m ago · NY</div>
+          </div>
+          <div class="t-val pos">+$4,219</div>
+        </div>
+        <div class="t-row">
+          <div class="t-avatar" style="background:rgba(0,255,136,.12);color:var(--green)">RA</div>
+          <div class="t-info">
+            <div class="t-name">Rachel Adams</div>
+            <div class="t-sub">15m ago · TX</div>
+          </div>
+          <div class="t-val pos">+$2,840</div>
+        </div>
+        <div class="t-row">
+          <div class="t-avatar" style="background:rgba(167,139,250,.12);color:var(--purple)">JG</div>
+          <div class="t-info">
+            <div class="t-name">James Green</div>
+            <div class="t-sub">1h ago · FL</div>
+          </div>
+          <div class="t-val neg">−$1,305</div>
+        </div>
+        <div class="t-row">
+          <div class="t-avatar" style="background:rgba(245,197,24,.12);color:var(--gold)">DK</div>
+          <div class="t-info">
+            <div class="t-name">David Kim</div>
+            <div class="t-sub">2h ago · CA</div>
+          </div>
+          <div class="t-val pos">+$7,640</div>
+        </div>
+        <div class="t-row">
+          <div class="t-avatar" style="background:rgba(244,114,182,.12);color:var(--pink)">SP</div>
+          <div class="t-info">
+            <div class="t-name">Sofia Park</div>
+            <div class="t-sub">3h ago · WA</div>
+          </div>
+          <div class="t-val pos">+$3,180</div>
+        </div>
+        <div class="t-row">
+          <div class="t-avatar" style="background:rgba(0,212,255,.10);color:var(--cyan)">ML</div>
+          <div class="t-info">
+            <div class="t-name">Mark Lee</div>
+            <div class="t-sub">4h ago · IL</div>
+          </div>
+          <div class="t-val neg">−$920</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CARD 5: DONUT -->
+    <div class="gc card-donut" style="animation-delay:.25s">
+      <div class="gc-glow"></div>
+      <div class="gc-header">
+        <span class="gc-title">Distribution</span>
+      </div>
+      <div class="donut-row">
+        <div class="donut-canvas"><div id="donutChart"></div></div>
+        <div class="donut-leg">
+          <div class="dl-row">
+            <div class="dl-dot" style="background:var(--cyan);box-shadow:0 0 8px var(--cyan)"></div>
+            <span class="dl-lbl">Series 1</span><span class="dl-pct" style="color:var(--cyan)">55%</span>
+          </div>
+          <div class="dl-row">
+            <div class="dl-dot" style="background:var(--green);box-shadow:0 0 8px var(--green)"></div>
+            <span class="dl-lbl">Series 2</span><span class="dl-pct" style="color:var(--green)">25%</span>
+          </div>
+          <div class="dl-row">
+            <div class="dl-dot" style="background:var(--purple);box-shadow:0 0 8px var(--purple)"></div>
+            <span class="dl-lbl">Series 3</span><span class="dl-pct" style="color:var(--purple)">12%</span>
+          </div>
+          <div class="dl-row">
+            <div class="dl-dot" style="background:var(--gold);box-shadow:0 0 8px var(--gold)"></div>
+            <span class="dl-lbl">Series 4</span><span class="dl-pct" style="color:var(--gold)">8%</span>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- BOTTOM GAUGES -->
-    <div class="bottom-gauges">
-
-      <div class="gauge-block">
-        <div class="gauge-wrap">
-          <div id="gauge1" style="position:absolute;inset:0"></div>
-          <div class="gauge-center">
-            <div class="gauge-num">75</div>
-            <div class="gauge-lbl">INDEX</div>
-          </div>
-        </div>
-        <div class="gauge-title">Series 1</div>
+    <!-- CARD 6: GAUGE 1 -->
+    <div class="gc card-gauge1" style="animation-delay:.30s">
+      <div class="gc-glow"></div>
+      <div class="gc-header">
+        <span class="gc-title">Risk Analysis</span>
+        <span class="gc-badge">SCORE</span>
       </div>
-
-      <div class="gauge-middle">
-        <div class="gm-title">Title</div>
-        <div class="gm-bars">
-          <div class="gm-bar-row">
-            <span class="gm-bar-lbl">Series 1</span>
-            <div class="gm-bar-track"><div class="gm-bar-fill" style="width:88%;background:var(--cyan)"></div></div>
-            <span class="gm-bar-val">888</span>
-          </div>
-          <div class="gm-bar-row">
-            <span class="gm-bar-lbl">Series 2</span>
-            <div class="gm-bar-track"><div class="gm-bar-fill" style="width:66%;background:var(--green)"></div></div>
-            <span class="gm-bar-val">666</span>
-          </div>
-          <div class="gm-bar-row">
-            <span class="gm-bar-lbl">Series 3</span>
-            <div class="gm-bar-track"><div class="gm-bar-fill" style="width:40%;background:#a78bfa"></div></div>
-            <span class="gm-bar-val">400</span>
-          </div>
+      <div class="gauge-body">
+        <div id="gauge1" style="position:absolute;inset:0"></div>
+        <div class="gauge-center">
+          <div class="gauge-num" style="color:var(--cyan)">75</div>
+          <div class="gauge-lbl">Index</div>
         </div>
       </div>
-
-      <div class="gauge-block">
-        <div class="gauge-wrap">
-          <div id="gauge2" style="position:absolute;inset:0"></div>
-          <div class="gauge-center">
-            <div class="gauge-num">75</div>
-            <div class="gauge-lbl">INDEX</div>
-          </div>
-        </div>
-        <div class="gauge-title">Series 2</div>
-      </div>
-
     </div>
 
-    <!-- RIGHT STATS -->
-    <div class="right-stats">
-      <div class="rs-card">
-        <div class="rs-header">
-          <div class="rs-dot" style="background:var(--cyan)"></div>
-          <div class="rs-title">Statistics</div>
-        </div>
-        <div class="rs-desc">Index description</div>
-        <div><span class="rs-num">20</span><span class="rs-unit">UNIT</span></div>
+    <!-- CARD 7: GAUGE 2 -->
+    <div class="gc card-gauge2" style="animation-delay:.35s">
+      <div class="gc-glow"></div>
+      <div class="gc-header">
+        <span class="gc-title">Performance</span>
+        <span class="gc-badge green">LIVE</span>
       </div>
-      <div class="rs-card">
-        <div class="rs-header">
-          <div class="rs-dot" style="background:var(--green)"></div>
-          <div class="rs-title">Statistics</div>
+      <div class="gauge-body">
+        <div id="gauge2" style="position:absolute;inset:0"></div>
+        <div class="gauge-center">
+          <div class="gauge-num" style="color:var(--green)">82</div>
+          <div class="gauge-lbl">Score</div>
         </div>
-        <div class="rs-desc">Index description</div>
-        <div><span class="rs-num">20</span><span class="rs-unit">UNIT</span></div>
       </div>
     </div>
 
@@ -528,140 +550,27 @@
 </div>
 
 <script>
-const FONT_FAM = "'Space Grotesk', sans-serif";
-const C1='#00d4ff', C2='#00ff88', C3='#c084fc', C4='#fbbf24';
-const GRID = 'rgba(0,212,255,0.08)';
-const TICK = { color:'rgba(255,255,255,0.35)', fontSize:9, fontFamily:FONT_FAM, fontWeight:'500' };
+const FF = "'Space Grotesk', sans-serif";
+const C1='#00d4ff', C2='#00ff88', C3='#a78bfa', C4='#f5c518';
+const GRID = 'rgba(0,212,255,0.07)';
+const TICK = { color:'rgba(255,255,255,0.32)', fontSize:9, fontFamily:FF, fontWeight:'500' };
 const TT = {
-  backgroundColor:'rgba(4,10,24,0.96)',
-  borderColor:'rgba(0,212,255,0.30)', borderWidth:1,
-  textStyle:{ color:'rgba(255,255,255,0.90)', fontSize:11, fontFamily:FONT_FAM },
+  backgroundColor:'rgba(4,10,24,0.97)',
+  borderColor:'rgba(0,212,255,0.28)', borderWidth:1,
+  textStyle:{ color:'rgba(255,255,255,0.88)', fontSize:11, fontFamily:FF },
   extraCssText:'box-shadow:0 8px 32px rgba(0,0,0,0.5);border-radius:10px;padding:10px 14px;'
 };
-const glow=(color,blur=12)=>({ shadowBlur:blur, shadowColor:color, shadowOffsetX:0, shadowOffsetY:0 });
+const glow=(c,b=12)=>({ shadowBlur:b, shadowColor:c, shadowOffsetX:0, shadowOffsetY:0 });
 
-// ══════════════════════════════════════════
-// BAR CHART — barras premium con track + glow intenso
-// ══════════════════════════════════════════
-const barChart = echarts.init(document.getElementById('barChart'), null, {renderer:'canvas'});
-barChart.setOption({
-  backgroundColor:'transparent',
-  animation:true, animationDuration:1400,
-  animationEasing:'elasticOut',
-  grid:{ top:14, right:6, bottom:22, left:36, containLabel:false },
-  tooltip:{ trigger:'axis', axisPointer:{ type:'shadow', shadowStyle:{ color:'rgba(0,212,255,0.05)' }}, ...TT },
-  xAxis:{
-    data:['1.1','2.1','3.1','4.1','5.1','6.1'],
-    axisLine:{ show:false }, axisTick:{ show:false }, splitLine:{ show:false },
-    axisLabel:{ ...TICK },
-  },
-  yAxis:{
-    type:'value',
-    splitLine:{ lineStyle:{ color:GRID, type:[4,6] }},
-    axisLine:{ show:false }, axisTick:{ show:false },
-    axisLabel:{ ...TICK },
-  },
-  series:[
-    // barras de track (fondo)
-    {
-      type:'bar', data:[320,320,320,320,320,320],
-      barWidth:14, barGap:'-100%',
-      itemStyle:{ borderRadius:[6,6,2,2], color:'rgba(0,212,255,0.07)' },
-      silent:true, animation:false,
-    },
-    {
-      name:'Series 1', type:'bar',
-      data:[220,300,180,320,260,290],
-      barWidth:14, barGap:'-100%',
-      itemStyle:{
-        borderRadius:[6,6,2,2],
-        color: new echarts.graphic.LinearGradient(0,0,0,1,[
-          { offset:0,   color:'#00eeff' },
-          { offset:0.4, color:'#00b4d8' },
-          { offset:1,   color:'rgba(0,60,120,0.15)' },
-        ]),
-        ...glow(C1, 18),
-      },
-      emphasis:{ itemStyle:{ ...glow(C1,30), color: new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'#80f0ff'},{offset:1,color:'rgba(0,100,200,0.2)'}]) }},
-      label:{ show:true, position:'top', color:'rgba(255,255,255,0.5)', fontSize:8, fontFamily:FONT_FAM, formatter:'{c}' },
-    },
-    // barras de track verde
-    {
-      type:'bar', data:[200,200,200,200,200,200],
-      barWidth:7, barGap:'30%',
-      itemStyle:{ borderRadius:[4,4,2,2], color:'rgba(0,255,136,0.06)' },
-      silent:true, animation:false,
-    },
-    {
-      name:'Series 2', type:'bar',
-      data:[100,160,110,200,140,170],
-      barWidth:7,
-      itemStyle:{
-        borderRadius:[4,4,2,2],
-        color: new echarts.graphic.LinearGradient(0,0,0,1,[
-          { offset:0,   color:'#00ffaa' },
-          { offset:0.5, color:'#00cc77' },
-          { offset:1,   color:'rgba(0,80,40,0.12)' },
-        ]),
-        ...glow(C2, 14),
-      },
-      emphasis:{ itemStyle:{ ...glow(C2,24) }},
-    }
-  ]
-});
-
-// ══════════════════════════════════════════
-// DONUT — doble anillo con glow intenso
-// ══════════════════════════════════════════
-const donutChart = echarts.init(document.getElementById('donutChart'), null, {renderer:'canvas'});
-donutChart.setOption({
-  backgroundColor:'transparent',
-  animation:true, animationDuration:1600, animationEasing:'cubicOut',
-  tooltip:{ trigger:'item', ...TT, formatter:'{b}<br/><b>{c}</b> ({d}%)' },
-  series:[
-    // anillo exterior — datos reales
-    {
-      type:'pie', radius:['62%','82%'],
-      center:['50%','50%'],
-      padAngle:4,
-      itemStyle:{ borderRadius:6, borderColor:'rgba(4,10,24,1)', borderWidth:2 },
-      label:{ show:false },
-      emphasis:{ scale:true, scaleSize:5, itemStyle:{ shadowBlur:25, shadowColor:'rgba(0,212,255,0.6)' }},
-      data:[
-        { value:550, name:'Series 1', itemStyle:{ color:new echarts.graphic.LinearGradient(1,0,0,1,[{offset:0,color:'#00eeff'},{offset:1,color:'#0055cc'}]), ...glow(C1,20) }},
-        { value:250, name:'Series 2', itemStyle:{ color:new echarts.graphic.LinearGradient(1,0,0,1,[{offset:0,color:'#00ffaa'},{offset:1,color:'#005533'}]), ...glow(C2,16) }},
-        { value:120, name:'Series 3', itemStyle:{ color:new echarts.graphic.LinearGradient(1,0,0,1,[{offset:0,color:'#d8b4fe'},{offset:1,color:'#7c3aed'}]), ...glow(C3,14) }},
-        { value:80,  name:'Series 4', itemStyle:{ color:new echarts.graphic.LinearGradient(1,0,0,1,[{offset:0,color:'#fde68a'},{offset:1,color:'#b45309'}]), ...glow(C4,14) }},
-      ]
-    },
-    // anillo interior — track decorativo
-    {
-      type:'pie', radius:['48%','52%'],
-      center:['50%','50%'],
-      padAngle:0, silent:true, animation:false,
-      label:{ show:false },
-      itemStyle:{ borderWidth:0 },
-      data:[
-        { value:550, itemStyle:{ color:'rgba(0,212,255,0.12)' }},
-        { value:250, itemStyle:{ color:'rgba(0,255,136,0.10)' }},
-        { value:120, itemStyle:{ color:'rgba(192,132,252,0.10)' }},
-        { value:80,  itemStyle:{ color:'rgba(251,191,36,0.10)' }},
-      ]
-    }
-  ]
-});
-
-// ══════════════════════════════════════════
-// LINE / AREA — ondas neon con puntos brillantes
-// ══════════════════════════════════════════
+// ── LINE CHART ──
 const lineChart = echarts.init(document.getElementById('lineChart'), null, {renderer:'canvas'});
 lineChart.setOption({
   backgroundColor:'transparent',
   animation:true, animationDuration:1800, animationEasing:'cubicOut',
-  grid:{ top:14, right:6, bottom:22, left:36, containLabel:false },
-  tooltip:{ trigger:'axis', ...TT, axisPointer:{ type:'cross', crossStyle:{ color:'rgba(0,212,255,0.25)', type:[4,4] }, label:{ show:false }}},
+  grid:{ top:14, right:14, bottom:28, left:38, containLabel:false },
+  tooltip:{ trigger:'axis', ...TT, axisPointer:{ type:'cross', crossStyle:{ color:'rgba(0,212,255,0.22)', type:[4,4] }, label:{ show:false }}},
   xAxis:{
-    data:['1.1','2.1','3.1','4.1','5.1','6.1'],
+    data:['Jan','Feb','Mar','Apr','May','Jun'],
     axisLine:{ show:false }, axisTick:{ show:false }, splitLine:{ show:false },
     axisLabel:{ ...TICK },
   },
@@ -675,145 +584,164 @@ lineChart.setOption({
     {
       name:'Series 1', type:'line',
       data:[8,32,14,42,20,38],
-      smooth:0.6, symbolSize:6,
-      symbol:'circle',
-      showSymbol:false,
-      lineStyle:{ color:C1, width:3, ...glow(C1,16) },
+      smooth:0.6, symbolSize:7,
+      showSymbol:true, symbol:'circle',
+      lineStyle:{ color:C1, width:3, ...glow(C1,18) },
       itemStyle:{ color:'#fff', borderColor:C1, borderWidth:2, ...glow(C1,20) },
       areaStyle:{
         color: new echarts.graphic.LinearGradient(0,0,0,1,[
-          { offset:0,   color:'rgba(0,212,255,0.50)' },
-          { offset:0.5, color:'rgba(0,150,220,0.15)' },
-          { offset:1,   color:'rgba(0,80,180,0.00)' },
+          { offset:0, color:'rgba(0,212,255,0.50)' },
+          { offset:0.5, color:'rgba(0,150,220,0.14)' },
+          { offset:1, color:'rgba(0,80,180,0.00)' },
         ]),
-        ...glow(C1,6),
       },
       markPoint:{
-        data:[{ type:'max', name:'Max' }],
-        symbol:'circle', symbolSize:8,
-        itemStyle:{ color:'#00eeff', ...glow(C1,20) },
-        label:{ show:false },
+        data:[{ type:'max' }], symbol:'circle', symbolSize:9,
+        itemStyle:{ color:'#00eeff', ...glow(C1,22) }, label:{ show:false },
       },
-      emphasis:{ focus:'series', lineStyle:{ width:4 }},
     },
     {
       name:'Series 2', type:'line',
       data:[24,10,36,18,40,16],
       smooth:0.6, symbolSize:6,
-      symbol:'circle',
-      showSymbol:false,
+      showSymbol:true, symbol:'circle',
       lineStyle:{ color:C2, width:2.5, ...glow(C2,14) },
       itemStyle:{ color:'#fff', borderColor:C2, borderWidth:2, ...glow(C2,18) },
       areaStyle:{
         color: new echarts.graphic.LinearGradient(0,0,0,1,[
-          { offset:0,   color:'rgba(0,255,136,0.40)' },
-          { offset:0.5, color:'rgba(0,180,100,0.12)' },
-          { offset:1,   color:'rgba(0,80,50,0.00)' },
+          { offset:0, color:'rgba(0,255,136,0.38)' },
+          { offset:0.5, color:'rgba(0,180,100,0.10)' },
+          { offset:1, color:'rgba(0,80,50,0.00)' },
         ])
       },
-      emphasis:{ focus:'series', lineStyle:{ width:3.5 }},
     }
   ]
 });
 
-// ══════════════════════════════════════════
-// GAUGE 1 — velocímetro premium con zonas de color
-// ══════════════════════════════════════════
+// ── BAR CHART ──
+const barChart = echarts.init(document.getElementById('barChart'), null, {renderer:'canvas'});
+barChart.setOption({
+  backgroundColor:'transparent',
+  animation:true, animationDuration:1400, animationEasing:'elasticOut',
+  grid:{ top:14, right:14, bottom:28, left:38, containLabel:false },
+  tooltip:{ trigger:'axis', axisPointer:{ type:'shadow', shadowStyle:{ color:'rgba(0,212,255,0.04)' }}, ...TT },
+  xAxis:{
+    data:['Jan','Feb','Mar','Apr','May','Jun'],
+    axisLine:{ show:false }, axisTick:{ show:false }, splitLine:{ show:false },
+    axisLabel:{ ...TICK },
+  },
+  yAxis:{
+    type:'value',
+    splitLine:{ lineStyle:{ color:GRID, type:[4,6] }},
+    axisLine:{ show:false }, axisTick:{ show:false },
+    axisLabel:{ ...TICK },
+  },
+  series:[
+    { type:'bar', data:[320,320,320,320,320,320], barWidth:14, barGap:'-100%',
+      itemStyle:{ borderRadius:[6,6,2,2], color:'rgba(0,212,255,0.07)' }, silent:true, animation:false },
+    { name:'Series 1', type:'bar', data:[220,300,180,320,260,290],
+      barWidth:14, barGap:'-100%',
+      itemStyle:{ borderRadius:[6,6,2,2],
+        color: new echarts.graphic.LinearGradient(0,0,0,1,[
+          {offset:0,color:'#00eeff'},{offset:0.4,color:'#00b4d8'},{offset:1,color:'rgba(0,60,120,0.15)'}]),
+        ...glow(C1,18) },
+      label:{ show:true, position:'top', color:'rgba(255,255,255,0.45)', fontSize:8, fontFamily:FF, formatter:'{c}' },
+    },
+    { type:'bar', data:[200,200,200,200,200,200], barWidth:7, barGap:'30%',
+      itemStyle:{ borderRadius:[4,4,2,2], color:'rgba(0,255,136,0.06)' }, silent:true, animation:false },
+    { name:'Series 2', type:'bar', data:[100,160,110,200,140,170], barWidth:7,
+      itemStyle:{ borderRadius:[4,4,2,2],
+        color: new echarts.graphic.LinearGradient(0,0,0,1,[
+          {offset:0,color:'#00ffaa'},{offset:0.5,color:'#00cc77'},{offset:1,color:'rgba(0,80,40,0.12)'}]),
+        ...glow(C2,14) },
+    },
+  ]
+});
+
+// ── DONUT ──
+const donutChart = echarts.init(document.getElementById('donutChart'), null, {renderer:'canvas'});
+donutChart.setOption({
+  backgroundColor:'transparent',
+  animation:true, animationDuration:1600, animationEasing:'cubicOut',
+  tooltip:{ trigger:'item', ...TT, formatter:'{b}: <b>{c}</b> ({d}%)' },
+  series:[
+    { type:'pie', radius:['60%','82%'], center:['50%','50%'], padAngle:4,
+      itemStyle:{ borderRadius:6, borderColor:'rgba(4,10,24,0.95)', borderWidth:2 },
+      label:{ show:false },
+      emphasis:{ scale:true, scaleSize:5 },
+      data:[
+        { value:550, name:'Series 1', itemStyle:{ color:new echarts.graphic.LinearGradient(1,0,0,1,[{offset:0,color:'#00eeff'},{offset:1,color:'#0055cc'}]), ...glow(C1,20) }},
+        { value:250, name:'Series 2', itemStyle:{ color:new echarts.graphic.LinearGradient(1,0,0,1,[{offset:0,color:'#00ffaa'},{offset:1,color:'#005533'}]), ...glow(C2,16) }},
+        { value:120, name:'Series 3', itemStyle:{ color:new echarts.graphic.LinearGradient(1,0,0,1,[{offset:0,color:'#d8b4fe'},{offset:1,color:'#7c3aed'}]), ...glow(C3,14) }},
+        { value:80,  name:'Series 4', itemStyle:{ color:new echarts.graphic.LinearGradient(1,0,0,1,[{offset:0,color:'#fde68a'},{offset:1,color:'#b45309'}]), ...glow(C4,14) }},
+      ]
+    },
+    { type:'pie', radius:['46%','50%'], center:['50%','50%'], silent:true, animation:false,
+      label:{ show:false }, itemStyle:{ borderWidth:0 },
+      data:[
+        { value:550, itemStyle:{ color:'rgba(0,212,255,0.10)' }},
+        { value:250, itemStyle:{ color:'rgba(0,255,136,0.08)' }},
+        { value:120, itemStyle:{ color:'rgba(192,132,252,0.08)' }},
+        { value:80,  itemStyle:{ color:'rgba(251,191,36,0.08)' }},
+      ]
+    }
+  ]
+});
+
+// ── GAUGE 1 (cyan) ──
 const gauge1 = echarts.init(document.getElementById('gauge1'), null, {renderer:'canvas'});
 gauge1.setOption({
   backgroundColor:'transparent',
   animation:true, animationDuration:2000, animationEasing:'cubicOut',
   series:[{
-    type:'gauge',
-    startAngle:225, endAngle:-45,
-    min:0, max:100,
-    radius:'88%', center:['50%','60%'],
-    axisLine:{
-      roundCap:true,
-      lineStyle:{
-        width:10,
-        color:[
-          [0.3,  new echarts.graphic.LinearGradient(0,0,1,0,[{offset:0,color:'#003388'},{offset:1,color:'#0066cc'}])],
-          [0.7,  new echarts.graphic.LinearGradient(0,0,1,0,[{offset:0,color:'#0066cc'},{offset:1,color:'#00aaff'}])],
-          [0.75, new echarts.graphic.LinearGradient(0,0,1,0,[{offset:0,color:'#00aaff'},{offset:1,color:'#00eeff'}])],
-          [1,    'rgba(255,255,255,0.05)'],
-        ]
-      }
-    },
+    type:'gauge', startAngle:220, endAngle:-40,
+    min:0, max:100, radius:'82%', center:['50%','58%'],
+    axisLine:{ roundCap:true, lineStyle:{ width:10, color:[
+      [0.30, new echarts.graphic.LinearGradient(0,0,1,0,[{offset:0,color:'#003388'},{offset:1,color:'#0066cc'}])],
+      [0.72, new echarts.graphic.LinearGradient(0,0,1,0,[{offset:0,color:'#0066cc'},{offset:1,color:'#00aaff'}])],
+      [0.75, new echarts.graphic.LinearGradient(0,0,1,0,[{offset:0,color:'#00aaff'},{offset:1,color:'#00eeff'}])],
+      [1,   'rgba(255,255,255,0.05)'],
+    ]}},
     progress:{ show:true, roundCap:true, width:10, itemStyle:{ ...glow(C1,20) }},
-    pointer:{
-      show:true, length:'55%', width:4,
-      itemStyle:{ color:C1, ...glow(C1,24) }
-    },
-    axisTick:{
-      show:true, distance:-12, length:4,
-      lineStyle:{ color:'rgba(0,212,255,0.4)', width:1 }
-    },
-    splitLine:{
-      show:true, distance:-16, length:8,
-      lineStyle:{ color:'rgba(0,212,255,0.6)', width:1.5, ...glow(C1,8) }
-    },
+    pointer:{ show:true, length:'52%', width:4, itemStyle:{ color:C1, ...glow(C1,24) }},
+    axisTick:{ show:true, distance:-12, length:4, lineStyle:{ color:'rgba(0,212,255,0.4)', width:1 }},
+    splitLine:{ show:true, distance:-16, length:8, lineStyle:{ color:'rgba(0,212,255,0.6)', width:1.5, ...glow(C1,8) }},
     axisLabel:{ show:false },
-    anchor:{
-      show:true, size:10, itemStyle:{ color:C1, borderColor:'rgba(0,212,255,0.5)', borderWidth:2, ...glow(C1,16) }
-    },
+    anchor:{ show:true, size:10, itemStyle:{ color:C1, borderColor:'rgba(0,212,255,0.5)', borderWidth:2, ...glow(C1,16) }},
     detail:{ show:false },
     data:[{ value:75 }],
   }]
 });
 
-// ══════════════════════════════════════════
-// GAUGE 2 — velocímetro premium verde
-// ══════════════════════════════════════════
+// ── GAUGE 2 (verde) ──
 const gauge2 = echarts.init(document.getElementById('gauge2'), null, {renderer:'canvas'});
 gauge2.setOption({
   backgroundColor:'transparent',
   animation:true, animationDuration:2000, animationEasing:'cubicOut',
   series:[{
-    type:'gauge',
-    startAngle:225, endAngle:-45,
-    min:0, max:100,
-    radius:'88%', center:['50%','60%'],
-    axisLine:{
-      roundCap:true,
-      lineStyle:{
-        width:10,
-        color:[
-          [0.3,  new echarts.graphic.LinearGradient(0,0,1,0,[{offset:0,color:'#003322'},{offset:1,color:'#006644'}])],
-          [0.7,  new echarts.graphic.LinearGradient(0,0,1,0,[{offset:0,color:'#006644'},{offset:1,color:'#00aa66'}])],
-          [0.75, new echarts.graphic.LinearGradient(0,0,1,0,[{offset:0,color:'#00aa66'},{offset:1,color:'#00ffaa'}])],
-          [1,    'rgba(255,255,255,0.05)'],
-        ]
-      }
-    },
+    type:'gauge', startAngle:220, endAngle:-40,
+    min:0, max:100, radius:'82%', center:['50%','58%'],
+    axisLine:{ roundCap:true, lineStyle:{ width:10, color:[
+      [0.30, new echarts.graphic.LinearGradient(0,0,1,0,[{offset:0,color:'#003322'},{offset:1,color:'#006644'}])],
+      [0.78, new echarts.graphic.LinearGradient(0,0,1,0,[{offset:0,color:'#006644'},{offset:1,color:'#00aa66'}])],
+      [0.82, new echarts.graphic.LinearGradient(0,0,1,0,[{offset:0,color:'#00aa66'},{offset:1,color:'#00ffaa'}])],
+      [1,   'rgba(255,255,255,0.05)'],
+    ]}},
     progress:{ show:true, roundCap:true, width:10, itemStyle:{ ...glow(C2,20) }},
-    pointer:{
-      show:true, length:'55%', width:4,
-      itemStyle:{ color:C2, ...glow(C2,24) }
-    },
-    axisTick:{
-      show:true, distance:-12, length:4,
-      lineStyle:{ color:'rgba(0,255,136,0.4)', width:1 }
-    },
-    splitLine:{
-      show:true, distance:-16, length:8,
-      lineStyle:{ color:'rgba(0,255,136,0.6)', width:1.5, ...glow(C2,8) }
-    },
+    pointer:{ show:true, length:'52%', width:4, itemStyle:{ color:C2, ...glow(C2,24) }},
+    axisTick:{ show:true, distance:-12, length:4, lineStyle:{ color:'rgba(0,255,136,0.4)', width:1 }},
+    splitLine:{ show:true, distance:-16, length:8, lineStyle:{ color:'rgba(0,255,136,0.6)', width:1.5, ...glow(C2,8) }},
     axisLabel:{ show:false },
-    anchor:{
-      show:true, size:10, itemStyle:{ color:C2, borderColor:'rgba(0,255,136,0.5)', borderWidth:2, ...glow(C2,16) }
-    },
+    anchor:{ show:true, size:10, itemStyle:{ color:C2, borderColor:'rgba(0,255,136,0.5)', borderWidth:2, ...glow(C2,16) }},
     detail:{ show:false },
-    data:[{ value:75 }],
+    data:[{ value:82 }],
   }]
 });
 
-// Resize al cambiar ventana
 window.addEventListener('resize', () => {
-  barChart.resize(); donutChart.resize();
-  lineChart.resize(); gauge1.resize(); gauge2.resize();
+  lineChart.resize(); barChart.resize();
+  donutChart.resize(); gauge1.resize(); gauge2.resize();
 });
-
 </script>
 </body>
 </html>
