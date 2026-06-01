@@ -427,12 +427,13 @@ function makeLiquid(id, val, color1, color2, glowColor) {
   return c;
 }
 
-const l1 = makeLiquid('liq1', 0.987, 'rgba(0,212,255,0.95)', 'rgba(0,80,180,0.65)', '#00d4ff');
-const l2 = makeLiquid('liq2', 0.74,  'rgba(0,255,204,0.95)', 'rgba(0,100,80,0.65)',  '#00ffcc');
-const l3 = makeLiquid('liq3', 0.31,  'rgba(255,193,7,0.95)',  'rgba(160,80,0,0.65)',  '#ffc107');
-const l4 = makeLiquid('liq4', 0.96,  'rgba(167,139,250,0.95)','rgba(80,40,180,0.65)', '#a78bfa');
+let l1,l2,l3,l4;
+setTimeout(()=>{ l1=makeLiquid('liq1',0.987,'rgba(0,212,255,0.95)','rgba(0,80,180,0.65)','#00d4ff'); },0);
+setTimeout(()=>{ l2=makeLiquid('liq2',0.74, 'rgba(0,255,204,0.95)','rgba(0,100,80,0.65)', '#00ffcc'); },80);
+setTimeout(()=>{ l3=makeLiquid('liq3',0.31, 'rgba(255,193,7,0.95)', 'rgba(160,80,0,0.65)', '#ffc107'); },160);
+setTimeout(()=>{ l4=makeLiquid('liq4',0.96, 'rgba(167,139,250,0.95)','rgba(80,40,180,0.65)','#a78bfa'); },240);
 
-window.addEventListener('resize', () => { donut.resize(); linea.resize(); l1.resize(); l2.resize(); l3.resize(); l4.resize(); });
+window.addEventListener('resize', () => { donut.resize(); linea.resize(); [l1,l2,l3,l4].forEach(c=>c&&c.resize()); });
 </script>
 </body>
 </html>
