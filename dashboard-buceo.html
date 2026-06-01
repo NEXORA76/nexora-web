@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ReefDive — Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts-liquidfill@3.1.0/dist/echarts-liquidfill.min.js"></script>
 <style>
 *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
 :root {
@@ -346,8 +347,7 @@
     <div class="ring-row">
       <div class="ring-stat">
         <div class="ring-canvas-wrap">
-          <canvas id="ring1"></canvas>
-          <div class="ring-pct">72%</div>
+          <div id="ring1" style="position:absolute;inset:0;"></div>
         </div>
         <div class="ring-info">
           <div class="ring-info-val">6,070</div>
@@ -356,8 +356,7 @@
       </div>
       <div class="ring-stat">
         <div class="ring-canvas-wrap">
-          <canvas id="ring2"></canvas>
-          <div class="ring-pct">28%</div>
+          <div id="ring2" style="position:absolute;inset:0;"></div>
         </div>
         <div class="ring-info">
           <div class="ring-info-val">2,360</div>
@@ -423,7 +422,7 @@
           <div class="spark-val">92,980 <span class="spark-change">↑ 12%</span></div>
         </div>
       </div>
-      <canvas id="sparkLine" height="55"></canvas>
+      <div id="sparkLine" style="height:60px;width:100%;"></div>
     </div>
 
   </div>
@@ -550,41 +549,76 @@
 </div>
 
 <script>
-// Ring 1 — Certificados 72%
-const r1 = document.getElementById('ring1').getContext('2d');
-new Chart(r1,{type:'doughnut',data:{datasets:[{data:[72,28],backgroundColor:['rgba(0,200,240,0.85)','rgba(255,255,255,0.07)'],borderWidth:0}]},options:{cutout:'70%',plugins:{legend:{display:false},tooltip:{enabled:false}},responsive:true,maintainAspectRatio:true}});
+const FF = "'Space Grotesk',sans-serif";
+const glow = (c,b=12) => ({ shadowBlur:b, shadowColor:c, shadowOffsetX:0, shadowOffsetY:0 });
 
-// Ring 2 — Principiantes 28%
-const r2 = document.getElementById('ring2').getContext('2d');
-new Chart(r2,{type:'doughnut',data:{datasets:[{data:[28,72],backgroundColor:['rgba(255,209,102,0.85)','rgba(255,255,255,0.07)'],borderWidth:0}]},options:{cutout:'70%',plugins:{legend:{display:false},tooltip:{enabled:false}},responsive:true,maintainAspectRatio:true}});
-
-// Sparkline
-const sp = document.getElementById('sparkLine').getContext('2d');
-const grad = sp.createLinearGradient(0,0,0,55);
-grad.addColorStop(0,'rgba(0,200,240,0.35)');
-grad.addColorStop(1,'rgba(0,200,240,0.00)');
-new Chart(sp,{
-  type:'line',
-  data:{
-    labels:['','','','','','',''],
-    datasets:[{
-      data:[320,480,410,620,580,740,700],
-      borderColor:'rgba(0,200,240,0.9)',
-      backgroundColor:grad,
-      fill:true, tension:0.4, borderWidth:2, pointRadius:0
-    },{
-      data:[180,210,260,290,320,380,360],
-      borderColor:'rgba(255,107,53,0.7)',
-      backgroundColor:'transparent',
-      fill:false, tension:0.4, borderWidth:1.5, pointRadius:0
-    }]
-  },
-  options:{
-    responsive:true, maintainAspectRatio:false,
-    plugins:{legend:{display:false}},
-    scales:{x:{display:false},y:{display:false}}
-  }
+// ══════════════════════════════════
+// RING 1 — LiquidFill Certificados 72%
+// ══════════════════════════════════
+const ring1 = echarts.init(document.getElementById('ring1'), null, {renderer:'canvas'});
+ring1.setOption({
+  backgroundColor:'transparent',
+  series:[{
+    type:'liquidFill',
+    data:[
+      { value:0.72, itemStyle:{ color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'rgba(0,200,240,0.95)'},{offset:1,color:'rgba(0,100,180,0.65)'}]) }},
+      { value:0.64, itemStyle:{ color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'rgba(0,170,220,0.65)'},{offset:1,color:'rgba(0,80,160,0.40)'}]) }},
+    ],
+    radius:'95%', center:['50%','50%'],
+    outline:{ borderDistance:2, itemStyle:{ borderWidth:2, borderColor:'rgba(0,200,240,0.55)', shadowBlur:14, shadowColor:'rgba(0,200,240,0.40)' }},
+    backgroundStyle:{ color:'rgba(0,20,50,0.45)' },
+    label:{ formatter:'72%', fontSize:13, fontWeight:'800', fontFamily:FF, color:'#fff', textShadowBlur:12, textShadowColor:'rgba(0,200,240,0.7)' },
+  }]
 });
+
+// ══════════════════════════════════
+// RING 2 — LiquidFill Principiantes 28%
+// ══════════════════════════════════
+const ring2 = echarts.init(document.getElementById('ring2'), null, {renderer:'canvas'});
+ring2.setOption({
+  backgroundColor:'transparent',
+  series:[{
+    type:'liquidFill',
+    data:[
+      { value:0.28, itemStyle:{ color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'rgba(255,209,102,0.95)'},{offset:1,color:'rgba(200,120,0,0.65)'}]) }},
+      { value:0.20, itemStyle:{ color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'rgba(255,180,60,0.65)'},{offset:1,color:'rgba(180,80,0,0.40)'}]) }},
+    ],
+    radius:'95%', center:['50%','50%'],
+    outline:{ borderDistance:2, itemStyle:{ borderWidth:2, borderColor:'rgba(255,209,102,0.55)', shadowBlur:14, shadowColor:'rgba(255,209,102,0.40)' }},
+    backgroundStyle:{ color:'rgba(40,20,0,0.45)' },
+    label:{ formatter:'28%', fontSize:13, fontWeight:'800', fontFamily:FF, color:'#fff', textShadowBlur:12, textShadowColor:'rgba(255,209,102,0.7)' },
+  }]
+});
+
+// ══════════════════════════════════
+// SPARKLINE — Area doble con glow
+// ══════════════════════════════════
+const spark = echarts.init(document.getElementById('sparkLine'), null, {renderer:'canvas'});
+spark.setOption({
+  backgroundColor:'transparent',
+  animation:true, animationDuration:1400, animationEasing:'cubicOut',
+  grid:{ top:4, right:2, bottom:2, left:2 },
+  xAxis:{ type:'category', show:false, data:['E','F','M','A','M','J','J'] },
+  yAxis:{ type:'value', show:false },
+  series:[
+    {
+      type:'line', data:[320,480,410,620,580,740,700],
+      smooth:0.5, symbolSize:0, showSymbol:false,
+      lineStyle:{ color:'#00c8f0', width:2.5, ...glow('#00c8f0',16) },
+      areaStyle:{ color: new echarts.graphic.LinearGradient(0,0,0,1,[
+        {offset:0,color:'rgba(0,200,240,0.45)'},{offset:1,color:'rgba(0,200,240,0.00)'}]) },
+    },
+    {
+      type:'line', data:[180,210,260,290,320,380,360],
+      smooth:0.5, symbolSize:0, showSymbol:false,
+      lineStyle:{ color:'#ff6b35', width:1.8, ...glow('#ff6b35',12) },
+      areaStyle:{ color: new echarts.graphic.LinearGradient(0,0,0,1,[
+        {offset:0,color:'rgba(255,107,53,0.30)'},{offset:1,color:'rgba(255,107,53,0.00)'}]) },
+    }
+  ]
+});
+
+window.addEventListener('resize', () => { ring1.resize(); ring2.resize(); spark.resize(); });
 </script>
 </body>
 </html>

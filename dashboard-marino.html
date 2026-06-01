@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>OceanLab — Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts-liquidfill@3.1.0/dist/echarts-liquidfill.min.js"></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -529,11 +530,7 @@ tbody tr:hover td { background:rgba(0,180,216,0.05); color:#fff; }
           Distribución <small>Por tipo</small>
         </div>
         <div class="donut-wrap">
-          <canvas id="donut" style="max-height:160px;max-width:160px;"></canvas>
-          <div class="donut-center">
-            <div class="donut-num">347</div>
-            <div class="donut-sub">análisis</div>
-          </div>
+          <div id="donut" style="width:100%;height:180px;"></div>
         </div>
       </div>
 
@@ -575,7 +572,7 @@ tbody tr:hover td { background:rgba(0,180,216,0.05); color:#fff; }
           Semana <small>Últimos 7 días</small>
         </div>
         <div class="chart-wrap">
-          <canvas id="linea"></canvas>
+          <div id="linea" style="position:absolute;inset:0;"></div>
         </div>
       </div>
 
@@ -586,97 +583,105 @@ tbody tr:hover td { background:rgba(0,180,216,0.05); color:#fff; }
 </main>
 
 <script>
-// ─── DONUT ───
-const ctxD = document.getElementById('donut').getContext('2d');
-new Chart(ctxD, {
-  type: 'doughnut',
-  data: {
-    labels: ['Hematología','Bioquímica','Orina','Tiroides'],
-    datasets:[{
-      data: [38, 30, 20, 12],
-      backgroundColor:[
-        'rgba(0,180,216,0.75)',
-        'rgba(72,202,228,0.70)',
-        'rgba(144,224,239,0.65)',
-        'rgba(202,240,248,0.60)'
-      ],
-      borderColor:[
-        'rgba(0,180,216,0.90)',
-        'rgba(72,202,228,0.85)',
-        'rgba(144,224,239,0.80)',
-        'rgba(202,240,248,0.75)'
-      ],
-      borderWidth: 2,
-      hoverOffset: 8
-    }]
-  },
-  options:{
-    responsive:true, maintainAspectRatio:true,
-    cutout:'72%',
-    plugins:{
-      legend:{
-        position:'bottom',
-        labels:{
-          color:'rgba(255,255,255,0.50)',
-          font:{ family:'Inter', size:10 },
-          boxWidth:8, boxHeight:8,
-          padding:8
-        }
-      },
-      tooltip:{
-        backgroundColor:'rgba(2,62,138,0.90)',
-        borderColor:'rgba(0,180,216,0.40)',
-        borderWidth:1,
-        titleColor:'#caf0f8',
-        bodyColor:'#90e0ef',
-        padding:10, cornerRadius:12
-      }
-    }
-  }
+const FF = "'Space Grotesk',sans-serif";
+const glow = (c,b=12) => ({ shadowBlur:b, shadowColor:c, shadowOffsetX:0, shadowOffsetY:0 });
+const TT = {
+  backgroundColor:'rgba(2,20,60,0.97)',
+  borderColor:'rgba(0,180,216,0.35)', borderWidth:1,
+  textStyle:{ color:'rgba(255,255,255,.88)', fontSize:11, fontFamily:FF },
+  extraCssText:'border-radius:10px;padding:10px 14px;box-shadow:0 8px 32px rgba(0,0,0,.5);'
+};
+
+// ══════════════════════════════════
+// SUNBURST — Distribución por tipo de análisis
+// ══════════════════════════════════
+const donutChart = echarts.init(document.getElementById('donut'), null, {renderer:'canvas'});
+donutChart.setOption({
+  backgroundColor:'transparent',
+  tooltip:{ ...TT, trigger:'item', formatter: p => `<b>${p.name}</b><br/>${p.value ? p.value+'%' : ''}` },
+  series:[{
+    type:'sunburst',
+    radius:['22%','90%'],
+    center:['50%','50%'],
+    sort:null,
+    emphasis:{ focus:'ancestor', itemStyle:{ shadowBlur:18, shadowColor:'rgba(0,180,216,0.55)' }},
+    data:[
+      { name:'Hematología', value:38,
+        itemStyle:{ color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'#00d4ff'},{offset:1,color:'#0066bb'}]), ...glow('#00d4ff',18) },
+        children:[
+          { name:'Hemograma', value:22, itemStyle:{ color:'rgba(0,200,255,0.85)' }},
+          { name:'Coagulación', value:16, itemStyle:{ color:'rgba(0,150,220,0.78)' }},
+        ]},
+      { name:'Bioquímica', value:30,
+        itemStyle:{ color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'#00ffcc'},{offset:1,color:'#007755'}]), ...glow('#00ffcc',14) },
+        children:[
+          { name:'Glucosa', value:12, itemStyle:{ color:'rgba(0,255,180,0.85)' }},
+          { name:'Lípidos', value:10, itemStyle:{ color:'rgba(0,220,150,0.78)' }},
+          { name:'Enzimas', value:8,  itemStyle:{ color:'rgba(0,180,120,0.70)' }},
+        ]},
+      { name:'Orina', value:20,
+        itemStyle:{ color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'#a78bfa'},{offset:1,color:'#3730a3'}]), ...glow('#a78bfa',12) },
+        children:[
+          { name:'Elemental', value:12, itemStyle:{ color:'rgba(167,139,250,0.85)' }},
+          { name:'Cultivo',   value:8,  itemStyle:{ color:'rgba(120,100,220,0.78)' }},
+        ]},
+      { name:'Tiroides', value:12,
+        itemStyle:{ color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'#fbbf24'},{offset:1,color:'#b45309'}]), ...glow('#fbbf24',12) },
+        children:[
+          { name:'TSH',  value:7, itemStyle:{ color:'rgba(251,191,36,0.85)' }},
+          { name:'T3/T4',value:5, itemStyle:{ color:'rgba(220,150,20,0.78)' }},
+        ]},
+    ],
+    label:{ rotate:'radial', fontSize:8, fontFamily:FF, color:'rgba(255,255,255,0.75)', minAngle:10 },
+    itemStyle:{ borderWidth:1.5, borderColor:'rgba(2,20,50,0.90)', borderRadius:3 },
+  }]
 });
 
-// ─── LÍNEA ───
-const ctxL = document.getElementById('linea').getContext('2d');
-const gL = ctxL.createLinearGradient(0,0,0,140);
-gL.addColorStop(0,'rgba(0,180,216,0.50)');
-gL.addColorStop(1,'rgba(0,180,216,0.00)');
-
-new Chart(ctxL, {
-  type:'line',
-  data:{
-    labels:['L','M','M','J','V','S','D'],
-    datasets:[{
-      label:'Análisis',
-      data:[280,310,295,340,315,290,347],
-      borderColor:'#00b4d8',
-      backgroundColor:gL,
-      borderWidth:2.5,
-      pointBackgroundColor:'#023e8a',
-      pointBorderColor:'#00b4d8',
-      pointBorderWidth:2,
-      pointRadius:4, pointHoverRadius:7,
-      tension:0.45, fill:true
-    }]
+// ══════════════════════════════════
+// AREA GLOW — Tendencia semanal (últimos 7 días)
+// ══════════════════════════════════
+const lineaChart = echarts.init(document.getElementById('linea'), null, {renderer:'canvas'});
+lineaChart.setOption({
+  backgroundColor:'transparent',
+  animation:true, animationDuration:1600, animationEasing:'cubicOut',
+  grid:{ top:10, right:8, bottom:22, left:36, containLabel:false },
+  tooltip:{ trigger:'axis', ...TT,
+    axisPointer:{ type:'cross', crossStyle:{ color:'rgba(0,180,216,0.22)', type:[4,4] }, label:{ show:false }}},
+  xAxis:{
+    data:['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'],
+    axisLine:{ show:false }, axisTick:{ show:false }, splitLine:{ show:false },
+    axisLabel:{ color:'rgba(255,255,255,0.30)', fontSize:9, fontFamily:FF },
   },
-  options:{
-    responsive:true, maintainAspectRatio:false,
-    interaction:{ intersect:false, mode:'index' },
-    plugins:{
-      legend:{ display:false },
-      tooltip:{
-        backgroundColor:'rgba(2,62,138,0.90)',
-        borderColor:'rgba(0,180,216,0.40)',
-        borderWidth:1,
-        titleColor:'#caf0f8',
-        bodyColor:'#90e0ef',
-        padding:10, cornerRadius:12
-      }
+  yAxis:{
+    type:'value', min:240,
+    splitLine:{ lineStyle:{ color:'rgba(0,180,216,0.07)', type:[4,6] }},
+    axisLine:{ show:false }, axisTick:{ show:false },
+    axisLabel:{ color:'rgba(255,255,255,0.28)', fontSize:9, fontFamily:FF },
+  },
+  series:[{
+    name:'Análisis', type:'line',
+    data:[280,310,295,340,315,290,347],
+    smooth:0.6, symbolSize:7, showSymbol:true, symbol:'circle',
+    lineStyle:{ color:'#00d4ff', width:3, ...glow('#00d4ff',18) },
+    itemStyle:{ color:'#fff', borderColor:'#00d4ff', borderWidth:2, ...glow('#00d4ff',20) },
+    areaStyle:{
+      color: new echarts.graphic.LinearGradient(0,0,0,1,[
+        { offset:0,   color:'rgba(0,180,216,0.55)' },
+        { offset:0.5, color:'rgba(0,120,180,0.18)' },
+        { offset:1,   color:'rgba(0,60,140,0.00)' },
+      ]),
     },
-    scales:{
-      x:{ grid:{color:'rgba(255,255,255,0.05)',drawBorder:false}, ticks:{color:'rgba(255,255,255,0.30)',font:{family:'Inter',size:10}}, border:{display:false} },
-      y:{ grid:{color:'rgba(255,255,255,0.05)',drawBorder:false}, ticks:{color:'rgba(255,255,255,0.30)',font:{family:'Inter',size:10}}, border:{display:false} }
-    }
-  }
+    markPoint:{
+      data:[{ type:'max' }], symbol:'circle', symbolSize:10,
+      itemStyle:{ color:'#00eeff', ...glow('#00d4ff',22) }, label:{ show:false },
+    },
+    markLine:{
+      data:[{ type:'average' }],
+      lineStyle:{ color:'rgba(0,180,216,0.30)', type:[6,6] },
+      label:{ color:'rgba(255,255,255,0.40)', fontSize:9, fontFamily:FF, formatter:'Prom: {c}' },
+      symbol:['none','none'],
+    },
+  }]
 });
 
 document.querySelectorAll('.nav-item:not(.active)').forEach(el=>{
@@ -685,6 +690,8 @@ document.querySelectorAll('.nav-item:not(.active)').forEach(el=>{
     this.classList.add('active');
   });
 });
+
+window.addEventListener('resize', () => { donutChart.resize(); lineaChart.resize(); });
 </script>
 </body>
 </html>
