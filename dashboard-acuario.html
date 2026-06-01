@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AquaVida — Dashboard Acuario</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts-liquidfill@3.1.0/dist/echarts-liquidfill.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --c1:#00d4ff; --c2:#00ffcc; --c3:#48cae4; --c4:#caf0f8;
+  --fh:'Space Grotesk',sans-serif; --fb:'Inter',sans-serif;
+}
+@keyframes fadeInDown{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes bubble{0%{transform:translateY(0) scale(1);opacity:.7}100%{transform:translateY(-18px) scale(1.2);opacity:0}}
+
+/* VIDEO HALF-SIDE */
+.video-bg{position:fixed;inset:0;z-index:0;background:#020d1a;}
+.video-bg video{
+  position:absolute;right:-2%;top:50%;width:78%;height:auto;
+  transform:translateY(-50%) translateZ(0);will-change:transform;
+}
+.video-bg::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(to right,
+    rgba(2,13,26,0.90) 0%,
+    rgba(2,13,26,0.74) 28%,
+    rgba(2,13,26,0.22) 52%,
+    rgba(2,13,26,0.00) 65%
+  );
+}
+.video-bg::before{
+  content:'';position:absolute;z-index:1;inset:0;
+  background:radial-gradient(ellipse at 66% 44%,rgba(0,212,255,0.18) 0%,rgba(0,100,180,0.07) 38%,transparent 62%);
+  pointer-events:none;
+}
+
+.app{position:relative;z-index:2;display:flex;flex-direction:column;height:100vh;padding:12px 14px;gap:10px;overflow:hidden;}
+
+/* NAVBAR */
+.navbar{display:flex;align-items:center;gap:14px;padding:0 18px;height:48px;flex-shrink:0;border-radius:14px;background:rgba(2,13,28,0.52);border:1px solid rgba(0,212,255,0.18);box-shadow:inset 0 1px 0 rgba(255,255,255,0.07),0 4px 24px rgba(0,0,0,0.38);position:relative;animation:fadeInDown .5s ease both;}
+.navbar::before{content:'';position:absolute;top:0;left:20px;right:20px;height:1px;background:linear-gradient(90deg,transparent,rgba(0,212,255,0.50),rgba(255,255,255,0.12),transparent);}
+.nav-icon{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#00d4ff,#0055cc);display:flex;align-items:center;justify-content:center;font-size:15px;box-shadow:0 0 14px rgba(0,212,255,0.40);}
+.nav-title{font-family:var(--fh);font-size:13px;font-weight:700;color:#fff;}
+.nav-title span{color:var(--c1);}
+.nav-sep{width:1px;height:24px;background:rgba(0,212,255,0.14);margin:0 2px;}
+.nav-links{display:flex;gap:3px;}
+.nav-link{font-family:var(--fb);font-size:11px;color:rgba(255,255,255,.38);padding:5px 12px;border-radius:7px;cursor:pointer;transition:all .2s;}
+.nav-link:hover{background:rgba(0,212,255,.07);color:rgba(255,255,255,.70);}
+.nav-link.active{background:rgba(0,212,255,.13);color:var(--c1);border:1px solid rgba(0,212,255,.22);}
+.nav-right{margin-left:auto;display:flex;align-items:center;gap:10px;}
+.nav-date{font-family:var(--fb);font-size:11px;color:rgba(255,255,255,.32);}
+.nav-live{display:flex;align-items:center;gap:6px;background:rgba(0,255,204,0.08);border:1px solid rgba(0,255,204,0.22);border-radius:50px;padding:4px 11px;font-family:var(--fb);font-size:10px;font-weight:600;color:var(--c2);}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--c2);animation:blink 1.4s infinite;}
+
+/* GRID */
+.main-grid{flex:1;min-height:0;display:grid;grid-template-columns:200px 200px 1fr 210px;grid-template-rows:1fr 1fr;gap:10px;}
+
+/* GLASS CARD */
+.gc{border-radius:16px;background:rgba(2,13,28,0.18);border:1px solid rgba(0,212,255,0.16);box-shadow:inset 0 1px 0 rgba(255,255,255,0.07),inset 1px 0 0 rgba(0,212,255,0.08),0 8px 32px rgba(0,0,0,0.28);position:relative;overflow:hidden;animation:fadeIn .7s ease both;}
+.gc::before{content:'';position:absolute;top:0;left:14px;right:14px;height:1px;background:linear-gradient(90deg,transparent,rgba(0,212,255,0.55),rgba(255,255,255,0.12),transparent);}
+.gc::after{content:'';position:absolute;top:14px;left:0;bottom:14px;width:1px;background:linear-gradient(180deg,transparent,rgba(0,212,255,0.25),rgba(0,212,255,0.12),transparent);}
+.gc-inner{position:relative;z-index:2;height:100%;display:flex;flex-direction:column;padding:14px 12px;}
+.r2{grid-row:span 2;}
+.card-lbl{font-family:var(--fb);font-size:9px;font-weight:600;letter-spacing:1.2px;color:rgba(0,212,255,0.60);text-transform:uppercase;margin-bottom:6px;}
+
+/* KPI BLOCKS */
+.kpi-list{display:flex;flex-direction:column;gap:7px;flex:1;}
+.kpi-block{background:rgba(0,212,255,0.04);border:1px solid rgba(0,212,255,0.10);border-radius:10px;padding:9px 11px;}
+.kpi-top{display:flex;align-items:center;gap:7px;margin-bottom:3px;}
+.kpi-icon{font-size:13px;}
+.kpi-name{font-family:var(--fb);font-size:10px;color:rgba(255,255,255,.42);}
+.kpi-val{font-family:var(--fh);font-size:20px;font-weight:700;color:#fff;line-height:1;margin-bottom:4px;}
+.kpi-val.cyan{color:#00d4ff;text-shadow:0 0 10px rgba(0,212,255,0.4);}
+.kpi-val.green{color:#00ffcc;text-shadow:0 0 10px rgba(0,255,204,0.3);}
+.kpi-val.amber{color:#fbbf24;text-shadow:0 0 10px rgba(251,191,36,0.4);}
+.kpi-val.red{color:#f87171;text-shadow:0 0 10px rgba(248,113,113,0.4);}
+.kpi-bar-track{height:3px;background:rgba(255,255,255,0.07);border-radius:2px;overflow:hidden;}
+.kpi-bar-fill{height:100%;border-radius:2px;}
+
+/* TABLA TANQUES */
+.vtable{width:100%;border-collapse:collapse;}
+.vtable thead tr th{font-family:var(--fb);font-size:9px;font-weight:600;letter-spacing:.8px;color:rgba(0,212,255,0.55);text-transform:uppercase;padding:0 0 7px 0;border-bottom:1px solid rgba(0,212,255,0.10);}
+.vtable tbody tr td{font-family:var(--fb);font-size:10px;color:rgba(255,255,255,.58);padding:5.5px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
+.vtable tbody tr:last-child td{border-bottom:none;}
+.vtable td:first-child{color:rgba(255,255,255,.82);font-weight:500;}
+.tag{display:inline-block;padding:2px 7px;border-radius:5px;font-size:9px;font-weight:600;}
+.tag-ok{background:rgba(0,255,204,0.08);color:#00ffcc;border:1px solid rgba(0,255,204,0.20);}
+.tag-warn{background:rgba(251,191,36,0.08);color:#fbbf24;border:1px solid rgba(251,191,36,0.20);}
+.tag-alert{background:rgba(248,113,113,0.08);color:#f87171;border:1px solid rgba(248,113,113,0.20);}
+.tag-mant{background:rgba(167,139,250,0.08);color:#a78bfa;border:1px solid rgba(167,139,250,0.20);}
+
+/* LIQUID GRID */
+.liq-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;flex:1;min-height:0;}
+.liq-cell{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;}
+.liq-wrap{width:78px;height:78px;}
+.liq-label{font-family:var(--fb);font-size:9px;color:rgba(255,255,255,.42);text-align:center;line-height:1.3;}
+.chart-box{flex:1;min-height:0;}
+
+/* STAT STRIP */
+.stat-strip{display:flex;gap:8px;flex-shrink:0;height:34px;}
+.stat-chip{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;border-radius:10px;background:rgba(2,13,28,0.22);border:1px solid rgba(0,212,255,0.12);padding:0 10px;font-family:var(--fb);font-size:10px;color:rgba(255,255,255,.48);}
+.stat-chip strong{font-family:var(--fh);font-size:12px;font-weight:700;color:rgba(255,255,255,.88);}
+.dot-sm{width:5px;height:5px;border-radius:50%;}
+</style>
+</head>
+<body>
+<div class="video-bg">
+  <video autoplay muted loop playsinline>
+    <source src="video fondo marino.mp4" type="video/mp4">
+  </video>
+</div>
+
+<div class="app">
+  <nav class="navbar">
+    <div class="nav-icon">🐠</div>
+    <div class="nav-title">Aqua<span>Vida</span></div>
+    <div class="nav-sep"></div>
+    <div class="nav-links">
+      <div class="nav-link active">Overview</div>
+      <div class="nav-link">Tanques</div>
+      <div class="nav-link">Especies</div>
+      <div class="nav-link">Alimentación</div>
+      <div class="nav-link">Visitantes</div>
+    </div>
+    <div class="nav-right">
+      <div class="nav-date" id="navDate"></div>
+      <div class="nav-live"><span class="dot"></span>Monitoreo Live</div>
+    </div>
+  </nav>
+
+  <div class="main-grid">
+
+    <!-- KPIs -->
+    <div class="gc r2">
+      <div class="gc-inner">
+        <div class="card-lbl">Indicadores del Acuario</div>
+        <div class="kpi-list">
+          <div class="kpi-block">
+            <div class="kpi-top"><span class="kpi-icon">🐟</span><span class="kpi-name">Especies Vivas</span></div>
+            <div class="kpi-val cyan">847</div>
+            <div class="kpi-bar-track"><div class="kpi-bar-fill" style="width:85%;background:linear-gradient(90deg,#00d4ff,#00ffcc);box-shadow:0 0 8px rgba(0,212,255,0.5);"></div></div>
+          </div>
+          <div class="kpi-block">
+            <div class="kpi-top"><span class="kpi-icon">🪣</span><span class="kpi-name">Tanques Activos</span></div>
+            <div class="kpi-val green">24</div>
+            <div class="kpi-bar-track"><div class="kpi-bar-fill" style="width:96%;background:linear-gradient(90deg,#00ffcc,#00d4ff);box-shadow:0 0 8px rgba(0,255,204,0.5);"></div></div>
+          </div>
+          <div class="kpi-block">
+            <div class="kpi-top"><span class="kpi-icon">👥</span><span class="kpi-name">Visitantes Hoy</span></div>
+            <div class="kpi-val cyan">1,284</div>
+            <div class="kpi-bar-track"><div class="kpi-bar-fill" style="width:78%;background:linear-gradient(90deg,#00d4ff,#a78bfa);box-shadow:0 0 8px rgba(0,212,255,0.5);"></div></div>
+          </div>
+          <div class="kpi-block">
+            <div class="kpi-top"><span class="kpi-icon">🌡️</span><span class="kpi-name">Temp. Promedio</span></div>
+            <div class="kpi-val amber">23.4°C</div>
+            <div class="kpi-bar-track"><div class="kpi-bar-fill" style="width:62%;background:linear-gradient(90deg,#fbbf24,#f97316);box-shadow:0 0 8px rgba(251,191,36,0.5);"></div></div>
+          </div>
+          <div class="kpi-block">
+            <div class="kpi-top"><span class="kpi-icon">⚠️</span><span class="kpi-name">Alertas Activas</span></div>
+            <div class="kpi-val red">2</div>
+            <div class="kpi-bar-track"><div class="kpi-bar-fill" style="width:8%;background:linear-gradient(90deg,#f87171,#fbbf24);box-shadow:0 0 8px rgba(248,113,113,0.5);"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RADAR Calidad del Agua -->
+    <div class="gc r2">
+      <div class="gc-inner">
+        <div class="card-lbl">Calidad del Agua por Zona</div>
+        <div class="chart-box" id="radar"></div>
+      </div>
+    </div>
+
+    <!-- BARRAS HORIZONTALES Especies por Familia -->
+    <div class="gc">
+      <div class="gc-inner">
+        <div class="card-lbl">Especies por Familia — Distribución</div>
+        <div class="chart-box" id="barras"></div>
+      </div>
+    </div>
+
+    <!-- TABLA Tanques -->
+    <div class="gc r2">
+      <div class="gc-inner">
+        <div class="card-lbl">Estado de Tanques</div>
+        <table class="vtable">
+          <thead>
+            <tr><th>Tanque</th><th>Zona</th><th>Estado</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>T-01 Arrecife</td><td style="color:rgba(255,255,255,.45)">Coral</td><td><span class="tag tag-ok">Óptimo</span></td></tr>
+            <tr><td>T-02 Pelágico</td><td style="color:rgba(255,255,255,.45)">Aguas Abiertas</td><td><span class="tag tag-ok">Óptimo</span></td></tr>
+            <tr><td>T-03 Tiburones</td><td style="color:rgba(255,255,255,.45)">Predadores</td><td><span class="tag tag-warn">pH Alto</span></td></tr>
+            <tr><td>T-04 Medusas</td><td style="color:rgba(255,255,255,.45)">Invertebrados</td><td><span class="tag tag-ok">Óptimo</span></td></tr>
+            <tr><td>T-05 Mantas</td><td style="color:rgba(255,255,255,.45)">Pelágico</td><td><span class="tag tag-mant">Mant.</span></td></tr>
+            <tr><td>T-06 Profundidad</td><td style="color:rgba(255,255,255,.45)">Abismal</td><td><span class="tag tag-alert">T° Alta</span></td></tr>
+            <tr><td>T-07 Tropical</td><td style="color:rgba(255,255,255,.45)">Arrecife</td><td><span class="tag tag-ok">Óptimo</span></td></tr>
+            <tr><td>T-08 Contacto</td><td style="color:rgba(255,255,255,.45)">Interactivo</td><td><span class="tag tag-ok">Óptimo</span></td></tr>
+            <tr><td>T-09 Tortugas</td><td style="color:rgba(255,255,255,.45)">Reptiles</td><td><span class="tag tag-ok">Óptimo</span></td></tr>
+            <tr><td>T-10 Nocturnos</td><td style="color:rgba(255,255,255,.45)">Especial</td><td><span class="tag tag-warn">O₂ Bajo</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- LiquidFill Parámetros Agua -->
+    <div class="gc">
+      <div class="gc-inner">
+        <div class="card-lbl">Parámetros del Agua</div>
+        <div class="liq-grid">
+          <div class="liq-cell"><div class="liq-wrap" id="liq1"></div><div class="liq-label">Oxígeno<br>Disuelto</div></div>
+          <div class="liq-cell"><div class="liq-wrap" id="liq2"></div><div class="liq-label">Nivel<br>pH</div></div>
+          <div class="liq-cell"><div class="liq-wrap" id="liq3"></div><div class="liq-label">Salinidad<br>Marina</div></div>
+          <div class="liq-cell"><div class="liq-wrap" id="liq4"></div><div class="liq-label">Filtración<br>Activa</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /grid -->
+
+  <!-- STAT STRIP -->
+  <div class="stat-strip">
+    <div class="stat-chip"><span class="dot-sm" style="background:#00d4ff;box-shadow:0 0 6px rgba(0,212,255,0.8);"></span><strong>847</strong> Especies</div>
+    <div class="stat-chip"><span class="dot-sm" style="background:#00ffcc;box-shadow:0 0 6px rgba(0,255,204,0.8);"></span><strong>24</strong> Tanques</div>
+    <div class="stat-chip"><span class="dot-sm" style="background:#a78bfa;box-shadow:0 0 6px rgba(167,139,250,0.8);"></span><strong>1,284</strong> Visitantes</div>
+    <div class="stat-chip"><span class="dot-sm" style="background:#fbbf24;box-shadow:0 0 6px rgba(251,191,36,0.8);"></span><strong>23.4°C</strong> Temp.</div>
+    <div class="stat-chip"><span class="dot-sm" style="background:#00ffcc;box-shadow:0 0 6px rgba(0,255,204,0.8);"></span><strong>98.2%</strong> O₂</div>
+    <div class="stat-chip"><span class="dot-sm" style="background:#00d4ff;box-shadow:0 0 6px rgba(0,212,255,0.8);"></span><strong>7.8</strong> pH Prom.</div>
+    <div class="stat-chip"><span class="dot-sm" style="background:#f87171;box-shadow:0 0 6px rgba(248,113,113,0.8);"></span><strong>2</strong> Alertas</div>
+  </div>
+</div>
+
+<script>
+document.getElementById('navDate').textContent = new Date().toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+const FF = "'Space Grotesk',sans-serif";
+const glow = (c,b=12) => ({ shadowBlur:b, shadowColor:c, shadowOffsetX:0, shadowOffsetY:0 });
+const TT = {
+  backgroundColor:'rgba(2,13,36,0.97)',
+  borderColor:'rgba(0,180,216,0.28)', borderWidth:1,
+  textStyle:{ color:'rgba(255,255,255,.88)', fontSize:11, fontFamily:FF },
+  extraCssText:'border-radius:10px;padding:10px 14px;'
+};
+
+/* ── RADAR — Calidad del Agua por Zona ── */
+const radar = echarts.init(document.getElementById('radar'), 'dark', {renderer:'canvas'});
+radar.setOption({
+  backgroundColor:'transparent',
+  tooltip:{ ...TT, trigger:'item' },
+  legend:{
+    bottom:4, textStyle:{ color:'rgba(255,255,255,.50)', fontSize:9, fontFamily:FF },
+    itemWidth:10, itemHeight:6
+  },
+  radar:{
+    center:['50%','48%'], radius:'68%',
+    indicator:[
+      { name:'pH',      max:100 },
+      { name:'O₂',      max:100 },
+      { name:'Salinidad',max:100 },
+      { name:'Temp.',   max:100 },
+      { name:'Nitrato', max:100 },
+      { name:'Turbidez',max:100 },
+    ],
+    axisName:{ color:'rgba(255,255,255,.52)', fontSize:9, fontFamily:FF },
+    splitLine:{ lineStyle:{ color:'rgba(0,212,255,0.10)' }},
+    splitArea:{ areaStyle:{ color:['rgba(0,212,255,0.02)','rgba(0,212,255,0.05)'] }},
+    axisLine:{ lineStyle:{ color:'rgba(0,212,255,0.15)' }},
+  },
+  series:[{
+    type:'radar',
+    data:[
+      { name:'Zona Arrecife', value:[88,95,82,90,86,92],
+        lineStyle:{ color:'#00d4ff', width:2, ...glow('#00d4ff',10) },
+        itemStyle:{ color:'#00d4ff' },
+        areaStyle:{ color:'rgba(0,212,255,0.12)' }
+      },
+      { name:'Zona Pelágica', value:[76,88,91,78,72,85],
+        lineStyle:{ color:'#00ffcc', width:2, ...glow('#00ffcc',10) },
+        itemStyle:{ color:'#00ffcc' },
+        areaStyle:{ color:'rgba(0,255,204,0.08)' }
+      },
+      { name:'Zona Profunda', value:[62,70,95,55,68,60],
+        lineStyle:{ color:'#a78bfa', width:1.5, ...glow('#a78bfa',8) },
+        itemStyle:{ color:'#a78bfa' },
+        areaStyle:{ color:'rgba(167,139,250,0.07)' }
+      },
+    ]
+  }]
+});
+
+/* ── BARRAS HORIZONTALES — Especies por Familia ── */
+const barras = echarts.init(document.getElementById('barras'), 'dark', {renderer:'canvas'});
+const familias = ['Tiburones','Rayas','Tortugas','Moluscos','Crustáceos','Equinodermos','Corales','Peces Tropicales'];
+const cantidades = [18, 24, 12, 87, 134, 96, 203, 273];
+const colores = ['#f87171','#a78bfa','#34d399','#f59e0b','#00d4ff','#ec4899','#00ffcc','#38bdf8'];
+barras.setOption({
+  backgroundColor:'transparent',
+  tooltip:{ ...TT, trigger:'axis', formatter:p=>`<b>${p[0].name}</b><br>${p[0].value} individuos` },
+  grid:{ left:80, right:48, top:8, bottom:18 },
+  xAxis:{ type:'value', splitLine:{ lineStyle:{ color:'rgba(255,255,255,.05)' }}, axisLabel:{ fontSize:9, color:'rgba(255,255,255,.28)', fontFamily:FF }, axisLine:{ show:false }, axisTick:{ show:false }},
+  yAxis:{ type:'category', data:familias, axisLine:{ show:false }, axisTick:{ show:false }, axisLabel:{ fontSize:9, color:'rgba(255,255,255,.55)', fontFamily:FF }},
+  series:[{
+    type:'bar', data: cantidades.map((v,i) => ({
+      value:v,
+      itemStyle:{
+        color: new echarts.graphic.LinearGradient(0,0,1,0,[
+          {offset:0, color: colores[i]+'33'},
+          {offset:1, color: colores[i]+'dd'}
+        ]),
+        borderRadius:[0,6,6,0],
+        shadowBlur:8, shadowColor: colores[i]+'66'
+      }
+    })),
+    barMaxWidth:14,
+    label:{ show:true, position:'right', fontSize:9, fontFamily:FF, color:'rgba(255,255,255,.45)', formatter:'{c}' }
+  }]
+});
+
+/* ── LIQUIDFILL — Parámetros del Agua ── */
+function makeLiq(id, val, color) {
+  const c = echarts.init(document.getElementById(id), 'dark', {renderer:'canvas'});
+  c.setOption({
+    backgroundColor:'transparent',
+    series:[{
+      type:'liquidFill', radius:'88%', center:['50%','50%'],
+      data:[val, val*0.9, val*0.8], color:[color],
+      backgroundStyle:{ color:'rgba(2,13,36,0.50)', borderColor:color, borderWidth:1.5 },
+      outline:{ borderDistance:2, itemStyle:{ borderWidth:2, borderColor:color, shadowBlur:10, shadowColor:color }},
+      label:{ fontSize:13, fontFamily:FF, fontWeight:'700', color:'#fff', formatter:()=>Math.round(val*100)+'%' },
+      waveAnimation:true, animationDuration:2000
+    }]
+  });
+  return c;
+}
+
+let l1,l2,l3,l4;
+setTimeout(()=>{ l1=makeLiq('liq1',0.982,'#00d4ff'); },0);
+setTimeout(()=>{ l2=makeLiq('liq2',0.78,'#00ffcc'); },80);
+setTimeout(()=>{ l3=makeLiq('liq3',0.91,'#48cae4'); },160);
+setTimeout(()=>{ l4=makeLiq('liq4',0.96,'#a78bfa'); },240);
+
+window.addEventListener('resize',()=>{ radar.resize(); barras.resize(); [l1,l2,l3,l4].forEach(c=>c&&c.resize()); });
+</script>
+</body>
+</html>
