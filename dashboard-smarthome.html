@@ -17,7 +17,7 @@
   --c4:#e8e8f0;   /* platino — máximo brillo */
   --tx:rgba(255,255,255,0.92); --tx2:rgba(255,255,255,0.60); --tx3:rgba(255,255,255,0.36);
   --fh:'Space Grotesk',sans-serif; --fb:'Inter',sans-serif;
-  --glass:rgba(200,210,225,0.03);
+  --glass:rgba(200,210,225,0.015);
   --border:rgba(255,255,255,0.18);
   --border-hi:rgba(255,255,255,0.28);
   --radius:16px;
@@ -52,7 +52,7 @@
   width:210px;flex-shrink:0;
   display:flex;flex-direction:column;
   padding:18px 12px;gap:2px;
-  background:rgba(200,210,225,0.04);
+  background:rgba(200,210,225,0.02);
   border-right:1px solid rgba(255,255,255,0.12);
   backdrop-filter:blur(22px);
   box-shadow:4px 0 28px rgba(0,0,0,0.10);
@@ -72,7 +72,7 @@
 }
 .sb-item:hover{background:rgba(255,255,255,.05);color:rgba(255,255,255,.90);}
 .sb-item.active{
-  background:rgba(255,255,255,.06);color:#fff;
+  background:rgba(255,255,255,.04);color:#fff;
   border-color:rgba(255,255,255,.22);
   box-shadow:inset 2px 2px 4px rgba(255,255,255,0.07),inset -1px -1px 3px rgba(0,0,0,0.08);
 }
@@ -116,7 +116,7 @@
 }
 .room-tab:hover{background:rgba(255,255,255,0.05);color:rgba(255,255,255,.90);}
 .room-tab.active{
-  background:rgba(255,255,255,0.07);color:#fff;
+  background:rgba(255,255,255,0.05);color:#fff;
   border-color:rgba(255,255,255,0.24);font-weight:600;
   box-shadow:inset 0 1px 0 rgba(255,255,255,0.14),0 4px 16px rgba(0,0,0,0.14);
 }
@@ -131,7 +131,7 @@
 .topbar-right{display:flex;align-items:center;gap:8px;margin-left:auto;}
 .tb-icon{
   width:30px;height:30px;border-radius:8px;
-  background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.16);
+  background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.16);
   box-shadow:inset 0 1px 0 rgba(255,255,255,0.12);
   display:flex;align-items:center;justify-content:center;
   cursor:pointer;transition:background .18s ease;
@@ -163,10 +163,10 @@
 .chart-box{flex:1;min-height:0;}
 
 /* WEATHER */
-.weather-loc{display:flex;align-items:center;gap:4px;font-family:var(--fb);font-size:10px;color:var(--c1);margin:4px 0 2px;}
-.weather-temp{font-family:var(--fh);font-size:42px;font-weight:800;color:var(--tx);line-height:1;margin-bottom:2px;}
-.weather-desc{font-family:var(--fb);font-size:11px;color:var(--tx2);margin-bottom:8px;}
-.ai-box{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.14);border-radius:10px;padding:10px 12px;box-shadow:inset 0 1px 0 rgba(255,255,255,0.08);margin-top:auto;}
+.weather-loc{display:flex;align-items:center;gap:4px;font-family:var(--fb);font-size:10px;color:rgba(255,255,255,0.70);margin:4px 0 2px;}
+.weather-temp{font-family:var(--fh);font-size:40px;font-weight:800;color:#fff;line-height:1;margin-bottom:2px;text-shadow:0 2px 12px rgba(0,0,0,0.6);}
+.weather-desc{font-family:var(--fb);font-size:11px;color:rgba(255,255,255,0.72);margin-bottom:6px;}
+.ai-box{background:rgba(255,255,255,0.015);border:1px solid rgba(255,255,255,0.14);border-radius:10px;padding:10px 12px;box-shadow:inset 0 1px 0 rgba(255,255,255,0.08);margin-top:auto;}
 .ai-tag{display:flex;align-items:center;gap:5px;font-family:var(--fb);font-size:9px;color:var(--c1);font-weight:600;letter-spacing:.5px;margin-bottom:4px;}
 .ai-text{font-family:var(--fb);font-size:10px;color:var(--tx2);line-height:1.5;}
 
@@ -178,7 +178,7 @@
 
 /* ENERGY */
 .energy-row{display:flex;gap:8px;margin-bottom:10px;}
-.e-chip{flex:1;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.14);border-radius:10px;padding:10px 12px;box-shadow:inset 0 1px 0 rgba(255,255,255,0.08);}
+.e-chip{flex:1;background:rgba(255,255,255,0.015);border:1px solid rgba(255,255,255,0.14);border-radius:10px;padding:10px 12px;box-shadow:inset 0 1px 0 rgba(255,255,255,0.08);}
 .e-val{font-family:var(--fh);font-size:18px;font-weight:800;color:var(--tx);line-height:1;}
 .e-val.cyan{color:var(--c1);text-shadow:0 0 10px var(--glow-soft);}
 .e-val.green{color:var(--c4);text-shadow:0 0 10px var(--glow-soft);}
@@ -187,7 +187,7 @@
 /* DEVICES */
 .dev-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;flex:1;}
 .dev-item{
-  background:rgba(255,255,255,0.02);
+  background:rgba(255,255,255,0.01);
   border:1px solid rgba(255,255,255,0.12);
   border-radius:10px;padding:10px 11px;
   display:flex;flex-direction:column;gap:6px;
@@ -198,7 +198,7 @@
 .dev-item:hover{background:rgba(255,255,255,0.09);border-color:rgba(255,255,255,0.22);}
 .dev-item:active{transform:scale(0.97);}
 .dev-item.on{
-  background:rgba(255,255,255,0.05);
+  background:rgba(255,255,255,0.03);
   border-color:rgba(255,255,255,0.22);
   box-shadow:inset 0 1px 0 rgba(255,255,255,0.12), 0 0 10px rgba(255,255,255,0.03);
 }
@@ -260,7 +260,7 @@
 .stat-strip{display:flex;gap:8px;flex-shrink:0;height:34px;}
 .stat-chip{
   flex:1;display:flex;align-items:center;justify-content:center;gap:7px;
-  border-radius:10px;background:rgba(255,255,255,0.03);
+  border-radius:10px;background:rgba(255,255,255,0.015);
   border:1px solid rgba(255,255,255,0.14);padding:0 10px;
   font-family:var(--fb);font-size:10px;color:var(--tx2);
   box-shadow:inset 0 1px 0 rgba(255,255,255,0.08);
@@ -442,7 +442,7 @@
       <div class="gc" style="animation-delay:.05s">
         <div class="gc-inner" style="gap:0;">
           <div class="card-lbl">Clima & IA</div>
-          <div style="flex-shrink:0;height:52%;border-radius:12px;overflow:hidden;background:#0a0e1a;display:flex;align-items:center;justify-content:center;">
+          <div style="flex-shrink:0;height:42%;border-radius:12px;overflow:hidden;background:#0a0e1a;display:flex;align-items:center;justify-content:center;">
             <video autoplay muted loop playsinline style="width:100%;height:100%;object-fit:contain;display:block;"><source src="video-luna-smart.mp4" type="video/mp4"></video>
           </div>
           <div class="weather-loc" style="margin-top:6px;">
