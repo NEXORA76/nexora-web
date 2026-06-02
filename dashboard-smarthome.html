@@ -21,8 +21,8 @@
 
 /* VIDEO */
 .video-bg{position:fixed;inset:0;z-index:0;background:var(--bg);}
-.video-bg video{position:absolute;right:-2%;top:50%;width:78%;height:auto;transform:translateY(-50%) translateZ(0);will-change:transform;}
-.video-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(to right,rgba(3,11,24,0.96) 0%,rgba(3,11,24,0.82) 30%,rgba(3,11,24,0.30) 55%,rgba(3,11,24,0.00) 68%);}
+.video-bg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.55;}
+.video-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(to right,rgba(3,11,24,0.92) 0%,rgba(3,11,24,0.75) 30%,rgba(3,11,24,0.30) 55%,rgba(3,11,24,0.00) 68%);}
 .video-bg::before{content:'';position:absolute;z-index:1;inset:0;background:radial-gradient(ellipse at 65% 40%,rgba(0,212,255,0.10) 0%,rgba(52,211,153,0.05) 38%,transparent 62%);pointer-events:none;}
 
 /* APP SHELL */
@@ -144,9 +144,7 @@
 </head>
 <body>
 <div class="video-bg">
-  <video autoplay muted loop playsinline>
-    <source src="HOTELERIA, TURISMO INMOBILIARIA.mp4" type="video/mp4">
-  </video>
+  <img src="FONDO SMART.jpg" alt="fondo">
 </div>
 
 <div class="app">
