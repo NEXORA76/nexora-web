@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEXORA — Dashboard Inmobiliaria</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts-liquidfill@3.1.0/dist/echarts-liquidfill.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --c1:#10b981; --c2:#00d4ff; --c3:#34d399; --c4:#6ee7b7;
+  --fh:'Space Grotesk',sans-serif; --fb:'Inter',sans-serif;
+}
+@keyframes fadeInDown{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+
+/* VIDEO HALF-SIDE */
+.video-bg{position:fixed;inset:0;z-index:0;background:#030c0b;}
+.video-bg video{
+  position:absolute;right:-2%;top:50%;width:78%;height:auto;
+  transform:translateY(-50%) translateZ(0);will-change:transform;
+}
+.video-bg::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(to right,
+    rgba(3,12,11,0.93) 0%,
+    rgba(3,12,11,0.76) 28%,
+    rgba(3,12,11,0.22) 52%,
+    rgba(3,12,11,0.00) 65%
+  );
+}
+.video-bg::before{
+  content:'';position:absolute;z-index:1;inset:0;
+  background:radial-gradient(ellipse at 62% 45%,rgba(16,185,129,0.18) 0%,rgba(0,212,255,0.08) 40%,transparent 64%);
+  pointer-events:none;
+}
+
+.app{position:relative;z-index:2;display:flex;flex-direction:column;height:100vh;padding:12px 14px;gap:10px;overflow:hidden;}
+
+/* NAVBAR */
+.navbar{display:flex;align-items:center;gap:14px;padding:0 18px;height:48px;flex-shrink:0;border-radius:14px;background:rgba(3,12,11,0.54);border:1px solid rgba(16,185,129,0.22);box-shadow:inset 0 1px 0 rgba(255,255,255,0.07),0 4px 24px rgba(0,0,0,0.38);position:relative;animation:fadeInDown .5s ease both;}
+.navbar::before{content:'';position:absolute;top:0;left:20px;right:20px;height:1px;background:linear-gradient(90deg,transparent,rgba(16,185,129,0.55),rgba(0,212,255,0.20),transparent);}
+.nav-icon{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#10b981,#059669);display:flex;align-items:center;justify-content:center;font-size:15px;box-shadow:0 0 14px rgba(16,185,129,0.45);}
+.nav-title{font-family:var(--fh);font-size:13px;font-weight:700;color:#fff;}
+.nav-title span{color:var(--c1);}
+.nav-sep{width:1px;height:24px;background:rgba(16,185,129,0.18);margin:0 2px;}
+.nav-links{display:flex;gap:3px;}
+.nav-link{font-family:var(--fb);font-size:11px;color:rgba(255,255,255,.38);padding:5px 12px;border-radius:7px;cursor:pointer;transition:all .2s;}
+.nav-link:hover{background:rgba(16,185,129,.07);color:rgba(255,255,255,.70);}
+.nav-link.active{background:rgba(16,185,129,.13);color:var(--c1);border:1px solid rgba(16,185,129,.25);}
+.nav-right{margin-left:auto;display:flex;align-items:center;gap:10px;}
+.nav-date{font-family:var(--fb);font-size:11px;color:rgba(255,255,255,.32);}
+.nav-live{display:flex;align-items:center;gap:6px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.24);border-radius:50px;padding:4px 11px;font-family:var(--fb);font-size:10px;font-weight:600;color:var(--c1);}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--c1);animation:blink 1.4s infinite;}
+
+/* GRID */
+.main-grid{flex:1;min-height:0;display:grid;grid-template-columns:200px 200px 1fr 210px;grid-template-rows:1fr 1fr;gap:10px;}
+
+/* GLASS CARD */
+.gc{border-radius:16px;background:rgba(3,12,11,0.18);border:1px solid rgba(16,185,129,0.16);box-shadow:inset 0 1px 0 rgba(255,255,255,0.07),inset 1px 0 0 rgba(16,185,129,0.07),0 8px 32px rgba(0,0,0,0.30);position:relative;overflow:hidden;animation:fadeIn .7s ease both;}
+.gc::before{content:'';position:absolute;top:0;left:14px;right:14px;height:1px;background:linear-gradient(90deg,transparent,rgba(16,185,129,0.55),rgba(0,212,255,0.18),transparent);}
+.gc::after{content:'';position:absolute;top:14px;left:0;bottom:14px;width:1px;background:linear-gradient(180deg,transparent,rgba(16,185,129,0.28),rgba(16,185,129,0.12),transparent);}
+.gc-inner{position:relative;z-index:2;height:100%;display:flex;flex-direction:column;padding:14px 12px;}
+.r2{grid-row:span 2;}
+.card-lbl{font-family:var(--fb);font-size:9px;font-weight:600;letter-spacing:1.2px;color:rgba(16,185,129,0.65);text-transform:uppercase;margin-bottom:6px;}
+
+/* KPI BLOCKS */
+.kpi-list{display:flex;flex-direction:column;gap:7px;flex:1;}
+.kpi-block{background:rgba(16,185,129,0.04);border:1px solid rgba(16,185,129,0.10);border-radius:10px;padding:9px 11px;}
+.kpi-top{display:flex;align-items:center;gap:7px;margin-bottom:3px;}
+.kpi-icon{font-size:13px;}
+.kpi-name{font-family:var(--fb);font-size:10px;color:rgba(255,255,255,.42);}
+.kpi-val{font-family:var(--fh);font-size:20px;font-weight:700;color:#fff;line-height:1;margin-bottom:4px;}
+.kpi-val.em{color:#10b981;text-shadow:0 0 10px rgba(16,185,129,0.45);}
+.kpi-val.cy{color:#00d4ff;text-shadow:0 0 10px rgba(0,212,255,0.35);}
+.kpi-val.gr{color:#34d399;text-shadow:0 0 10px rgba(52,211,153,0.35);}
+.kpi-val.am{color:#fbbf24;text-shadow:0 0 10px rgba(251,191,36,0.35);}
+.kpi-bar-track{height:3px;background:rgba(255,255,255,0.07);border-radius:2px;overflow:hidden;}
+.kpi-bar-fill{height:100%;border-radius:2px;}
+
+/* PROPERTY TABLE */
+.vtable{width:100%;border-collapse:collapse;}
+.vtable thead tr th{font-family:var(--fb);font-size:9px;font-weight:600;letter-spacing:.8px;color:rgba(16,185,129,0.60);text-transform:uppercase;padding:0 0 7px 0;border-bottom:1px solid rgba(16,185,129,0.12);}
+.vtable tbody tr td{font-family:var(--fb);font-size:10px;color:rgba(255,255,255,.58);padding:5.5px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
+.vtable tbody tr:last-child td{border-bottom:none;}
+.vtable td:first-child{color:rgba(255,255,255,.82);font-weight:500;}
+.tag{display:inline-block;padding:2px 7px;border-radius:5px;font-size:9px;font-weight:600;}
+.tag-disp{background:rgba(16,185,129,0.10);color:#10b981;border:1px solid rgba(16,185,129,0.22);}
+.tag-vend{background:rgba(0,212,255,0.08);color:#00d4ff;border:1px solid rgba(0,212,255,0.22);}
+.tag-res{background:rgba(251,191,36,0.08);color:#fbbf24;border:1px solid rgba(251,191,36,0.22);}
+.tag-neg{background:rgba(167,139,250,0.08);color:#a78bfa;border:1px solid rgba(167,139,250,0.22);}
+
+/* LIQUID GRID */
+.liq-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;flex:1;min-height:0;}
+.liq-cell{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;}
+.liq-wrap{width:78px;height:78px;}
+.liq-label{font-family:var(--fb);font-size:9px;color:rgba(255,255,255,.42);text-align:center;line-height:1.3;}
+.chart-box{flex:1;min-height:0;}
+
+/* MINI PRICE ROW */
+.price-row{display:flex;align-items:baseline;gap:5px;margin-top:2px;}
+.price-main{font-family:var(--fh);font-size:14px;font-weight:700;color:#10b981;text-shadow:0 0 8px rgba(16,185,129,0.4);}
+.price-unit{font-family:var(--fb);font-size:9px;color:rgba(255,255,255,.32);}
+
+/* STAT STRIP */
+.stat-strip{display:flex;gap:8px;flex-shrink:0;height:34px;}
+.stat-chip{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;border-radius:10px;background:rgba(3,12,11,0.22);border:1px solid rgba(16,185,129,0.14);padding:0 10px;font-family:var(--fb);font-size:10px;color:rgba(255,255,255,.48);}
+.stat-chip strong{font-family:var(--fh);font-size:12px;font-weight:700;color:rgba(255,255,255,.88);}
+.dot-sm{width:5px;height:5px;border-radius:50%;}
+
+/* PRICE BADGE */
+.price-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.18);border-radius:6px;padding:2px 7px;font-family:var(--fh);font-size:11px;font-weight:700;color:#10b981;}
+</style>
+</head>
+<body>
+<div class="video-bg">
+  <video autoplay muted loop playsinline>
+    <source src="HOTELERIA, TURISMO INMOBILIARIA.mp4" type="video/mp4">
+  </video>
+</div>
+
+<div class="app">
+  <nav class="navbar">
+    <div class="nav-icon">🏗️</div>
+    <div class="nav-title">Nexora<span>Realty</span></div>
+    <div class="nav-sep"></div>
+    <div class="nav-links">
+      <div class="nav-link active">Resumen</div>
+      <div class="nav-link">Propiedades</div>
+      <div class="nav-link">Ventas</div>
+      <div class="nav-link">Arriendos</div>
+      <div class="nav-link">Gestión IA</div>
+    </div>
+    <div class="nav-right">
+      <div class="nav-date" id="navDate"></div>
+      <div class="nav-live"><span class="dot"></span>Mercado Live</div>
+    </div>
+  </nav>
+
+  <div class="main-grid">
+
+    <!-- KPIs -->
+    <div class="gc r2">
+      <div class="gc-inner">
+        <div class="card-lbl">Métricas del Mes</div>
+        <div class="kpi-list">
+          <div class="kpi-block">
+            <div class="kpi-top"><span class="kpi-icon">🏘️</span><span class="kpi-name">Propiedades Activas</span></div>
+            <div class="kpi-val em">247</div>
+            <div class="kpi-bar-track"><div class="kpi-bar-fill" style="width:82%;background:linear-gradient(90deg,#10b981,#34d399);box-shadow:0 0 8px rgba(16,185,129,0.5);"></div></div>
+          </div>
+          <div class="kpi-block">
+            <div class="kpi-top"><span class="kpi-icon">💵</span><span class="kpi-name">Ventas del Mes</span></div>
+            <div class="kpi-val cy">$3.8M</div>
+            <div class="kpi-bar-track"><div class="kpi-bar-fill" style="width:76%;background:linear-gradient(90deg,#00d4ff,#10b981);box-shadow:0 0 8px rgba(0,212,255,0.5);"></div></div>
+          </div>
+          <div class="kpi-block">
+            <div class="kpi-top"><span class="kpi-icon">📋</span><span class="kpi-name">Contratos Firmados</span></div>
+            <div class="kpi-val gr">38</div>
+            <div class="kpi-bar-track"><div class="kpi-bar-fill" style="width:63%;background:linear-gradient(90deg,#34d399,#00d4ff);box-shadow:0 0 8px rgba(52,211,153,0.5);"></div></div>
+          </div>
+          <div class="kpi-block">
+            <div class="kpi-top"><span class="kpi-icon">⏱️</span><span class="kpi-name">Días Promedio Venta</span></div>
+            <div class="kpi-val am">18d</div>
+            <div class="kpi-bar-track"><div class="kpi-bar-fill" style="width:44%;background:linear-gradient(90deg,#fbbf24,#10b981);box-shadow:0 0 8px rgba(251,191,36,0.5);"></div></div>
+          </div>
+          <div class="kpi-block">
+            <div class="kpi-top"><span class="kpi-icon">📈</span><span class="kpi-name">Precio Promedio m²</span></div>
+            <div class="kpi-val em">$2,840</div>
+            <div class="kpi-bar-track"><div class="kpi-bar-fill" style="width:70%;background:linear-gradient(90deg,#10b981,#6ee7b7);box-shadow:0 0 8px rgba(16,185,129,0.5);"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Treemap Segmentos -->
+    <div class="gc r2">
+      <div class="gc-inner">
+        <div class="card-lbl">Portafolio por Segmento</div>
+        <div class="chart-box" id="treemap" style="flex:1;min-height:0;"></div>
+      </div>
+    </div>
+
+    <!-- Line Ventas -->
+    <div class="gc">
+      <div class="gc-inner">
+        <div class="card-lbl">Ventas & Arriendos — 12 Meses</div>
+        <div class="chart-box" id="lineArea" style="flex:1;min-height:0;"></div>
+      </div>
+    </div>
+
+    <!-- Tabla propiedades -->
+    <div class="gc r2">
+      <div class="gc-inner">
+        <div class="card-lbl">Propiedades Recientes</div>
+        <table class="vtable">
+          <thead>
+            <tr><th>Propiedad</th><th>Precio</th><th>Estado</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Las Condes 421</td><td><span class="price-badge">$480K</span></td><td><span class="tag tag-disp">Disponible</span></td></tr>
+            <tr><td>Vitacura Torre A</td><td><span class="price-badge">$920K</span></td><td><span class="tag tag-neg">Negociación</span></td></tr>
+            <tr><td>Providencia 88</td><td><span class="price-badge">$310K</span></td><td><span class="tag tag-vend">Vendida</span></td></tr>
+            <tr><td>Ñuñoa Park</td><td><span class="price-badge">$195K</span></td><td><span class="tag tag-res">Reservada</span></td></tr>
+            <tr><td>Lo Barnechea V</td><td><span class="price-badge">$1.2M</span></td><td><span class="tag tag-disp">Disponible</span></td></tr>
+            <tr><td>San Miguel 14</td><td><span class="price-badge">$142K</span></td><td><span class="tag tag-vend">Vendida</span></td></tr>
+            <tr><td>Maipú Central</td><td><span class="price-badge">$118K</span></td><td><span class="tag tag-res">Reservada</span></td></tr>
+            <tr><td>La Reina Lote 3</td><td><span class="price-badge">$680K</span></td><td><span class="tag tag-neg">Negociación</span></td></tr>
+            <tr><td>Colina Casa 7</td><td><span class="price-badge">$265K</span></td><td><span class="tag tag-disp">Disponible</span></td></tr>
+            <tr><td>Peñalolén Sur</td><td><span class="price-badge">$178K</span></td><td><span class="tag tag-vend">Vendida</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- LiquidFills -->
+    <div class="gc">
+      <div class="gc-inner">
+        <div class="card-lbl">Indicadores de Gestión</div>
+        <div class="liq-grid">
+          <div class="liq-cell"><div class="liq-wrap" id="liq1"></div><div class="liq-label">Tasa de<br>Cierre</div></div>
+          <div class="liq-cell"><div class="liq-wrap" id="liq2"></div><div class="liq-label">Ocupación<br>Arriendo</div></div>
+          <div class="liq-cell"><div class="liq-wrap" id="liq3"></div><div class="liq-label">Satisfacción<br>Clientes</div></div>
+          <div class="liq-cell"><div class="liq-wrap" id="liq4"></div><div class="liq-label">Meta Ventas<br>Mes</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /grid -->
+
+  <!-- STAT STRIP -->
+  <div class="stat-strip">
+    <div class="stat-chip"><span class="dot-sm" style="background:#10b981;box-shadow:0 0 6px rgba(16,185,129,0.8);"></span><strong>247</strong> Propiedades</div>
+    <div class="stat-chip"><span class="dot-sm" style="background:#00d4ff;box-shadow:0 0 6px rgba(0,212,255,0.8);"></span><strong>$3.8M</strong> Ventas Mes</div>
+    <div class="stat-chip"><span class="dot-sm" style="background:#34d399;box-shadow:0 0 6px rgba(52,211,153,0.8);"></span><strong>38</strong> Contratos</div>
+    <div class="stat-chip"><span class="dot-sm" style="background:#fbbf24;box-shadow:0 0 6px rgba(251,191,36,0.8);"></span><strong>18d</strong> Días/Venta</div>
+    <div class="stat-chip"><span class="dot-sm" style="background:#10b981;box-shadow:0 0 6px rgba(16,185,129,0.8);"></span><strong>$2,840</strong> m² Prom.</div>
+    <div class="stat-chip"><span class="dot-sm" style="background:#a78bfa;box-shadow:0 0 6px rgba(167,139,250,0.8);"></span><strong>94%</strong> Satisfacción</div>
+    <div class="stat-chip"><span class="dot-sm" style="background:#00d4ff;box-shadow:0 0 6px rgba(0,212,255,0.8);"></span><strong>87%</strong> Ocupación</div>
+  </div>
+</div>
+
+<script>
+document.getElementById('navDate').textContent=new Date().toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+const FF="'Space Grotesk',sans-serif";
+const glow=(c,b=12)=>({shadowBlur:b,shadowColor:c,shadowOffsetX:0,shadowOffsetY:0});
+const TT={backgroundColor:'rgba(3,12,11,0.97)',borderColor:'rgba(16,185,129,0.28)',borderWidth:1,textStyle:{color:'rgba(255,255,255,.88)',fontSize:11,fontFamily:FF},extraCssText:'border-radius:10px;padding:10px 14px;'};
+
+/* TREEMAP */
+const tm=echarts.init(document.getElementById('treemap'),'dark',{renderer:'canvas'});
+tm.setOption({
+  backgroundColor:'transparent',
+  tooltip:{...TT,formatter:p=>`<b>${p.name}</b><br>${p.value} propiedades`},
+  series:[{
+    type:'treemap',
+    width:'100%',height:'100%',
+    roam:false,nodeClick:false,
+    breadcrumb:{show:false},
+    label:{show:true,fontSize:10,fontFamily:FF,color:'rgba(255,255,255,0.88)',fontWeight:'600',overflow:'truncate'},
+    upperLabel:{show:false},
+    itemStyle:{gapWidth:3,borderRadius:8},
+    levels:[
+      {itemStyle:{borderColor:'rgba(3,12,11,0.6)',borderWidth:2,gapWidth:3}},
+      {itemStyle:{gapWidth:2,borderRadius:5}}
+    ],
+    data:[
+      {name:'Departamentos',value:98,itemStyle:{color:'rgba(16,185,129,0.72)'},children:[
+        {name:'Studio',value:22,itemStyle:{color:'rgba(16,185,129,0.50)'}},
+        {name:'2D',value:41,itemStyle:{color:'rgba(52,211,153,0.50)'}},
+        {name:'3D',value:35,itemStyle:{color:'rgba(110,231,183,0.50)'}}
+      ]},
+      {name:'Casas',value:74,itemStyle:{color:'rgba(0,212,255,0.72)'},children:[
+        {name:'Pareadas',value:28,itemStyle:{color:'rgba(0,212,255,0.50)'}},
+        {name:'Aisladas',value:46,itemStyle:{color:'rgba(0,180,230,0.50)'}}
+      ]},
+      {name:'Oficinas',value:42,itemStyle:{color:'rgba(167,139,250,0.72)'},children:[
+        {name:'Cowork',value:16,itemStyle:{color:'rgba(167,139,250,0.50)'}},
+        {name:'Privadas',value:26,itemStyle:{color:'rgba(200,180,255,0.50)'}}
+      ]},
+      {name:'Locales',value:33,itemStyle:{color:'rgba(251,191,36,0.72)'},children:[
+        {name:'Comercial',value:20,itemStyle:{color:'rgba(251,191,36,0.50)'}},
+        {name:'Industrial',value:13,itemStyle:{color:'rgba(255,160,0,0.50)'}}
+      ]}
+    ]
+  }]
+});
+
+/* AREA LINE */
+const meses=['Jul','Ago','Sep','Oct','Nov','Dic','Ene','Feb','Mar','Abr','May','Jun'];
+const ventas=[2.4,2.1,2.8,3.2,1.9,1.6,2.9,3.4,3.6,3.5,3.8,3.8];
+const arr=[0.68,0.62,0.74,0.80,0.58,0.54,0.76,0.88,0.91,0.88,0.92,0.94];
+const la=echarts.init(document.getElementById('lineArea'),'dark',{renderer:'canvas'});
+la.setOption({
+  backgroundColor:'transparent',
+  tooltip:{...TT,trigger:'axis',formatter:p=>`<b>${p[0].axisValue}</b><br>
+    <span style="color:#10b981">● Ventas: $${p[0].value}M</span><br>
+    <span style="color:#00d4ff">● Arr. Ocupación: ${Math.round(p[1].value*100)}%</span>`},
+  grid:{left:36,right:44,top:14,bottom:28},
+  xAxis:{type:'category',data:meses,axisLine:{lineStyle:{color:'rgba(255,255,255,.06)'}},axisTick:{show:false},axisLabel:{fontSize:9,color:'rgba(255,255,255,.32)',fontFamily:FF}},
+  yAxis:[
+    {type:'value',min:1,max:4.5,splitLine:{lineStyle:{color:'rgba(255,255,255,.05)'}},axisLabel:{fontSize:9,color:'rgba(255,255,255,.32)',fontFamily:FF,formatter:v=>'$'+v+'M'}},
+    {type:'value',min:0.4,max:1.1,splitLine:{show:false},axisLabel:{fontSize:9,color:'rgba(0,212,255,.40)',fontFamily:FF,formatter:v=>Math.round(v*100)+'%'}}
+  ],
+  series:[
+    {name:'Ventas',type:'line',data:ventas,smooth:true,yAxisIndex:0,
+      lineStyle:{color:'#10b981',width:2.5,...glow('#10b981',14)},
+      itemStyle:{color:'#10b981'},symbol:'circle',symbolSize:4,
+      areaStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:'rgba(16,185,129,0.24)'},{offset:1,color:'rgba(16,185,129,0.01)'}]}},
+      markPoint:{symbol:'circle',symbolSize:9,data:[{type:'max',name:'Pico',itemStyle:{color:'rgba(16,185,129,0.9)',...glow('#10b981',20)}}],label:{fontSize:9,fontFamily:FF,color:'#fff'}}
+    },
+    {name:'Ocupación Arr.',type:'line',data:arr,smooth:true,yAxisIndex:1,
+      lineStyle:{color:'#00d4ff',width:2,...glow('#00d4ff',10)},
+      itemStyle:{color:'#00d4ff'},symbol:'circle',symbolSize:3,
+      areaStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:'rgba(0,212,255,0.14)'},{offset:1,color:'rgba(0,212,255,0.01)'}]}}
+    }
+  ]
+});
+
+/* LIQUIDFILL */
+function makeLiq(id,val,color){
+  const c=echarts.init(document.getElementById(id),'dark',{renderer:'canvas'});
+  c.setOption({
+    backgroundColor:'transparent',
+    series:[{type:'liquidFill',radius:'88%',center:['50%','50%'],
+      data:[val,val*0.9,val*0.8],color:[color],
+      backgroundStyle:{color:'rgba(3,12,11,0.52)',borderColor:color,borderWidth:1.5},
+      outline:{borderDistance:2,itemStyle:{borderWidth:2,borderColor:color,shadowBlur:10,shadowColor:color}},
+      label:{fontSize:13,fontFamily:FF,fontWeight:'700',color:'#fff',formatter:()=>Math.round(val*100)+'%'},
+      waveAnimation:true,animationDuration:2000
+    }]
+  });
+  return c;
+}
+let l1,l2,l3,l4;
+setTimeout(()=>{l1=makeLiq('liq1',0.72,'#10b981');},0);
+setTimeout(()=>{l2=makeLiq('liq2',0.87,'#00d4ff');},80);
+setTimeout(()=>{l3=makeLiq('liq3',0.94,'#34d399');},160);
+setTimeout(()=>{l4=makeLiq('liq4',0.78,'#6ee7b7');},240);
+
+window.addEventListener('resize',()=>{tm.resize();la.resize();[l1,l2,l3,l4].forEach(c=>c&&c.resize());});
+</script>
+</body>
+</html>
