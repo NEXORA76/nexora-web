@@ -163,9 +163,16 @@
 .chart-box{flex:1;min-height:0;}
 
 /* WEATHER */
-.weather-loc{display:flex;align-items:center;gap:4px;font-family:var(--fb);font-size:10px;color:rgba(255,255,255,0.70);margin:4px 0 2px;}
-.weather-temp{font-family:var(--fh);font-size:40px;font-weight:800;color:#fff;line-height:1;margin-bottom:2px;text-shadow:0 2px 12px rgba(0,0,0,0.6);}
-.weather-desc{font-family:var(--fb);font-size:11px;color:rgba(255,255,255,0.72);margin-bottom:6px;}
+.weather-text-zone{
+  padding:8px 4px 4px;
+  background:linear-gradient(180deg,rgba(5,8,20,0.55) 0%,rgba(5,8,20,0.40) 100%);
+  border-radius:0 0 10px 10px;
+  margin:0 -4px;
+  padding:10px 8px 6px;
+}
+.weather-loc{display:flex;align-items:center;gap:4px;font-family:var(--fb);font-size:10px;color:rgba(255,255,255,0.80);margin-bottom:2px;text-shadow:0 1px 6px rgba(0,0,0,0.9);}
+.weather-temp{font-family:var(--fh);font-size:38px;font-weight:800;color:#fff;line-height:1;margin-bottom:2px;text-shadow:0 2px 16px rgba(0,0,0,0.9),0 0 30px rgba(0,0,0,0.6);}
+.weather-desc{font-family:var(--fb);font-size:11px;color:rgba(255,255,255,0.82);margin-bottom:6px;text-shadow:0 1px 8px rgba(0,0,0,0.9);}
 .ai-box{background:rgba(255,255,255,0.015);border:1px solid rgba(255,255,255,0.14);border-radius:10px;padding:10px 12px;box-shadow:inset 0 1px 0 rgba(255,255,255,0.08);margin-top:auto;}
 .ai-tag{display:flex;align-items:center;gap:5px;font-family:var(--fb);font-size:9px;color:var(--c1);font-weight:600;letter-spacing:.5px;margin-bottom:4px;}
 .ai-text{font-family:var(--fb);font-size:10px;color:var(--tx2);line-height:1.5;}
@@ -445,12 +452,14 @@
           <div style="flex-shrink:0;height:42%;border-radius:12px;overflow:hidden;background:#0a0e1a;display:flex;align-items:center;justify-content:center;">
             <video autoplay muted loop playsinline style="width:100%;height:100%;object-fit:contain;display:block;"><source src="video-luna-smart.mp4" type="video/mp4"></video>
           </div>
-          <div class="weather-loc" style="margin-top:6px;">
-            <svg width="10" height="10" stroke="currentColor"><use href="#ico-map-pin"/></svg>
-            Santiago, Chile
+          <div class="weather-text-zone">
+            <div class="weather-loc">
+              <svg width="10" height="10" stroke="currentColor"><use href="#ico-map-pin"/></svg>
+              Santiago, Chile
+            </div>
+            <div class="weather-temp">18°C</div>
+            <div class="weather-desc">Noche Despejada</div>
           </div>
-          <div class="weather-temp">18°C</div>
-          <div class="weather-desc">Noche Despejada</div>
           <div class="ai-box">
             <div class="ai-tag">
               <svg width="10" height="10" stroke="currentColor"><use href="#ico-sparkles"/></svg>
