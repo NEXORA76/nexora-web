@@ -27,6 +27,7 @@
 | `dashboard-hotel.html` | /dashboard-hotel.html | 🏨 Hotelería / Resort | `HOTELERIA, TURISMO INMOBILIARIA.mp4` |
 | `dashboard-acuario.html` | /dashboard-acuario.html | 🐠 Acuario | `video fondo marino.mp4` |
 | `dashboard-smarthome.html` | /dashboard-smarthome.html | 🏠 Smart Home | `fondo-smart.jpg` (foto interior noche) |
+| `dashboard-inmobiliaria.html` | /dashboard-inmobiliaria.html | 🏗️ Inmobiliaria | `HOTELERIA, TURISMO INMOBILIARIA.mp4` |
 
 ---
 
@@ -162,8 +163,8 @@ const TT = {
 
 | Prioridad | Dashboard | Archivo | Video / Fondo |
 |---|---|---|---|
-| 🔴 Siguiente | 🏗️ Inmobiliaria | `dashboard-inmobiliaria.html` | `HOTELERIA, TURISMO INMOBILIARIA.mp4` |
-| 🟡 | 🛒 Retail / Ventas | `dashboard-retail.html` | `VBRAIN VIDEO 4K.mp4` (hue naranja) |
+| ✅ Done | 🏗️ Inmobiliaria | `dashboard-inmobiliaria.html` | `HOTELERIA, TURISMO INMOBILIARIA.mp4` |
+| 🔴 Siguiente | 🛒 Retail / Ventas | `dashboard-retail.html` | `VBRAIN VIDEO 4K.mp4` (hue naranja) |
 | 🟢 | Dashboard Cristian | `dashboard-cristian.html` | TBD — confirmar rubro |
 
 ---
@@ -219,7 +220,7 @@ git add archivo.html && git commit -m "mensaje" && git push
 
 ## 📌 Pendientes globales
 
-- [ ] **Dashboard Inmobiliaria** (`dashboard-inmobiliaria.html`) — PRÓXIMO
+- [x] **Dashboard Inmobiliaria** (`dashboard-inmobiliaria.html`) — ✅ LIVE
 - [ ] Dashboard Retail/Ventas (`dashboard-retail.html`)
 - [ ] Dashboard Cristian — confirmar rubro con Mariana
 - [ ] Landing vitrina de demos (grid todos los dashboards + pricing)
