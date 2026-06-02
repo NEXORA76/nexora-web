@@ -110,12 +110,12 @@
 }
 .tab-add{
   width:26px;height:26px;border-radius:7px;
-  border:1px dashed rgba(0,212,255,.32);
+  border:1px dashed rgba(255,255,255,.28);
   display:flex;align-items:center;justify-content:center;
-  color:rgba(0,212,255,.50);cursor:pointer;
+  color:rgba(255,255,255,.45);cursor:pointer;
   transition:border-color .18s, color .18s;
 }
-.tab-add:hover{border-color:rgba(0,212,255,.60);color:rgba(0,212,255,.80);}
+.tab-add:hover{border-color:rgba(255,255,255,.55);color:rgba(255,255,255,.75);}
 .topbar-right{display:flex;align-items:center;gap:8px;margin-left:auto;}
 .tb-icon{
   width:30px;height:30px;border-radius:8px;
@@ -154,7 +154,7 @@
 .weather-loc{display:flex;align-items:center;gap:4px;font-family:var(--fb);font-size:10px;color:var(--c1);margin:4px 0 2px;}
 .weather-temp{font-family:var(--fh);font-size:42px;font-weight:800;color:var(--tx);line-height:1;margin-bottom:2px;}
 .weather-desc{font-family:var(--fb);font-size:11px;color:var(--tx2);margin-bottom:8px;}
-.ai-box{background:rgba(0,212,255,0.04);border:1px solid rgba(0,212,255,0.18);border-radius:10px;padding:10px 12px;box-shadow:inset 0 1px 0 rgba(0,212,255,0.08);margin-top:auto;}
+.ai-box{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.18);border-radius:10px;padding:10px 12px;box-shadow:inset 0 1px 0 rgba(255,255,255,0.10);margin-top:auto;}
 .ai-tag{display:flex;align-items:center;gap:5px;font-family:var(--fb);font-size:9px;color:var(--c1);font-weight:600;letter-spacing:.5px;margin-bottom:4px;}
 .ai-text{font-family:var(--fb);font-size:10px;color:var(--tx2);line-height:1.5;}
 
@@ -186,14 +186,14 @@
 .dev-item:hover{background:rgba(255,255,255,0.09);border-color:rgba(255,255,255,0.22);}
 .dev-item:active{transform:scale(0.97);}
 .dev-item.on{
-  background:rgba(0,212,255,0.05);
-  border-color:rgba(0,212,255,0.22);
-  box-shadow:inset 0 1px 0 rgba(0,212,255,0.10), 0 0 12px rgba(0,212,255,0.06);
+  background:rgba(255,255,255,0.08);
+  border-color:rgba(255,255,255,0.28);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.14), 0 0 12px rgba(255,255,255,0.04);
 }
-.dev-item.on:hover{background:rgba(0,212,255,0.10);}
+.dev-item.on:hover{background:rgba(255,255,255,0.13);}
 .dev-top{display:flex;align-items:center;justify-content:space-between;}
 .dev-ico{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.07);}
-.dev-item.on .dev-ico{background:rgba(0,212,255,0.12);}
+.dev-item.on .dev-ico{background:rgba(255,255,255,0.12);}
 .dev-name{font-family:var(--fh);font-size:10px;font-weight:600;color:var(--tx);}
 .dev-sub{font-family:var(--fb);font-size:9px;color:var(--tx3);}
 
@@ -520,7 +520,7 @@
 
             <div class="dev-item on" onclick="toggleDev(this)">
               <div class="dev-top">
-                <div class="dev-ico"><svg width="14" height="14" stroke="rgba(0,212,255,0.85)"><use href="#ico-tv"/></svg></div>
+                <div class="dev-ico"><svg width="14" height="14" stroke="rgba(255,255,255,0.85)"><use href="#ico-tv"/></svg></div>
                 <div class="toggle on"></div>
               </div>
               <div class="dev-name">Smart TV</div>
@@ -529,7 +529,7 @@
 
             <div class="dev-item on" onclick="toggleDev(this)">
               <div class="dev-top">
-                <div class="dev-ico"><svg width="14" height="14" stroke="rgba(0,212,255,0.85)"><use href="#ico-bulb"/></svg></div>
+                <div class="dev-ico"><svg width="14" height="14" stroke="rgba(255,255,255,0.85)"><use href="#ico-bulb"/></svg></div>
                 <div class="toggle on"></div>
               </div>
               <div class="dev-name">Luces Smart</div>
@@ -547,7 +547,7 @@
 
             <div class="dev-item on" onclick="toggleDev(this)">
               <div class="dev-top">
-                <div class="dev-ico"><svg width="14" height="14" stroke="rgba(0,212,255,0.85)"><use href="#ico-camera"/></svg></div>
+                <div class="dev-ico"><svg width="14" height="14" stroke="rgba(255,255,255,0.85)"><use href="#ico-camera"/></svg></div>
                 <div class="toggle on"></div>
               </div>
               <div class="dev-name">Cámara</div>
@@ -565,7 +565,7 @@
 
             <div class="dev-item on" onclick="toggleDev(this)">
               <div class="dev-top">
-                <div class="dev-ico"><svg width="14" height="14" stroke="rgba(0,212,255,0.85)"><use href="#ico-zap"/></svg></div>
+                <div class="dev-ico"><svg width="14" height="14" stroke="rgba(255,255,255,0.85)"><use href="#ico-zap"/></svg></div>
                 <div class="toggle on"></div>
               </div>
               <div class="dev-name">Enchufe Smart</div>
@@ -757,11 +757,11 @@ function toggleDev(item) {
   // Update icon color
   const ico = item.querySelector('.dev-ico svg');
   if (ico) {
-    ico.setAttribute('stroke', !isOn ? 'rgba(0,212,255,0.85)' : 'rgba(255,255,255,0.45)');
+    ico.setAttribute('stroke', !isOn ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.45)');
   }
   const devIco = item.querySelector('.dev-ico');
   if (devIco) {
-    devIco.style.background = !isOn ? 'rgba(0,212,255,0.12)' : 'rgba(255,255,255,0.07)';
+    devIco.style.background = !isOn ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.07)';
   }
 }
 
