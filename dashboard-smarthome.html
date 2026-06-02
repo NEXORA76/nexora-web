@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NexHome — Smart Home Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts-liquidfill@3.1.0/dist/echarts-liquidfill.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --c1:#00d4ff; --c2:#34d399; --c3:#a78bfa; --c4:#fbbf24;
+  --bg:#030b18;
+  --fh:'Space Grotesk',sans-serif; --fb:'Inter',sans-serif;
+}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:.8}50%{transform:scale(1.15);opacity:1}}
+@keyframes slideIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
+
+/* VIDEO */
+.video-bg{position:fixed;inset:0;z-index:0;background:var(--bg);}
+.video-bg video{position:absolute;right:-2%;top:50%;width:78%;height:auto;transform:translateY(-50%) translateZ(0);will-change:transform;}
+.video-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(to right,rgba(3,11,24,0.96) 0%,rgba(3,11,24,0.82) 30%,rgba(3,11,24,0.30) 55%,rgba(3,11,24,0.00) 68%);}
+.video-bg::before{content:'';position:absolute;z-index:1;inset:0;background:radial-gradient(ellipse at 65% 40%,rgba(0,212,255,0.10) 0%,rgba(52,211,153,0.05) 38%,transparent 62%);pointer-events:none;}
+
+/* APP SHELL */
+.app{position:relative;z-index:2;display:flex;height:100vh;overflow:hidden;}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  width:210px;flex-shrink:0;
+  display:flex;flex-direction:column;
+  padding:18px 12px;gap:4px;
+  background:rgba(3,11,24,0.62);
+  border-right:1px solid rgba(0,212,255,0.10);
+  backdrop-filter:blur(12px);
+  animation:slideIn .4s ease both;
+}
+.sb-brand{display:flex;align-items:center;gap:10px;padding:4px 8px 18px;border-bottom:1px solid rgba(0,212,255,0.08);margin-bottom:8px;}
+.sb-logo{width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,#00d4ff,#0055cc);display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 0 16px rgba(0,212,255,0.35);}
+.sb-name{font-family:var(--fh);font-size:14px;font-weight:800;color:#fff;}
+.sb-name span{color:var(--c1);}
+.sb-section{font-family:var(--fb);font-size:9px;font-weight:600;letter-spacing:1.4px;color:rgba(255,255,255,.22);text-transform:uppercase;padding:12px 10px 4px;}
+.sb-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;cursor:pointer;transition:all .2s;font-family:var(--fb);font-size:11px;color:rgba(255,255,255,.42);position:relative;}
+.sb-item:hover{background:rgba(0,212,255,.06);color:rgba(255,255,255,.70);}
+.sb-item.active{background:rgba(0,212,255,.12);color:var(--c1);border:1px solid rgba(0,212,255,.18);}
+.sb-item.active::before{content:'';position:absolute;left:0;top:20%;bottom:20%;width:2px;border-radius:2px;background:var(--c1);box-shadow:0 0 8px var(--c1);}
+.sb-icon{font-size:14px;width:18px;text-align:center;}
+.sb-badge{margin-left:auto;font-size:9px;font-weight:700;background:rgba(248,113,113,0.15);color:#f87171;border:1px solid rgba(248,113,113,0.25);border-radius:50px;padding:1px 6px;}
+.sb-bottom{margin-top:auto;border-top:1px solid rgba(0,212,255,0.08);padding-top:12px;}
+.sb-user{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:10px;background:rgba(0,212,255,0.04);border:1px solid rgba(0,212,255,0.08);}
+.sb-avatar{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#a78bfa,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:12px;}
+.sb-uname{font-family:var(--fh);font-size:10px;font-weight:700;color:rgba(255,255,255,.82);}
+.sb-role{font-family:var(--fb);font-size:9px;color:rgba(255,255,255,.30);}
+
+/* ── MAIN ── */
+.main{flex:1;display:flex;flex-direction:column;padding:14px 14px 14px 16px;gap:10px;overflow:hidden;min-width:0;}
+
+/* TOP BAR */
+.topbar{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.room-tabs{display:flex;gap:4px;flex:1;}
+.room-tab{font-family:var(--fb);font-size:11px;padding:6px 14px;border-radius:8px;cursor:pointer;transition:all .2s;color:rgba(255,255,255,.38);border:1px solid transparent;}
+.room-tab:hover{background:rgba(0,212,255,.06);color:rgba(255,255,255,.65);}
+.room-tab.active{background:rgba(0,212,255,.14);color:var(--c1);border-color:rgba(0,212,255,.22);font-weight:600;}
+.tab-add{width:26px;height:26px;border-radius:7px;border:1px dashed rgba(0,212,255,.25);display:flex;align-items:center;justify-content:center;color:rgba(0,212,255,.40);cursor:pointer;font-size:14px;}
+.topbar-right{display:flex;align-items:center;gap:8px;margin-left:auto;}
+.tb-icon{width:30px;height:30px;border-radius:8px;background:rgba(3,11,24,0.50);border:1px solid rgba(0,212,255,.12);display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;transition:all .2s;}
+.tb-icon:hover{background:rgba(0,212,255,.10);}
+.tb-date{font-family:var(--fb);font-size:10px;color:rgba(255,255,255,.30);}
+
+/* CONTENT GRID */
+.grid{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr 1fr 220px;grid-template-rows:1fr 1fr;gap:10px;}
+
+/* GLASS CARD */
+.gc{border-radius:16px;background:rgba(3,11,24,0.18);border:1px solid rgba(0,212,255,0.14);box-shadow:inset 0 1px 0 rgba(255,255,255,0.07),inset 1px 0 0 rgba(0,212,255,0.07),0 8px 32px rgba(0,0,0,0.28);position:relative;overflow:hidden;animation:fadeIn .6s ease both;}
+.gc::before{content:'';position:absolute;top:0;left:14px;right:14px;height:1px;background:linear-gradient(90deg,transparent,rgba(0,212,255,0.50),rgba(255,255,255,0.10),transparent);}
+.gc::after{content:'';position:absolute;top:14px;left:0;bottom:14px;width:1px;background:linear-gradient(180deg,transparent,rgba(0,212,255,0.20),rgba(0,212,255,0.10),transparent);}
+.gc-inner{position:relative;z-index:2;height:100%;display:flex;flex-direction:column;padding:14px 14px 12px;}
+.r2{grid-row:span 2;}
+.c2{grid-column:span 2;}
+.card-lbl{font-family:var(--fb);font-size:9px;font-weight:600;letter-spacing:1.2px;color:rgba(0,212,255,0.65);text-transform:uppercase;margin-bottom:8px;}
+.chart-box{flex:1;min-height:0;}
+
+/* WEATHER CARD */
+.weather-temp{font-family:var(--fh);font-size:42px;font-weight:800;color:#fff;line-height:1;margin:4px 0 2px;}
+.weather-desc{font-family:var(--fb);font-size:11px;color:rgba(255,255,255,.45);margin-bottom:8px;}
+.weather-loc{font-family:var(--fb);font-size:10px;color:rgba(0,212,255,.65);margin-bottom:10px;}
+.ai-box{background:rgba(0,212,255,0.06);border:1px solid rgba(0,212,255,0.14);border-radius:10px;padding:10px 12px;}
+.ai-tag{font-family:var(--fb);font-size:9px;color:var(--c1);font-weight:600;letter-spacing:.5px;margin-bottom:4px;}
+.ai-text{font-family:var(--fb);font-size:10px;color:rgba(255,255,255,.65);line-height:1.5;}
+.weather-icon{font-size:36px;margin-bottom:4px;display:block;}
+
+/* CCTV CARD */
+.cctv-frame{flex:1;border-radius:10px;background:rgba(0,0,0,0.40);border:1px solid rgba(0,212,255,0.10);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;}
+.cctv-overlay{position:absolute;inset:0;background:linear-gradient(135deg,rgba(0,212,255,0.04),rgba(0,0,0,0.20));}
+.cctv-label{position:absolute;top:8px;left:8px;font-family:var(--fb);font-size:9px;font-weight:600;background:rgba(0,0,0,0.55);color:rgba(255,255,255,.70);padding:3px 8px;border-radius:5px;border:1px solid rgba(255,255,255,.10);}
+.cctv-live{position:absolute;top:8px;right:8px;display:flex;align-items:center;gap:5px;background:rgba(248,113,113,0.15);border:1px solid rgba(248,113,113,0.30);border-radius:50px;padding:3px 9px;font-family:var(--fb);font-size:9px;font-weight:700;color:#f87171;}
+.cctv-dot{width:5px;height:5px;border-radius:50%;background:#f87171;animation:blink 1s infinite;}
+.cctv-time{position:absolute;bottom:8px;left:8px;font-family:var(--fb);font-size:9px;color:rgba(255,255,255,.50);}
+.cctv-room-img{width:100%;height:100%;object-fit:cover;opacity:0.55;filter:hue-rotate(180deg) saturate(0.6);}
+.cctv-placeholder{font-size:48px;opacity:0.15;}
+
+/* ENERGY CARD */
+.energy-row{display:flex;gap:8px;margin-bottom:10px;}
+.e-chip{flex:1;background:rgba(0,212,255,0.06);border:1px solid rgba(0,212,255,0.12);border-radius:10px;padding:10px 12px;}
+.e-val{font-family:var(--fh);font-size:18px;font-weight:800;color:#fff;line-height:1;}
+.e-val.green{color:var(--c2);text-shadow:0 0 10px rgba(52,211,153,0.4);}
+.e-lbl{font-family:var(--fb);font-size:9px;color:rgba(255,255,255,.38);margin-top:3px;}
+
+/* DEVICES CARD */
+.dev-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;flex:1;}
+.dev-item{background:rgba(0,212,255,0.04);border:1px solid rgba(0,212,255,0.10);border-radius:10px;padding:10px 11px;display:flex;flex-direction:column;gap:6px;cursor:pointer;transition:all .2s;}
+.dev-item:hover{background:rgba(0,212,255,0.09);}
+.dev-item.on{background:rgba(0,212,255,0.08);border-color:rgba(0,212,255,0.22);}
+.dev-top{display:flex;align-items:center;justify-content:space-between;}
+.dev-icon{font-size:16px;}
+.dev-name{font-family:var(--fh);font-size:10px;font-weight:600;color:rgba(255,255,255,.75);}
+.dev-sub{font-family:var(--fb);font-size:9px;color:rgba(255,255,255,.30);}
+/* TOGGLE */
+.toggle{width:32px;height:18px;border-radius:50px;position:relative;cursor:pointer;transition:all .3s;flex-shrink:0;}
+.toggle.off{background:rgba(255,255,255,0.10);border:1px solid rgba(255,255,255,0.14);}
+.toggle.on{background:rgba(0,212,255,0.30);border:1px solid rgba(0,212,255,0.50);box-shadow:0 0 8px rgba(0,212,255,0.30);}
+.toggle::after{content:'';position:absolute;top:2px;width:12px;height:12px;border-radius:50%;transition:all .3s;}
+.toggle.off::after{left:2px;background:rgba(255,255,255,0.35);}
+.toggle.on::after{left:16px;background:#00d4ff;box-shadow:0 0 6px rgba(0,212,255,0.8);}
+
+/* AC GAUGE CARD */
+.ac-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;}
+.ac-status{display:flex;align-items:center;gap:5px;font-family:var(--fb);font-size:9px;color:var(--c2);font-weight:600;}
+.ac-dot{width:6px;height:6px;border-radius:50%;background:var(--c2);animation:pulse 2s infinite;}
+.ac-controls{display:flex;gap:6px;justify-content:center;margin-top:2px;}
+.ac-btn{flex:1;padding:6px 4px;border-radius:8px;background:rgba(0,212,255,0.06);border:1px solid rgba(0,212,255,0.14);font-family:var(--fb);font-size:9px;color:rgba(255,255,255,.55);text-align:center;cursor:pointer;transition:all .2s;}
+.ac-btn:hover{background:rgba(0,212,255,0.14);color:var(--c1);}
+.ac-btn.active{background:rgba(0,212,255,0.15);color:var(--c1);border-color:rgba(0,212,255,0.30);}
+
+/* STAT STRIP */
+.stat-strip{display:flex;gap:8px;flex-shrink:0;height:34px;}
+.stat-chip{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;border-radius:10px;background:rgba(3,11,24,0.22);border:1px solid rgba(0,212,255,0.12);padding:0 10px;font-family:var(--fb);font-size:10px;color:rgba(255,255,255,.48);}
+.stat-chip strong{font-family:var(--fh);font-size:12px;font-weight:700;color:rgba(255,255,255,.88);}
+.dot-sm{width:5px;height:5px;border-radius:50%;}
+</style>
+</head>
+<body>
+<div class="video-bg">
+  <video autoplay muted loop playsinline>
+    <source src="HOTELERIA, TURISMO INMOBILIARIA.mp4" type="video/mp4">
+  </video>
+</div>
+
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sb-brand">
+      <div class="sb-logo">🏠</div>
+      <div><div class="sb-name">Nex<span>Home</span></div></div>
+    </div>
+
+    <div class="sb-section">Principal</div>
+    <div class="sb-item active"><span class="sb-icon">⊞</span> Dashboard</div>
+    <div class="sb-item"><span class="sb-icon">🚪</span> Habitaciones</div>
+    <div class="sb-item"><span class="sb-icon">💡</span> Dispositivos</div>
+    <div class="sb-item"><span class="sb-icon">🎬</span> Escenas</div>
+    <div class="sb-item"><span class="sb-icon">⚡</span> Energía</div>
+
+    <div class="sb-section">Seguridad</div>
+    <div class="sb-item"><span class="sb-icon">📹</span> Cámaras <span class="sb-badge">2</span></div>
+    <div class="sb-item"><span class="sb-icon">🔒</span> Accesos</div>
+    <div class="sb-item"><span class="sb-icon">🚨</span> Alertas <span class="sb-badge">1</span></div>
+
+    <div class="sb-section">Sistema</div>
+    <div class="sb-item"><span class="sb-icon">⚙️</span> Ajustes</div>
+
+    <div class="sb-bottom">
+      <div class="sb-user">
+        <div class="sb-avatar">👤</div>
+        <div><div class="sb-uname">Mariana L.</div><div class="sb-role">Administrador</div></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="room-tabs">
+        <div class="room-tab active">Sala de Estar</div>
+        <div class="room-tab">Dormitorio</div>
+        <div class="room-tab">Cocina</div>
+        <div class="room-tab">Baño</div>
+        <div class="room-tab">Jardín</div>
+        <div class="tab-add">+</div>
+      </div>
+      <div class="topbar-right">
+        <div class="tb-date" id="tbDate"></div>
+        <div class="tb-icon">🔔</div>
+        <div class="tb-icon">🌙</div>
+      </div>
+    </div>
+
+    <!-- GRID -->
+    <div class="grid">
+
+      <!-- WEATHER -->
+      <div class="gc" style="animation-delay:.05s">
+        <div class="gc-inner">
+          <div class="card-lbl">Clima & IA</div>
+          <span class="weather-icon">🌙</span>
+          <div class="weather-loc">📍 Santiago, Chile</div>
+          <div class="weather-temp">18°C</div>
+          <div class="weather-desc">Noche Despejada</div>
+          <div class="ai-box">
+            <div class="ai-tag">✦ Sugerencia IA</div>
+            <div class="ai-text">Activar modo "Relax" — atenuar luces al 40%, música ambient y bajar AC a 20°C.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CCTV -->
+      <div class="gc c2" style="animation-delay:.10s">
+        <div class="gc-inner">
+          <div class="card-lbl" style="display:flex;align-items:center;justify-content:space-between;">
+            <span>Cámara en Vivo</span>
+            <div style="display:flex;align-items:center;gap:5px;font-size:9px;color:#f87171;font-weight:700;font-family:var(--fb);">
+              <span style="width:6px;height:6px;border-radius:50%;background:#f87171;display:inline-block;animation:blink 1s infinite;"></span>LIVE
+            </div>
+          </div>
+          <div class="cctv-frame">
+            <div class="cctv-overlay"></div>
+            <div class="cctv-placeholder">🛋️</div>
+            <div class="cctv-label">CAM-01 · Sala Principal</div>
+            <div class="cctv-time" id="cctvTime"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AC GAUGE -->
+      <div class="gc" style="animation-delay:.15s">
+        <div class="gc-inner">
+          <div class="card-lbl">Aire Acondicionado</div>
+          <div class="ac-header">
+            <div class="ac-status"><span class="ac-dot"></span>Encendido</div>
+            <div class="toggle on" id="acToggle" onclick="toggleAC()"></div>
+          </div>
+          <div class="chart-box" id="gauge"></div>
+          <div class="ac-controls">
+            <div class="ac-btn active">❄️ Frío</div>
+            <div class="ac-btn">🌀 Ventilador</div>
+            <div class="ac-btn">🔥 Calor</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ENERGY -->
+      <div class="gc" style="animation-delay:.20s">
+        <div class="gc-inner">
+          <div class="card-lbl">Consumo Energético</div>
+          <div class="energy-row">
+            <div class="e-chip">
+              <div class="e-val cyan">4.2 kWh</div>
+              <div class="e-lbl">Hoy</div>
+            </div>
+            <div class="e-chip">
+              <div class="e-val green">124 kWh</div>
+              <div class="e-lbl">Este Mes</div>
+            </div>
+          </div>
+          <div class="chart-box" id="energy"></div>
+        </div>
+      </div>
+
+      <!-- DEVICES -->
+      <div class="gc c2" style="animation-delay:.25s">
+        <div class="gc-inner">
+          <div class="card-lbl">Dispositivos — Sala de Estar</div>
+          <div class="dev-grid">
+            <div class="dev-item on" onclick="toggleDev(this)">
+              <div class="dev-top"><span class="dev-icon">📺</span><div class="toggle on"></div></div>
+              <div class="dev-name">Smart TV</div>
+              <div class="dev-sub">Samsung 65" · Encendido</div>
+            </div>
+            <div class="dev-item on" onclick="toggleDev(this)">
+              <div class="dev-top"><span class="dev-icon">💡</span><div class="toggle on"></div></div>
+              <div class="dev-name">Luces Smart</div>
+              <div class="dev-sub">Philips Hue · 60%</div>
+            </div>
+            <div class="dev-item" onclick="toggleDev(this)">
+              <div class="dev-top"><span class="dev-icon">🎵</span><div class="toggle off"></div></div>
+              <div class="dev-name">Altavoz</div>
+              <div class="dev-sub">Sonos · Apagado</div>
+            </div>
+            <div class="dev-item on" onclick="toggleDev(this)">
+              <div class="dev-top"><span class="dev-icon">📹</span><div class="toggle on"></div></div>
+              <div class="dev-name">Cámara</div>
+              <div class="dev-sub">Ring · Grabando</div>
+            </div>
+            <div class="dev-item" onclick="toggleDev(this)">
+              <div class="dev-top"><span class="dev-icon">🌡️</span><div class="toggle off"></div></div>
+              <div class="dev-name">Termostato</div>
+              <div class="dev-sub">Nest · Modo eco</div>
+            </div>
+            <div class="dev-item on" onclick="toggleDev(this)">
+              <div class="dev-top"><span class="dev-icon">🔌</span><div class="toggle on"></div></div>
+              <div class="dev-name">Enchufe Smart</div>
+              <div class="dev-sub">TP-Link · 0.8A</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LIQUID FILL Security -->
+      <div class="gc" style="animation-delay:.30s">
+        <div class="gc-inner">
+          <div class="card-lbl">Estado del Hogar</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;flex:1;">
+            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;">
+              <div style="width:72px;height:72px;" id="liq1"></div>
+              <div style="font-family:var(--fb);font-size:9px;color:rgba(255,255,255,.42);text-align:center;">Seguridad</div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;">
+              <div style="width:72px;height:72px;" id="liq2"></div>
+              <div style="font-family:var(--fb);font-size:9px;color:rgba(255,255,255,.42);text-align:center;">Eficiencia</div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;">
+              <div style="width:72px;height:72px;" id="liq3"></div>
+              <div style="font-family:var(--fb);font-size:9px;color:rgba(255,255,255,.42);text-align:center;">Confort</div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;">
+              <div style="width:72px;height:72px;" id="liq4"></div>
+              <div style="font-family:var(--fb);font-size:9px;color:rgba(255,255,255,.42);text-align:center;">Ahorro</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /grid -->
+
+    <!-- STAT STRIP -->
+    <div class="stat-strip">
+      <div class="stat-chip"><span class="dot-sm" style="background:#00d4ff;box-shadow:0 0 6px rgba(0,212,255,0.8);"></span><strong>12</strong> Dispositivos</div>
+      <div class="stat-chip"><span class="dot-sm" style="background:#34d399;box-shadow:0 0 6px rgba(52,211,153,0.8);"></span><strong>8</strong> Activos</div>
+      <div class="stat-chip"><span class="dot-sm" style="background:#fbbf24;box-shadow:0 0 6px rgba(251,191,36,0.8);"></span><strong>4.2 kWh</strong> Hoy</div>
+      <div class="stat-chip"><span class="dot-sm" style="background:#a78bfa;box-shadow:0 0 6px rgba(167,139,250,0.8);"></span><strong>20°C</strong> AC</div>
+      <div class="stat-chip"><span class="dot-sm" style="background:#00ffcc;box-shadow:0 0 6px rgba(0,255,204,0.8);"></span><strong>18°C</strong> Exterior</div>
+      <div class="stat-chip"><span class="dot-sm" style="background:#34d399;box-shadow:0 0 6px rgba(52,211,153,0.8);"></span><strong>96%</strong> Seguridad</div>
+      <div class="stat-chip"><span class="dot-sm" style="background:#f87171;box-shadow:0 0 6px rgba(248,113,113,0.8);"></span><strong>1</strong> Alerta</div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<script>
+const FF = "'Space Grotesk',sans-serif";
+const glow = (c,b=12) => ({ shadowBlur:b, shadowColor:c, shadowOffsetX:0, shadowOffsetY:0 });
+const TT = {
+  backgroundColor:'rgba(3,11,24,0.97)',
+  borderColor:'rgba(0,180,216,0.28)', borderWidth:1,
+  textStyle:{ color:'rgba(255,255,255,.88)', fontSize:11, fontFamily:FF },
+  extraCssText:'border-radius:10px;padding:10px 14px;'
+};
+
+// Fecha
+document.getElementById('tbDate').textContent = new Date().toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'});
+function updTime(){ document.getElementById('cctvTime').textContent = new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit',second:'2-digit'}); }
+updTime(); setInterval(updTime, 1000);
+
+/* ── GAUGE — Temperatura AC ── */
+let acTemp = 20;
+const gaugeChart = echarts.init(document.getElementById('gauge'), 'dark', {renderer:'canvas'});
+function renderGauge(temp) {
+  gaugeChart.setOption({
+    backgroundColor:'transparent',
+    series:[{
+      type:'gauge',
+      center:['50%','62%'], radius:'88%',
+      min:16, max:32, splitNumber:4,
+      startAngle:210, endAngle:-30,
+      axisLine:{
+        lineStyle:{
+          width:14,
+          color:[
+            [0.25, '#00d4ff'],
+            [0.55, '#34d399'],
+            [0.80, '#fbbf24'],
+            [1,   '#f87171']
+          ]
+        }
+      },
+      pointer:{ itemStyle:{ color:'#fff', shadowBlur:12, shadowColor:'rgba(255,255,255,0.6)' }, length:'60%', width:4 },
+      axisTick:{ show:false },
+      splitLine:{ length:8, lineStyle:{ color:'rgba(255,255,255,.15)', width:1.5 }},
+      axisLabel:{ color:'rgba(255,255,255,.40)', fontSize:9, fontFamily:FF, distance:6 },
+      detail:{
+        valueAnimation:true,
+        formatter:v=>v+'°C',
+        color:'#fff', fontSize:20, fontWeight:'800', fontFamily:FF,
+        offsetCenter:[0,'20%'],
+        ...glow('#00d4ff',20)
+      },
+      data:[{ value:temp }]
+    }]
+  });
+}
+renderGauge(acTemp);
+
+// Botones +/-
+function toggleAC() {
+  const t = document.getElementById('acToggle');
+  t.classList.toggle('on'); t.classList.toggle('off');
+}
+
+/* ── ENERGY LINE ── */
+const energyChart = echarts.init(document.getElementById('energy'), 'dark', {renderer:'canvas'});
+energyChart.setOption({
+  backgroundColor:'transparent',
+  tooltip:{ ...TT, trigger:'axis', formatter:p=>`<b>${p[0].axisValue}</b><br>${p[0].value} kWh` },
+  grid:{ left:28, right:10, top:6, bottom:22 },
+  xAxis:{ type:'category', data:['00h','03h','06h','09h','12h','15h','18h','21h','Ahora'],
+    axisLine:{show:false}, axisTick:{show:false},
+    axisLabel:{ fontSize:8, color:'rgba(255,255,255,.28)', fontFamily:FF }
+  },
+  yAxis:{ type:'value', splitLine:{ lineStyle:{ color:'rgba(255,255,255,.05)' }},
+    axisLine:{show:false}, axisTick:{show:false},
+    axisLabel:{ fontSize:8, color:'rgba(255,255,255,.28)', fontFamily:FF }
+  },
+  series:[{
+    type:'line', data:[0.1,0.2,0.5,0.8,1.4,1.2,0.9,0.6,0.5],
+    smooth:true, symbolSize:4,
+    lineStyle:{ color:'#00d4ff', width:2.5, ...glow('#00d4ff',14) },
+    itemStyle:{ color:'#00d4ff' },
+    areaStyle:{ color:{ type:'linear', x:0,y:0,x2:0,y2:1,
+      colorStops:[{offset:0,color:'rgba(0,212,255,0.28)'},{offset:1,color:'rgba(0,212,255,0.00)'}]
+    }}
+  }]
+});
+
+/* ── LIQUIDFILL ── */
+function makeLiq(id, val, color) {
+  const c = echarts.init(document.getElementById(id), 'dark', {renderer:'canvas'});
+  c.setOption({
+    backgroundColor:'transparent',
+    series:[{
+      type:'liquidFill', radius:'88%', center:['50%','50%'],
+      data:[val, val*0.9, val*0.8], color:[color],
+      backgroundStyle:{ color:'rgba(3,11,24,0.50)', borderColor:color, borderWidth:1.5 },
+      outline:{ borderDistance:2, itemStyle:{ borderWidth:2, borderColor:color, shadowBlur:10, shadowColor:color }},
+      label:{ fontSize:12, fontFamily:FF, fontWeight:'700', color:'#fff', formatter:()=>Math.round(val*100)+'%' },
+      waveAnimation:true, animationDuration:2000
+    }]
+  });
+  return c;
+}
+let l1,l2,l3,l4;
+setTimeout(()=>{ l1=makeLiq('liq1',0.96,'#00d4ff'); },0);
+setTimeout(()=>{ l2=makeLiq('liq2',0.82,'#34d399'); },80);
+setTimeout(()=>{ l3=makeLiq('liq3',0.91,'#a78bfa'); },160);
+setTimeout(()=>{ l4=makeLiq('liq4',0.74,'#fbbf24'); },240);
+
+/* TOGGLES interactivos */
+function toggleDev(item) {
+  item.classList.toggle('on');
+  const tgl = item.querySelector('.toggle');
+  tgl.classList.toggle('on'); tgl.classList.toggle('off');
+}
+
+window.addEventListener('resize',()=>{
+  gaugeChart.resize(); energyChart.resize();
+  [l1,l2,l3,l4].forEach(c=>c&&c.resize());
+});
+</script>
+</body>
+</html>
