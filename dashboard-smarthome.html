@@ -245,7 +245,10 @@
             <div class="ac-status"><span class="ac-dot"></span>Encendido</div>
             <div class="toggle on" id="acToggle" onclick="toggleAC()"></div>
           </div>
-          <div class="chart-box" id="gauge"></div>
+          <div style="display:flex;align-items:center;gap:8px;flex:1;min-height:0;">
+            <img src="AC SMART.png" style="width:90px;object-fit:contain;filter:drop-shadow(0 0 14px rgba(0,212,255,0.5));flex-shrink:0;">
+            <div class="chart-box" id="gauge" style="flex:1;"></div>
+          </div>
           <div class="ac-controls">
             <div class="ac-btn active">❄️ Frío</div>
             <div class="ac-btn">🌀 Ventilador</div>
