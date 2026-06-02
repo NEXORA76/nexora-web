@@ -32,8 +32,8 @@
   width:210px;flex-shrink:0;
   display:flex;flex-direction:column;
   padding:18px 12px;gap:4px;
-  background:rgba(220,225,235,0.55);
-  border-right:1px solid rgba(255,255,255,0.70);
+  background:rgba(200,210,225,0.12);
+  border-right:1px solid rgba(255,255,255,0.15);
   backdrop-filter:blur(20px);
   box-shadow:inset -1px 0 0 rgba(0,0,0,0.04), 4px 0 24px rgba(0,0,0,0.10);
   animation:slideIn .4s ease both;
@@ -73,20 +73,20 @@
 /* CONTENT GRID */
 .grid{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr 1fr 220px;grid-template-rows:1fr 1fr;gap:10px;}
 
-/* GLASS CARD — biselado claro sobre fondo oscuro */
+/* GLASS CARD — casi transparente biselado */
 .gc{
   border-radius:16px;
-  background:rgba(210,218,230,0.22);
-  border:1px solid rgba(255,255,255,0.35);
+  background:rgba(200,210,225,0.08);
+  border:1px solid rgba(255,255,255,0.18);
   box-shadow:
-    inset 2px 2px 6px rgba(255,255,255,0.25),
-    inset -2px -2px 5px rgba(0,0,0,0.12),
-    0 8px 32px rgba(0,0,0,0.20);
-  backdrop-filter:blur(16px);
+    inset 2px 2px 6px rgba(255,255,255,0.12),
+    inset -2px -2px 5px rgba(0,0,0,0.08),
+    0 8px 32px rgba(0,0,0,0.15);
+  backdrop-filter:blur(10px);
   position:relative;overflow:hidden;animation:fadeIn .6s ease both;
 }
-.gc::before{content:'';position:absolute;top:0;left:14px;right:14px;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.60),transparent);}
-.gc::after{content:'';position:absolute;top:14px;left:0;bottom:14px;width:1px;background:linear-gradient(180deg,transparent,rgba(255,255,255,0.35),transparent);}
+.gc::before{content:'';position:absolute;top:0;left:14px;right:14px;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.35),transparent);}
+.gc::after{content:'';position:absolute;top:14px;left:0;bottom:14px;width:1px;background:linear-gradient(180deg,transparent,rgba(255,255,255,0.20),transparent);}
 .gc-inner{position:relative;z-index:2;height:100%;display:flex;flex-direction:column;padding:14px 14px 12px;}
 .r2{grid-row:span 2;}
 .c2{grid-column:span 2;}
