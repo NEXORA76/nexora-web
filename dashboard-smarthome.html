@@ -10,13 +10,20 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --c1:#00d4ff; --c2:#34d399; --c3:#a78bfa; --c4:#fbbf24;
+  /* Paleta extraída de fondo-smart.jpg — acero cepillado monocromático */
+  --c1:#d0d0dc;   /* plata brillante — highlight central */
+  --c2:#909098;   /* acero medio */
+  --c3:#606068;   /* acero oscuro */
+  --c4:#e8e8f0;   /* platino — máximo brillo */
   --tx:rgba(255,255,255,0.92); --tx2:rgba(255,255,255,0.60); --tx3:rgba(255,255,255,0.36);
   --fh:'Space Grotesk',sans-serif; --fb:'Inter',sans-serif;
   --glass:rgba(200,210,225,0.03);
   --border:rgba(255,255,255,0.18);
   --border-hi:rgba(255,255,255,0.28);
   --radius:16px;
+  /* Glow plateado */
+  --glow-silver:rgba(208,208,220,0.55);
+  --glow-soft:rgba(208,208,220,0.28);
 }
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
@@ -34,6 +41,11 @@
 /* ── SVG ICON HELPER ── */
 .ico{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;}
 .ico svg{display:block;}
+/* Glow plateado en íconos */
+.sb-item.active .ico{filter:drop-shadow(0 0 5px var(--glow-silver));}
+.sb-item:hover .ico{filter:drop-shadow(0 0 4px var(--glow-soft));}
+.dev-item.on .dev-ico{filter:drop-shadow(0 0 7px var(--glow-soft));}
+.tb-icon:hover svg{filter:drop-shadow(0 0 4px var(--glow-soft));}
 
 /* ── SIDEBAR ── */
 .sidebar{
@@ -47,7 +59,7 @@
   animation:slideIn .4s ease both;
 }
 .sb-brand{display:flex;align-items:center;gap:10px;padding:4px 8px 18px;border-bottom:1px solid rgba(255,255,255,0.12);margin-bottom:6px;}
-.sb-logo{width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,#0099cc,#0055aa);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,153,204,0.30),inset 0 1px 0 rgba(255,255,255,0.3);}
+.sb-logo{width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,#505058,#282830);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,0.50),inset 0 1px 0 rgba(255,255,255,0.22);}
 .sb-name{font-family:var(--fh);font-size:14px;font-weight:800;color:var(--tx);}
 .sb-name span{color:var(--c1);}
 .sb-section{font-family:var(--fb);font-size:9px;font-weight:600;letter-spacing:1.4px;color:var(--tx3);text-transform:uppercase;padding:14px 10px 4px;}
@@ -67,7 +79,7 @@
 .sb-item.active::before{
   content:'';position:absolute;left:0;top:20%;bottom:20%;
   width:2px;border-radius:2px;background:var(--c1);
-  box-shadow:0 0 8px rgba(0,212,255,0.6);
+  box-shadow:0 0 8px var(--glow-silver);
 }
 .sb-badge{
   margin-left:auto;font-size:9px;font-weight:700;
@@ -84,7 +96,7 @@
 }
 .sb-avatar{
   width:28px;height:28px;border-radius:8px;
-  background:linear-gradient(135deg,#7c3aed,#4f46e5);
+  background:linear-gradient(135deg,#484850,#282830);
   display:flex;align-items:center;justify-content:center;
 }
 .sb-uname{font-family:var(--fh);font-size:10px;font-weight:700;color:var(--tx);}
@@ -168,8 +180,8 @@
 .energy-row{display:flex;gap:8px;margin-bottom:10px;}
 .e-chip{flex:1;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.14);border-radius:10px;padding:10px 12px;box-shadow:inset 0 1px 0 rgba(255,255,255,0.08);}
 .e-val{font-family:var(--fh);font-size:18px;font-weight:800;color:var(--tx);line-height:1;}
-.e-val.cyan{color:var(--c1);text-shadow:0 0 10px rgba(0,212,255,0.35);}
-.e-val.green{color:var(--c2);text-shadow:0 0 10px rgba(52,211,153,0.30);}
+.e-val.cyan{color:var(--c1);text-shadow:0 0 10px var(--glow-soft);}
+.e-val.green{color:var(--c4);text-shadow:0 0 10px var(--glow-soft);}
 .e-lbl{font-family:var(--fb);font-size:9px;color:var(--tx3);margin-top:3px;}
 
 /* DEVICES */
@@ -205,19 +217,19 @@
   flex-shrink:0;
 }
 .toggle.off{background:rgba(255,255,255,0.14);border:1px solid rgba(255,255,255,0.18);}
-.toggle.on{background:var(--c1);border:1px solid rgba(0,212,255,0.40);box-shadow:0 0 10px rgba(0,212,255,0.28);}
+.toggle.on{background:rgba(200,200,212,0.55);border:1px solid rgba(255,255,255,0.35);box-shadow:0 0 10px rgba(208,208,220,0.30);}
 .toggle::after{
   content:'';position:absolute;top:2px;
   width:12px;height:12px;border-radius:50%;
   transition:left .25s cubic-bezier(.34,1.56,.64,1), background .25s ease;
 }
-.toggle.off::after{left:2px;background:rgba(255,255,255,0.70);box-shadow:1px 1px 3px rgba(0,0,0,0.12);}
-.toggle.on::after{left:16px;background:#fff;box-shadow:0 2px 6px rgba(0,212,255,0.35);}
+.toggle.off::after{left:2px;background:rgba(255,255,255,0.50);box-shadow:1px 1px 3px rgba(0,0,0,0.12);}
+.toggle.on::after{left:16px;background:#fff;box-shadow:0 2px 8px rgba(208,208,220,0.60);}
 
 /* AC CARD */
 .ac-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;}
-.ac-status{display:flex;align-items:center;gap:6px;font-family:var(--fb);font-size:9px;color:var(--c2);font-weight:600;}
-.ac-dot{width:6px;height:6px;border-radius:50%;background:var(--c2);animation:pulse 2s infinite;}
+.ac-status{display:flex;align-items:center;gap:6px;font-family:var(--fb);font-size:9px;color:var(--c1);font-weight:600;}
+.ac-dot{width:6px;height:6px;border-radius:50%;background:var(--c1);animation:pulse 2s infinite;box-shadow:0 0 6px var(--glow-soft);}
 .ac-temp-row{display:flex;align-items:center;justify-content:center;gap:12px;padding:4px 0;}
 .ac-temp-btn{
   width:24px;height:24px;border-radius:8px;
@@ -241,8 +253,8 @@
   box-shadow:inset 0 1px 0 rgba(255,255,255,0.08);
 }
 .ac-btn:hover{background:rgba(255,255,255,0.14);color:#fff;}
-.ac-btn.active-cold{background:rgba(0,212,255,0.12);color:var(--c1);border-color:rgba(0,212,255,0.28);}
-.ac-btn.active-heat{background:rgba(251,191,36,0.12);color:var(--c4);border-color:rgba(251,191,36,0.28);}
+.ac-btn.active-cold{background:rgba(208,208,220,0.12);color:var(--c4);border-color:rgba(208,208,220,0.30);box-shadow:0 0 8px var(--glow-soft);}
+.ac-btn.active-heat{background:rgba(208,208,220,0.12);color:var(--c4);border-color:rgba(208,208,220,0.30);box-shadow:0 0 8px var(--glow-soft);}
 
 /* STAT STRIP */
 .stat-strip{display:flex;gap:8px;flex-shrink:0;height:34px;}
@@ -605,12 +617,12 @@
 
     <!-- STAT STRIP -->
     <div class="stat-strip">
-      <div class="stat-chip"><span class="dot-sm" style="background:#00d4ff;box-shadow:0 0 6px rgba(0,212,255,0.8);"></span><strong>12</strong> Dispositivos</div>
-      <div class="stat-chip"><span class="dot-sm" style="background:#34d399;box-shadow:0 0 6px rgba(52,211,153,0.8);"></span><strong>8</strong> Activos</div>
-      <div class="stat-chip"><span class="dot-sm" style="background:#fbbf24;box-shadow:0 0 6px rgba(251,191,36,0.8);"></span><strong>4.2 kWh</strong> Hoy</div>
-      <div class="stat-chip"><span class="dot-sm" style="background:#a78bfa;box-shadow:0 0 6px rgba(167,139,250,0.8);"></span><strong>20°C</strong> AC</div>
-      <div class="stat-chip"><span class="dot-sm" style="background:#00ffcc;box-shadow:0 0 6px rgba(0,255,204,0.8);"></span><strong>18°C</strong> Exterior</div>
-      <div class="stat-chip"><span class="dot-sm" style="background:#34d399;box-shadow:0 0 6px rgba(52,211,153,0.8);"></span><strong>96%</strong> Seguridad</div>
+      <div class="stat-chip"><span class="dot-sm" style="background:#d0d0dc;box-shadow:0 0 6px rgba(208,208,220,0.7);"></span><strong>12</strong> Dispositivos</div>
+      <div class="stat-chip"><span class="dot-sm" style="background:#e8e8f0;box-shadow:0 0 6px rgba(232,232,240,0.7);"></span><strong>8</strong> Activos</div>
+      <div class="stat-chip"><span class="dot-sm" style="background:#909098;box-shadow:0 0 6px rgba(144,144,152,0.7);"></span><strong>4.2 kWh</strong> Hoy</div>
+      <div class="stat-chip"><span class="dot-sm" style="background:#d0d0dc;box-shadow:0 0 6px rgba(208,208,220,0.7);"></span><strong>20°C</strong> AC</div>
+      <div class="stat-chip"><span class="dot-sm" style="background:#b0b0bc;box-shadow:0 0 6px rgba(176,176,188,0.7);"></span><strong>18°C</strong> Exterior</div>
+      <div class="stat-chip"><span class="dot-sm" style="background:#e8e8f0;box-shadow:0 0 6px rgba(232,232,240,0.7);"></span><strong>96%</strong> Seguridad</div>
       <div class="stat-chip"><span class="dot-sm" style="background:#f87171;box-shadow:0 0 6px rgba(248,113,113,0.8);"></span><strong>1</strong> Alerta</div>
     </div>
 
@@ -647,10 +659,10 @@ function renderGauge(temp) {
         lineStyle:{
           width:12,
           color:[
-            [0.25, '#00d4ff'],
-            [0.55, '#34d399'],
-            [0.80, '#fbbf24'],
-            [1,   '#f87171']
+            [0.30, '#484850'],
+            [0.60, '#787880'],
+            [0.85, '#b0b0bc'],
+            [1,   '#e0e0e8']
           ]
         }
       },
@@ -716,10 +728,10 @@ energyChart.setOption({
   series:[{
     type:'line', data:[0.1,0.2,0.5,0.8,1.4,1.2,0.9,0.6,0.5],
     smooth:true, symbolSize:4,
-    lineStyle:{ color:'#00d4ff', width:2.5, ...glow('#00d4ff',10) },
-    itemStyle:{ color:'#00d4ff' },
+    lineStyle:{ color:'#c0c0cc', width:2.5, ...glow('#c0c0cc',10) },
+    itemStyle:{ color:'#c0c0cc' },
     areaStyle:{ color:{ type:'linear', x:0,y:0,x2:0,y2:1,
-      colorStops:[{offset:0,color:'rgba(0,212,255,0.20)'},{offset:1,color:'rgba(0,212,255,0.00)'}]
+      colorStops:[{offset:0,color:'rgba(192,192,204,0.22)'},{offset:1,color:'rgba(192,192,204,0.00)'}]
     }}
   }]
 });
@@ -732,7 +744,7 @@ function makeLiq(id, val, color) {
     series:[{
       type:'liquidFill', radius:'88%', center:['50%','50%'],
       data:[val, val*0.9, val*0.8], color:[color],
-      backgroundStyle:{ color:'rgba(2,13,36,0.55)', borderColor:color, borderWidth:1.5 },
+      backgroundStyle:{ color:'rgba(20,20,24,0.60)', borderColor:color, borderWidth:1.5 },
       outline:{ borderDistance:2, itemStyle:{ borderWidth:2, borderColor:color, shadowBlur:8, shadowColor:color }},
       label:{ fontSize:12, fontFamily:FF, fontWeight:'700', color:'#fff', formatter:()=>Math.round(val*100)+'%' },
       waveAnimation:true, animationDuration:2000
@@ -741,10 +753,10 @@ function makeLiq(id, val, color) {
   return c;
 }
 let l1,l2,l3,l4;
-setTimeout(()=>{ l1=makeLiq('liq1',0.96,'#00d4ff'); },0);
-setTimeout(()=>{ l2=makeLiq('liq2',0.82,'#34d399'); },80);
-setTimeout(()=>{ l3=makeLiq('liq3',0.91,'#a78bfa'); },160);
-setTimeout(()=>{ l4=makeLiq('liq4',0.74,'#fbbf24'); },240);
+setTimeout(()=>{ l1=makeLiq('liq1',0.96,'#d0d0dc'); },0);
+setTimeout(()=>{ l2=makeLiq('liq2',0.82,'#909098'); },80);
+setTimeout(()=>{ l3=makeLiq('liq3',0.91,'#b8b8c4'); },160);
+setTimeout(()=>{ l4=makeLiq('liq4',0.74,'#686870'); },240);
 
 /* TOGGLES interactivos */
 function toggleDev(item) {
