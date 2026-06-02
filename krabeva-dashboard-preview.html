@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Krabeva 2026 — Dashboard Preview</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --blue: #2563eb; --blue-l: #60a5fa; --blue-xl: #dbeafe;
+    --green: #059669; --green-l: #34d399; --green-xl: #d1fae5;
+    --purple: #7c3aed; --purple-l: #a78bfa; --purple-xl: #ede9fe;
+    --amber: #d97706; --amber-l: #fbbf24; --amber-xl: #fef3c7;
+    --slate: #0f172a; --surface: rgba(255,255,255,.04);
+    --border: rgba(255,255,255,.07); --muted: rgba(148,163,184,.45);
+  }
+
+  body {
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+    background: #060c18;
+    color: #f8fafc;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── BACKGROUND ── */
+  .bg-canvas {
+    position: fixed; inset: 0; z-index: 0; overflow: hidden;
+  }
+  .bg-img {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 20% 20%, rgba(37,99,235,.12) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 80% at 80% 80%, rgba(5,150,105,.08) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 50% at 50% 50%, rgba(124,58,237,.06) 0%, transparent 70%),
+                linear-gradient(160deg, #060c18 0%, #0a1628 40%, #060e1a 100%);
+  }
+  .bg-grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+  .bg-orb {
+    position: absolute; border-radius: 50%; filter: blur(80px); pointer-events: none;
+    animation: drift 10s ease-in-out infinite;
+  }
+  .orb1 { width: 600px; height: 600px; background: rgba(37,99,235,.1); top: -200px; left: -150px; animation-delay: 0s; }
+  .orb2 { width: 400px; height: 400px; background: rgba(5,150,105,.08); bottom: -100px; right: -80px; animation-delay: 3s; }
+  .orb3 { width: 300px; height: 300px; background: rgba(124,58,237,.07); top: 45%; left: 45%; animation-delay: 6s; }
+
+  @keyframes drift {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(25px, 20px); }
+  }
+
+  /* ── LAYOUT ── */
+  .app { position: relative; z-index: 1; display: flex; flex-direction: column; min-height: 100vh; }
+
+  /* ── NAVBAR ── */
+  .navbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 24px; height: 52px;
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(20px);
+    background: rgba(6, 12, 24, .7);
+    animation: slideDown .4s both;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .brand-icon {
+    width: 32px; height: 32px; border-radius: 9px;
+    background: linear-gradient(135deg, var(--blue), var(--green));
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 14px rgba(37,99,235,.4);
+  }
+  .brand-name { font-size: 14px; font-weight: 800; letter-spacing: -.02em; }
+  .brand-sub { font-size: 9px; color: var(--muted); font-weight: 400; margin-top: 1px; }
+  .nav-tabs { display: flex; gap: 2px; }
+  .nav-tab {
+    display: flex; align-items: center; gap: 6px; padding: 6px 14px;
+    border-radius: 7px; font-size: 11px; font-weight: 600; cursor: pointer;
+    color: var(--muted); letter-spacing: .03em; text-transform: uppercase;
+    border: 1px solid transparent; transition: all .15s;
+  }
+  .nav-tab.active {
+    background: rgba(37,99,235,.12); color: var(--blue-l);
+    border-color: rgba(37,99,235,.2);
+  }
+  .nav-right { display: flex; align-items: center; gap: 10px; }
+  .live-pill {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 9px; font-weight: 700; padding: 4px 10px; border-radius: 99px;
+    background: rgba(16,185,129,.1); color: #10b981;
+    border: 1px solid rgba(16,185,129,.2); letter-spacing: .06em; text-transform: uppercase;
+  }
+  .live-dot { width: 5px; height: 5px; border-radius: 50%; background: #10b981; animation: blink 1.2s ease-in-out infinite; }
+  .nexora-badge {
+    font-size: 9px; font-weight: 700; padding: 4px 10px; border-radius: 99px;
+    background: rgba(255,255,255,.04); color: var(--muted);
+    border: 1px solid rgba(255,255,255,.07);
+  }
+
+  /* ── MAIN ── */
+  .main { flex: 1; display: grid; grid-template-columns: 320px 1fr; gap: 0; }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    border-right: 1px solid var(--border);
+    padding: 20px 16px;
+    display: flex; flex-direction: column; gap: 14px;
+    animation: slideRight .5s both;
+  }
+
+  /* Hero panel */
+  .hero-panel {
+    background: linear-gradient(135deg, rgba(37,99,235,.08) 0%, rgba(5,150,105,.05) 100%);
+    border: 1px solid var(--border); border-radius: 14px; padding: 18px;
+    position: relative; overflow: hidden;
+    animation: fadeUp .4s .05s both;
+  }
+  .hero-panel::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(37,99,235,.06) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .eyebrow {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em;
+    color: var(--muted); margin-bottom: 10px;
+  }
+  .eyebrow-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--blue-l); animation: blink 2s ease-in-out infinite; }
+  .hero-title { font-size: 18px; font-weight: 900; line-height: 1.15; margin-bottom: 6px;
+    background: linear-gradient(135deg, #f8fafc 0%, #93c5fd 50%, #6ee7b7 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .hero-sub { font-size: 10px; color: var(--muted); font-weight: 400; line-height: 1.5; margin-bottom: 14px; }
+  .hero-sep { height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,.1), transparent); margin-bottom: 14px; }
+  .hero-meta { display: flex; flex-direction: column; gap: 6px; }
+  .meta-row { display: flex; align-items: center; gap-column: justify-content: space-between; }
+  .meta-label { font-size: 9px; color: rgba(148,163,184,.4); font-weight: 500; flex: 1; }
+  .meta-val { font-size: 9px; font-weight: 700; color: rgba(248,250,252,.7); font-variant-numeric: tabular-nums; }
+
+  /* Mini KPI grid */
+  .mini-kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; animation: fadeUp .4s .1s both; }
+  .mk {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px;
+    transition: transform .2s, background .2s;
+  }
+  .mk:hover { background: rgba(255,255,255,.06); transform: translateY(-1px); }
+  .mk-icon { width: 26px; height: 26px; border-radius: 7px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; }
+  .mk-label { font-size: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: .07em; color: rgba(148,163,184,.4); margin-bottom: 3px; }
+  .mk-val { font-size: 17px; font-weight: 900; font-variant-numeric: tabular-nums; line-height: 1; }
+  .mk-sub { font-size: 8px; color: rgba(148,163,184,.3); margin-top: 3px; }
+
+  /* Gauge */
+  .gauge-panel {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px; text-align: center;
+    animation: fadeUp .4s .15s both;
+  }
+  .gauge-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 12px; }
+  .gauge-svg-wrap { position: relative; width: 140px; margin: 0 auto 6px; }
+  .gauge-center { position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%); text-align: center; }
+  .gauge-pct { font-size: 22px; font-weight: 900; font-variant-numeric: tabular-nums; color: #10b981; }
+  .gauge-unit { font-size: 8px; color: var(--muted); margin-top: 1px; }
+  .gauge-badges { display: flex; gap: 6px; justify-content: center; margin-top: 10px; }
+  .g-badge { font-size: 8px; font-weight: 700; padding: 3px 10px; border-radius: 99px; }
+
+  /* ── CONTENT ── */
+  .content { padding: 20px; display: flex; flex-direction: column; gap: 14px; animation: fadeUp .5s .05s both; }
+
+  /* Top row */
+  .top-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+  /* Insight card */
+  .insight-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px;
+  }
+  .card-title { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+  .card-icon { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+  .card-title-text { font-size: 11px; font-weight: 700; color: rgba(248,250,252,.8); }
+  .card-title-sub { font-size: 9px; color: var(--muted); font-weight: 400; margin-top: 1px; }
+  .insight-list { display: flex; flex-direction: column; gap: 10px; }
+  .insight-item { display: flex; gap: 10px; padding: 10px 12px; border-radius: 9px; border-left: 3px solid; }
+  .ins-ico { width: 26px; height: 26px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+  .ins-tag { font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; margin-bottom: 3px; }
+  .ins-text { font-size: 10px; color: rgba(248,250,252,.65); line-height: 1.45; font-weight: 500; }
+  .ins-metric { font-size: 12px; font-weight: 800; font-variant-numeric: tabular-nums; margin-top: 3px; }
+
+  /* Forecast panel */
+  .forecast-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px;
+  }
+  .fc-rows { display: flex; flex-direction: column; gap: 12px; margin-top: 4px; }
+  .fc-row { }
+  .fc-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 7px; }
+  .fc-scenario { font-size: 10px; font-weight: 600; color: rgba(248,250,252,.6); }
+  .fc-amount { font-size: 15px; font-weight: 900; font-variant-numeric: tabular-nums; }
+  .fc-track { height: 8px; background: rgba(255,255,255,.05); border-radius: 99px; overflow: hidden; margin-bottom: 3px; }
+  .fc-bar { height: 100%; border-radius: 99px; transform-origin: left; animation: grow .9s cubic-bezier(.34,1.56,.64,1) both; }
+  .fc-row:nth-child(1) .fc-bar { animation-delay: .2s; }
+  .fc-row:nth-child(2) .fc-bar { animation-delay: .3s; }
+  .fc-row:nth-child(3) .fc-bar { animation-delay: .4s; }
+  .fc-note { font-size: 8px; color: rgba(148,163,184,.35); }
+
+  /* Bottom row */
+  .bottom-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+
+  /* Timeline */
+  .timeline-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px; }
+  .yoy-rows { margin-top: 6px; }
+  .yoy-section { margin-bottom: 14px; }
+  .yoy-sec-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 9px; }
+  .yoy-sec-label { font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: .07em; color: rgba(148,163,184,.4); }
+  .yoy-badge { font-size: 9px; font-weight: 800; padding: 2px 8px; border-radius: 99px; font-variant-numeric: tabular-nums; }
+  .yoy-row { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
+  .year-tag { font-size: 8px; font-weight: 700; color: rgba(148,163,184,.35); width: 28px; flex-shrink: 0; }
+  .yoy-track { flex: 1; height: 7px; background: rgba(255,255,255,.05); border-radius: 99px; overflow: hidden; }
+  .yoy-fill { height: 100%; border-radius: 99px; transform-origin: left; animation: grow .7s cubic-bezier(.34,1.56,.64,1) both; }
+  .yoy-val { font-size: 10px; font-weight: 700; font-variant-numeric: tabular-nums; color: rgba(248,250,252,.6); width: 56px; text-align: right; flex-shrink: 0; }
+
+  /* Price compare */
+  .price-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px; }
+  .price-compare { display: flex; gap: 10px; align-items: stretch; margin-bottom: 14px; }
+  .price-col { flex: 1; border-radius: 10px; padding: 12px; text-align: center; }
+  .price-divider { display: flex; align-items: center; font-size: 16px; color: rgba(148,163,184,.2); font-weight: 300; padding: 0 2px; }
+  .pc-label { font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; margin-bottom: 5px; line-height: 1.4; }
+  .pc-val { font-size: 18px; font-weight: 900; font-variant-numeric: tabular-nums; }
+  .pc-sub { font-size: 8px; color: rgba(148,163,184,.4); margin-top: 3px; }
+  .saving-row { display: flex; align-items: center; gap: 6px; padding: 8px 12px; border-radius: 8px; background: rgba(16,185,129,.08); border: 1px solid rgba(16,185,129,.15); margin-bottom: 10px; }
+  .saving-text { font-size: 10px; font-weight: 700; color: #10b981; font-variant-numeric: tabular-nums; }
+  .s-track { height: 6px; background: rgba(255,255,255,.05); border-radius: 99px; overflow: hidden; }
+  .s-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, #059669, #10b981); transform-origin: left; animation: grow .8s .3s cubic-bezier(.34,1.56,.64,1) both; }
+
+  /* Pipeline */
+  .pipeline-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px; }
+  .pipeline-steps { display: flex; align-items: center; gap: 0; margin-top: 10px; }
+  .pip-step { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+  .pip-icon { width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; position: relative; }
+  .pip-pulse { position: absolute; inset: -3px; border-radius: 12px; border: 1px solid; animation: ping 1.8s ease-out infinite; }
+  .pip-label { font-size: 7px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: rgba(148,163,184,.35); text-align: center; line-height: 1.3; }
+  .pip-connector { flex: 1; height: 1px; background: rgba(255,255,255,.06); position: relative; padding-bottom: 18px; }
+  .pip-dot { width: 4px; height: 4px; border-radius: 50%; position: absolute; top: -2px; animation: slide 2.2s ease-in-out infinite; }
+  .pip-live { display: flex; align-items: center; gap: 5px; margin-top: 12px; }
+  .pip-live-dot { width: 5px; height: 5px; border-radius: 50%; background: #10b981; animation: blink 1s ease-in-out infinite; }
+  .pip-live-text { font-size: 8px; color: rgba(148,163,184,.3); font-weight: 500; }
+
+  /* ── FOOTER ── */
+  .footer {
+    border-top: 1px solid var(--border); padding: 10px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    backdrop-filter: blur(20px); background: rgba(6,12,24,.7);
+    animation: fadeUp .4s .3s both;
+  }
+  .f-left { font-size: 9px; color: rgba(148,163,184,.25); letter-spacing: .05em; text-transform: uppercase; }
+  .f-chips { display: flex; gap: 6px; }
+  .f-chip { font-size: 8px; font-weight: 700; padding: 3px 9px; border-radius: 99px; }
+
+  /* ── ANIMATIONS ── */
+  @keyframes slideDown { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes slideRight { from { opacity: 0; transform: translateX(-16px); } to { opacity: 1; transform: translateX(0); } }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: .2; } }
+  @keyframes ping { 0% { opacity: .7; transform: scale(1); } 100% { opacity: 0; transform: scale(1.6); } }
+  @keyframes slide { 0% { left: -4px; opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { left: calc(100% + 4px); opacity: 0; } }
+</style>
+</head>
+<body>
+
+<div class="bg-canvas">
+  <div class="bg-img"></div>
+  <div class="bg-grid"></div>
+  <div class="bg-orb orb1"></div>
+  <div class="bg-orb orb2"></div>
+  <div class="bg-orb orb3"></div>
+</div>
+
+<div class="app">
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="brand">
+      <div class="brand-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+        </svg>
+      </div>
+      <div>
+        <div class="brand-name">Krabeva 2026</div>
+        <div class="brand-sub">Análisis Estratégico de Mercado</div>
+      </div>
+    </div>
+    <div class="nav-tabs">
+      <div class="nav-tab active">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Overview
+      </div>
+      <div class="nav-tab">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Análisis
+      </div>
+      <div class="nav-tab">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Forecast
+      </div>
+      <div class="nav-tab">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        Organismos
+      </div>
+    </div>
+    <div class="nav-right">
+      <div class="live-pill"><div class="live-dot"></div>Live Data</div>
+      <div class="nexora-badge">Nexora AI Studio</div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+      <!-- Hero panel -->
+      <div class="hero-panel">
+        <div class="eyebrow"><div class="eyebrow-dot"></div>Inteligencia de Mercado · Chile</div>
+        <div class="hero-title">Plan Krabeva<br>Bevacizumab</div>
+        <div class="hero-sub">Mercado Público Institucional · 2024–2025 · Licitaciones adjudicadas</div>
+        <div class="hero-sep"></div>
+        <div class="hero-meta">
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+            <span class="meta-label">Producto</span>
+            <span class="meta-val">Bevacizumab 100mg/mL</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+            <span class="meta-label">Mercado</span>
+            <span class="meta-val">Chile Público</span>
+          </div>
+          <div style="display:flex;justify-content:space-between">
+            <span class="meta-label">Período</span>
+            <span class="meta-val">2024 – 2025</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mini KPIs -->
+      <div class="mini-kpis">
+        <div class="mk">
+          <div class="mk-icon" style="background:rgba(37,99,235,.12)">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          </div>
+          <div class="mk-label">Mercado Total</div>
+          <div class="mk-val" style="color:#60a5fa">$4.2B</div>
+          <div class="mk-sub">CLP 2024–2025</div>
+        </div>
+        <div class="mk">
+          <div class="mk-icon" style="background:rgba(16,185,129,.12)">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+          </div>
+          <div class="mk-label">Ahorro Potencial</div>
+          <div class="mk-val" style="color:#10b981">$890M</div>
+          <div class="mk-sub">vs precio mercado</div>
+        </div>
+        <div class="mk">
+          <div class="mk-icon" style="background:rgba(124,58,237,.12)">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2.5" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+          </div>
+          <div class="mk-label">Organismos</div>
+          <div class="mk-val" style="color:#a78bfa">142</div>
+          <div class="mk-sub">compradores activos</div>
+        </div>
+        <div class="mk">
+          <div class="mk-icon" style="background:rgba(245,158,11,.12)">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          </div>
+          <div class="mk-label">Licitaciones</div>
+          <div class="mk-val" style="color:#fbbf24">318</div>
+          <div class="mk-sub">adjudicadas</div>
+        </div>
+      </div>
+
+      <!-- Gauge -->
+      <div class="gauge-panel">
+        <div class="gauge-label">Ventaja Competitiva Krabeva</div>
+        <div class="gauge-svg-wrap">
+          <svg width="140" height="78" viewBox="0 0 140 78" style="display:block">
+            <defs>
+              <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#2563eb"/>
+                <stop offset="50%" stop-color="#0891b2"/>
+                <stop offset="100%" stop-color="#059669"/>
+              </linearGradient>
+            </defs>
+            <path d="M14,72 A56,56 0 0,1 126,72" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="12" stroke-linecap="round"/>
+            <path d="M14,72 A56,56 0 0,1 126,72" fill="none" stroke="url(#gaugeGrad)" stroke-width="12" stroke-linecap="round"
+                  stroke-dasharray="175" stroke-dashoffset="61"
+                  style="transition:stroke-dashoffset 1s cubic-bezier(.34,1.56,.64,1)"/>
+          </svg>
+          <div class="gauge-center">
+            <div class="gauge-pct">21.3%</div>
+            <div class="gauge-unit">de ahorro</div>
+          </div>
+        </div>
+        <div class="gauge-badges">
+          <div class="g-badge" style="background:#d1fae5;color:#059669">Nivel Alto</div>
+          <div class="g-badge" style="background:rgba(255,255,255,.05);color:var(--muted)">vs Mercado</div>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+      <!-- Top row: Insights + Forecast -->
+      <div class="top-row">
+
+        <!-- Insights IA -->
+        <div class="insight-card">
+          <div class="card-title">
+            <div class="card-icon" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);box-shadow:0 4px 12px rgba(99,102,241,.3)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+            </div>
+            <div>
+              <div class="card-title-text">Insights Estratégicos IA</div>
+              <div class="card-title-sub">Generado automáticamente · Krabeva 2026</div>
+            </div>
+          </div>
+          <div class="insight-list">
+            <div class="insight-item" style="background:rgba(16,185,129,.04);border-left-color:#059669">
+              <div class="ins-ico" style="background:#d1fae5">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>
+              </div>
+              <div>
+                <div class="ins-tag" style="color:#059669">Oportunidad Principal</div>
+                <div class="ins-text">Precio Krabeva 21.3% más económico que el promedio institucional del mercado</div>
+                <div class="ins-metric" style="color:#059669">Ahorro ~$6.3M CLP/organismo</div>
+              </div>
+            </div>
+            <div class="insight-item" style="background:rgba(37,99,235,.04);border-left-color:#2563eb">
+              <div class="ins-ico" style="background:#dbeafe">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg>
+              </div>
+              <div>
+                <div class="ins-tag" style="color:#2563eb">Segmento Prioritario</div>
+                <div class="ins-text">Enfocar campaña en organismos con mayor volumen histórico de compra</div>
+                <div class="ins-metric" style="color:#2563eb">142 organismos identificados</div>
+              </div>
+            </div>
+            <div class="insight-item" style="background:rgba(124,58,237,.04);border-left-color:#7c3aed">
+              <div class="ins-ico" style="background:#ede9fe">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+              </div>
+              <div>
+                <div class="ins-tag" style="color:#7c3aed">Tendencia de Mercado</div>
+                <div class="ins-text">Volumen en alza interanual, mercado en expansión activa</div>
+                <div class="ins-metric" style="color:#7c3aed">+18.4% YoY 2024→2025</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Forecast -->
+        <div class="forecast-card">
+          <div class="card-title">
+            <div class="card-icon" style="background:rgba(124,58,237,.15);border:1px solid rgba(124,58,237,.2)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div>
+              <div class="card-title-text">Escenarios Forecast 2026</div>
+              <div class="card-title-sub">Proyección captura de mercado año 1</div>
+            </div>
+          </div>
+          <div class="fc-rows">
+            <div class="fc-row">
+              <div class="fc-header">
+                <span class="fc-scenario">Conservador · 5% captura</span>
+                <span class="fc-amount" style="color:#60a5fa">$210M CLP</span>
+              </div>
+              <div class="fc-track">
+                <div class="fc-bar" style="width:50%;background:linear-gradient(90deg,#2563eb,#60a5fa)"></div>
+              </div>
+              <div class="fc-note">Penetración mínima en organismos activos</div>
+            </div>
+            <div class="fc-row">
+              <div class="fc-header">
+                <span class="fc-scenario">Moderado · 10% captura</span>
+                <span class="fc-amount" style="color:#a78bfa">$420M CLP</span>
+              </div>
+              <div class="fc-track">
+                <div class="fc-bar" style="width:75%;background:linear-gradient(90deg,#7c3aed,#a78bfa)"></div>
+              </div>
+              <div class="fc-note">Escenario base · soporte comercial activo</div>
+            </div>
+            <div class="fc-row">
+              <div class="fc-header">
+                <span class="fc-scenario">Agresivo · 20% captura</span>
+                <span class="fc-amount" style="color:#10b981">$840M CLP</span>
+              </div>
+              <div class="fc-track">
+                <div class="fc-bar" style="width:100%;background:linear-gradient(90deg,#059669,#10b981)"></div>
+              </div>
+              <div class="fc-note">Máxima penetración · campaña dedicada</div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /top-row -->
+
+      <!-- Bottom row: Timeline + Price + Pipeline -->
+      <div class="bottom-row">
+
+        <!-- Timeline YoY -->
+        <div class="timeline-card">
+          <div class="card-title" style="margin-bottom:10px">
+            <div class="card-icon" style="background:rgba(255,255,255,.04);border:1px solid var(--border)">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(148,163,184,.5)" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </div>
+            <div>
+              <div class="card-title-text">Evolución 2024 → 2025</div>
+              <div class="card-title-sub">Comparativa interanual</div>
+            </div>
+          </div>
+          <div class="yoy-section">
+            <div class="yoy-sec-header">
+              <span class="yoy-sec-label">Unidades vendidas</span>
+              <span class="yoy-badge" style="background:#d1fae5;color:#059669">+18.4% YoY</span>
+            </div>
+            <div class="yoy-row">
+              <span class="year-tag">2024</span>
+              <div class="yoy-track"><div class="yoy-fill" style="width:72%;background:rgba(148,163,184,.2);animation-delay:.2s"></div></div>
+              <span class="yoy-val">12,840</span>
+            </div>
+            <div class="yoy-row">
+              <span class="year-tag">2025</span>
+              <div class="yoy-track"><div class="yoy-fill" style="width:100%;background:linear-gradient(90deg,#2563eb,#60a5fa);animation-delay:.3s"></div></div>
+              <span class="yoy-val">15,208</span>
+            </div>
+          </div>
+          <div class="yoy-section" style="margin-bottom:0">
+            <div class="yoy-sec-header">
+              <span class="yoy-sec-label">Monto adjudicado</span>
+              <span class="yoy-badge" style="background:#d1fae5;color:#059669">+22.1% YoY</span>
+            </div>
+            <div class="yoy-row">
+              <span class="year-tag">2024</span>
+              <div class="yoy-track"><div class="yoy-fill" style="width:68%;background:rgba(148,163,184,.2);animation-delay:.35s"></div></div>
+              <span class="yoy-val">$1.9B</span>
+            </div>
+            <div class="yoy-row">
+              <span class="year-tag">2025</span>
+              <div class="yoy-track"><div class="yoy-fill" style="width:100%;background:linear-gradient(90deg,#059669,#34d399);animation-delay:.45s"></div></div>
+              <span class="yoy-val">$2.3B</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Price compare -->
+        <div class="price-card">
+          <div class="card-title" style="margin-bottom:12px">
+            <div class="card-icon" style="background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.2)">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            </div>
+            <div>
+              <div class="card-title-text">Precio vs Mercado</div>
+              <div class="card-title-sub">Por vial Beva 100mg/mL</div>
+            </div>
+          </div>
+          <div class="price-compare">
+            <div class="price-col" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)">
+              <div class="pc-label" style="color:rgba(148,163,184,.4)">Precio Promedio<br>Mercado</div>
+              <div class="pc-val" style="color:rgba(248,250,252,.5)">$28,450</div>
+              <div class="pc-sub">CLP/vial</div>
+            </div>
+            <div class="price-divider">→</div>
+            <div class="price-col" style="background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.15)">
+              <div class="pc-label" style="color:#10b981">Precio<br>Krabeva</div>
+              <div class="pc-val" style="color:#10b981">$22,390</div>
+              <div class="pc-sub">CLP/vial</div>
+            </div>
+          </div>
+          <div class="saving-row">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+            <span class="saving-text">Ahorro $6,060/vial · 21.3% más económico</span>
+          </div>
+          <div class="s-track"><div class="s-fill" style="width:79%"></div></div>
+        </div>
+
+        <!-- Pipeline -->
+        <div class="pipeline-card">
+          <div class="card-title" style="margin-bottom:6px">
+            <div class="card-icon" style="background:rgba(99,102,241,.12);border:1px solid rgba(99,102,241,.2)">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="2" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            </div>
+            <div>
+              <div class="card-title-text">Pipeline Automatizado</div>
+              <div class="card-title-sub">Nexora AI Studio · n8n + Power BI</div>
+            </div>
+          </div>
+          <div class="pipeline-steps">
+            <div class="pip-step">
+              <div class="pip-icon" style="background:rgba(37,99,235,.12);border:1px solid rgba(37,99,235,.2)">
+                <div class="pip-pulse" style="border-color:rgba(37,99,235,.3)"></div>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              </div>
+              <div class="pip-label">Mercado<br>Público</div>
+            </div>
+            <div class="pip-connector"><div class="pip-dot" style="background:#3b82f6;animation-delay:0s"></div></div>
+            <div class="pip-step">
+              <div class="pip-icon" style="background:rgba(124,58,237,.12);border:1px solid rgba(124,58,237,.2)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+              </div>
+              <div class="pip-label">n8n<br>Auto</div>
+            </div>
+            <div class="pip-connector"><div class="pip-dot" style="background:#7c3aed;animation-delay:.5s"></div></div>
+            <div class="pip-step">
+              <div class="pip-icon" style="background:rgba(5,150,105,.12);border:1px solid rgba(5,150,105,.2)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+              </div>
+              <div class="pip-label">Base de<br>Datos</div>
+            </div>
+            <div class="pip-connector"><div class="pip-dot" style="background:#059669;animation-delay:1s"></div></div>
+            <div class="pip-step">
+              <div class="pip-icon" style="background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.2)">
+                <div class="pip-pulse" style="border-color:rgba(245,158,11,.3);animation-delay:.5s"></div>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+              </div>
+              <div class="pip-label">Power BI<br>Live</div>
+            </div>
+          </div>
+          <div class="pip-live">
+            <div class="pip-live-dot"></div>
+            <span class="pip-live-text">Datos actualizados automáticamente · DirectQuery · Nexora © 2026</span>
+          </div>
+        </div>
+
+      </div><!-- /bottom-row -->
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <span class="f-left">Nexora AI Studio · Inteligencia Comercial · Confidencial</span>
+    <div class="f-chips">
+      <div class="f-chip" style="background:rgba(37,99,235,.08);color:#60a5fa;border:1px solid rgba(37,99,235,.12)">Datos Mercado Público</div>
+      <div class="f-chip" style="background:rgba(16,185,129,.08);color:#10b981;border:1px solid rgba(16,185,129,.12)">Chile 2024–2025</div>
+      <div class="f-chip" style="background:rgba(255,255,255,.04);color:rgba(148,163,184,.4);border:1px solid rgba(255,255,255,.06)">Bevacizumab 100mg/mL</div>
+    </div>
+  </footer>
+
+</div><!-- /app -->
+</body>
+</html>
