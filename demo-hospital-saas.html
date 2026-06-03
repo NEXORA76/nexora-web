@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MediCore AI — Smarter Care. Faster Decisions.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#060D10;
+  --panel:#0B1820;
+  --panel2:#0F2030;
+  --border:rgba(0,200,150,.1);
+  --border2:rgba(0,200,150,.2);
+  --green:#00C896;
+  --green2:#00FF88;
+  --cyan:#00D4FF;
+  --red:#FF4E6A;
+  --amber:#F5A623;
+  --text:#E0F2EE;
+  --muted:rgba(224,242,238,.4);
+  --dim:rgba(224,242,238,.2);
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;overflow-x:hidden;cursor:none}
+
+/* CURSOR */
+.cur{position:fixed;width:8px;height:8px;background:var(--green);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:transform .1s}
+.cur-ring{position:fixed;width:30px;height:30px;border:1px solid rgba(0,200,150,.5);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:all .1s}
+.cur-ring.h{width:48px;height:48px;border-color:var(--green);background:rgba(0,200,150,.06)}
+
+/* BG GRID */
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,200,150,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,200,150,.025) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0}
+
+/* GRAIN */
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:1;opacity:.03;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:200px}
+
+/* NAV */
+nav{position:fixed;top:0;inset-inline:0;z-index:100;padding:20px 60px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid transparent;transition:all .4s}
+nav.sc{background:rgba(6,13,16,.95);backdrop-filter:blur(20px);border-bottom-color:var(--border);padding:14px 60px}
+.n-logo{display:flex;align-items:center;gap:10px}
+.n-logo-icon{width:32px;height:32px;background:linear-gradient(135deg,var(--green),var(--cyan));border-radius:8px;display:flex;align-items:center;justify-content:center}
+.n-logo-icon svg{width:18px;height:18px;stroke:#fff;stroke-width:2;fill:none}
+.n-logo-text{font-size:18px;font-weight:700;color:var(--text);letter-spacing:-.02em}
+.n-logo-text span{color:var(--green)}
+.n-links{display:flex;gap:36px;list-style:none}
+.n-links a{color:var(--muted);text-decoration:none;font-size:13px;font-weight:500;transition:color .3s;cursor:none}
+.n-links a:hover{color:var(--text)}
+.n-actions{display:flex;gap:12px;align-items:center}
+.btn-outline{background:transparent;border:1px solid var(--border2);color:var(--text);padding:10px 22px;font-size:13px;font-weight:500;border-radius:6px;cursor:none;transition:all .3s;font-family:'Inter',sans-serif}
+.btn-outline:hover{border-color:var(--green);color:var(--green)}
+.btn-primary{background:var(--green);color:#060D10;border:none;padding:10px 22px;font-size:13px;font-weight:700;border-radius:6px;cursor:none;transition:all .3s;font-family:'Inter',sans-serif;box-shadow:0 0 20px rgba(0,200,150,.3)}
+.btn-primary:hover{background:var(--green2);box-shadow:0 0 32px rgba(0,200,150,.5)}
+
+/* HERO */
+.hero{min-height:100vh;display:grid;grid-template-columns:1fr 1.2fr;gap:0;align-items:center;padding:0 60px;padding-top:80px;position:relative;z-index:2;max-width:1400px;margin:0 auto}
+.hero-left{padding-right:60px}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(0,200,150,.08);border:1px solid rgba(0,200,150,.2);border-radius:100px;padding:6px 14px;margin-bottom:28px}
+.hero-badge-dot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse-dot 2s ease-in-out infinite}
+@keyframes pulse-dot{0%,100%{box-shadow:0 0 0 0 rgba(0,200,150,.6)}50%{box-shadow:0 0 0 6px rgba(0,200,150,0)}}
+.hero-badge span{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--green)}
+h1{font-size:clamp(38px,4.5vw,64px);font-weight:800;line-height:1.1;letter-spacing:-.03em;color:var(--text);margin-bottom:10px}
+h1 .highlight{color:var(--green)}
+.hero-sub{font-size:clamp(14px,1.5vw,17px);color:var(--muted);line-height:1.7;max-width:420px;margin-bottom:36px;font-weight:400}
+.hero-ctas{display:flex;gap:14px;margin-bottom:52px}
+.btn-hero-primary{background:var(--green);color:#060D10;border:none;padding:14px 30px;font-size:14px;font-weight:700;border-radius:8px;cursor:none;display:flex;align-items:center;gap:10px;font-family:'Inter',sans-serif;transition:all .3s;box-shadow:0 0 30px rgba(0,200,150,.35)}
+.btn-hero-primary:hover{background:var(--green2);box-shadow:0 0 50px rgba(0,200,150,.55);transform:translateY(-2px)}
+.btn-hero-primary svg{width:16px;height:16px;stroke:currentColor;stroke-width:2;fill:none}
+.btn-hero-outline{background:transparent;border:1px solid rgba(224,242,238,.15);color:var(--text);padding:14px 30px;font-size:14px;font-weight:500;border-radius:8px;cursor:none;font-family:'Inter',sans-serif;transition:all .3s}
+.btn-hero-outline:hover{border-color:var(--green);color:var(--green)}
+.hero-features{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.hf-item{display:flex;flex-direction:column;gap:8px}
+.hf-icon{width:36px;height:36px;background:rgba(0,200,150,.08);border:1px solid rgba(0,200,150,.15);border-radius:8px;display:flex;align-items:center;justify-content:center}
+.hf-icon svg{width:16px;height:16px;stroke:var(--green);stroke-width:1.8;fill:none}
+.hf-name{font-size:12px;font-weight:600;color:var(--text)}
+.hf-desc{font-size:11px;color:var(--dim);line-height:1.5}
+
+/* DASHBOARD MOCK */
+.hero-right{position:relative}
+.dashboard-wrap{position:relative;border-radius:16px;overflow:hidden;border:1px solid rgba(0,200,150,.12);background:var(--panel);box-shadow:0 0 80px rgba(0,200,150,.08),0 40px 120px rgba(0,0,0,.8)}
+.db-topbar{background:rgba(6,13,16,.8);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;justify-content:space-between}
+.db-greeting{font-size:12px;font-weight:600;color:var(--text)}
+.db-greeting span{color:var(--green)}
+.db-subtitle{font-size:10px;color:var(--muted);margin-top:2px}
+.db-topbar-right{display:flex;align-items:center;gap:12px}
+.db-icon-btn{width:28px;height:28px;background:rgba(0,200,150,.06);border:1px solid var(--border);border-radius:6px;display:flex;align-items:center;justify-content:center}
+.db-icon-btn svg{width:13px;height:13px;stroke:var(--muted);stroke-width:1.8;fill:none}
+.db-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#00C896,#00D4FF);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#060D10}
+.db-body{display:grid;grid-template-columns:140px 1fr 130px;gap:1px;background:var(--border)}
+.db-panel{background:var(--panel)}
+
+/* LEFT PANEL */
+.db-left{padding:16px}
+.db-stat-label{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.live-dot{width:5px;height:5px;background:var(--green);border-radius:50%;animation:pulse-dot 2s ease-in-out infinite}
+.db-stat-num{font-size:28px;font-weight:800;color:var(--text);letter-spacing:-.03em;line-height:1}
+.db-stat-sub{font-size:9px;color:var(--muted)}
+.db-stat-change{font-size:10px;color:var(--green);font-weight:600;margin-top:4px;display:flex;align-items:center;gap:4px}
+.db-stat-change svg{width:10px;height:10px;stroke:currentColor;stroke-width:2.5;fill:none}
+.db-divider{height:1px;background:var(--border);margin:14px 0}
+.db-alert-label{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.db-alert-num{font-size:32px;font-weight:800;color:var(--amber);letter-spacing:-.03em;line-height:1;display:flex;align-items:center;gap:6px}
+.db-alert-num svg{width:16px;height:16px;stroke:var(--amber);stroke-width:2;fill:none}
+.db-alert-desc{font-size:9px;color:var(--muted);line-height:1.5;margin-top:4px}
+.db-view-link{font-size:9px;color:var(--green);margin-top:8px;display:flex;align-items:center;gap:4px;font-weight:600}
+.db-view-link svg{width:9px;height:9px;stroke:currentColor;stroke-width:2;fill:none}
+
+/* CENTER PANEL — HEART */
+.db-center{position:relative;display:flex;align-items:center;justify-content:center;min-height:260px;overflow:hidden}
+#heart-canvas{position:absolute;inset:0;width:100%;height:100%}
+.db-center-overlay{position:absolute;inset:0;background:radial-gradient(circle at 50% 50%,transparent 40%,var(--panel) 90%);pointer-events:none}
+.db-scan-ring{position:absolute;width:180px;height:180px;border-radius:50%;border:1px solid rgba(0,200,150,.15);animation:scan-pulse 3s ease-in-out infinite}
+.db-scan-ring:nth-child(2){width:220px;height:220px;animation-delay:.5s;border-color:rgba(0,200,150,.08)}
+.db-scan-ring:nth-child(3){width:260px;height:260px;animation-delay:1s;border-color:rgba(0,200,150,.04)}
+@keyframes scan-pulse{0%,100%{opacity:.8;transform:scale(1)}50%{opacity:.3;transform:scale(1.02)}}
+.db-scan-line{position:absolute;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,200,150,.4),transparent);animation:scan-sweep 3s linear infinite;top:30%}
+@keyframes scan-sweep{0%{top:20%;opacity:0}10%{opacity:1}90%{opacity:1}100%{top:80%;opacity:0}}
+.db-center-label{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:rgba(0,200,150,.5)}
+
+/* RIGHT VITALS */
+.db-right{padding:16px;display:flex;flex-direction:column;gap:10px}
+.vital-item{background:rgba(0,200,150,.03);border:1px solid rgba(0,200,150,.08);border-radius:6px;padding:10px 10px}
+.vital-name{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.vital-val{font-size:20px;font-weight:800;color:var(--text);line-height:1;letter-spacing:-.02em}
+.vital-unit{font-size:9px;color:var(--muted)}
+.vital-bar{height:2px;background:rgba(0,200,150,.08);border-radius:2px;margin-top:8px;overflow:hidden}
+.vital-bar-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--cyan));border-radius:2px;transition:width .5s}
+
+/* BOTTOM PANELS */
+.db-bottom{display:grid;grid-template-columns:1.6fr 1fr 1fr;gap:1px;background:var(--border)}
+.db-bottom-panel{background:var(--panel);padding:14px}
+.db-panel-title{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.db-panel-title .live-dot{width:5px;height:5px;background:var(--green);border-radius:50%;animation:pulse-dot 2s ease-in-out infinite}
+/* mini chart */
+#chart-canvas{width:100%;height:60px;display:block}
+
+/* queue */
+.queue-item{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(0,200,150,.05)}
+.queue-item:last-child{border-bottom:none}
+.q-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.q-info{flex:1}
+.q-id{font-size:10px;color:var(--text);font-weight:500}
+.q-code{font-size:9px;color:var(--muted)}
+.q-time{font-size:10px;color:var(--muted)}
+
+/* bed donut */
+.bed-donut{display:flex;align-items:center;gap:14px}
+#donut-canvas{flex-shrink:0}
+.bed-legend{display:flex;flex-direction:column;gap:5px}
+.bl-item{display:flex;align-items:center;gap:6px;font-size:9px;color:var(--muted)}
+.bl-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+
+/* TRUSTED */
+.trusted{padding:28px 60px;border-top:1px solid var(--border);display:flex;align-items:center;gap:32px;position:relative;z-index:2;max-width:1400px;margin:0 auto}
+.trusted-label{font-size:11px;color:var(--dim);white-space:nowrap;flex-shrink:0}
+.trusted-logos{display:flex;gap:40px;align-items:center;flex-wrap:wrap}
+.trusted-logo{font-size:13px;font-weight:700;color:rgba(224,242,238,.2);letter-spacing:-.01em;display:flex;align-items:center;gap:6px;transition:color .3s}
+.trusted-logo:hover{color:rgba(224,242,238,.5)}
+.trusted-logo svg{width:14px;height:14px;stroke:currentColor;stroke-width:2;fill:none}
+
+/* FEATURES SECTION */
+.features{padding:100px 60px;position:relative;z-index:2;max-width:1400px;margin:0 auto}
+.sec-label{font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--green);margin-bottom:14px;opacity:.8}
+.sec-title{font-size:clamp(28px,3.5vw,48px);font-weight:800;letter-spacing:-.03em;color:var(--text);margin-bottom:16px;max-width:500px}
+.sec-title span{color:var(--green)}
+.sec-sub{font-size:14px;color:var(--muted);max-width:400px;line-height:1.7;margin-bottom:60px}
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border)}
+.feat-card{background:var(--panel);padding:40px 36px;position:relative;overflow:hidden;transition:background .4s}
+.feat-card::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 0% 0%,rgba(0,200,150,.06),transparent 60%);opacity:0;transition:opacity .4s}
+.feat-card:hover{background:var(--panel2)}
+.feat-card:hover::before{opacity:1}
+.feat-num{font-size:10px;color:rgba(0,200,150,.3);font-weight:700;letter-spacing:.15em;margin-bottom:24px}
+.feat-icon{width:48px;height:48px;background:rgba(0,200,150,.08);border:1px solid rgba(0,200,150,.15);border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:20px;transition:all .3s}
+.feat-card:hover .feat-icon{background:rgba(0,200,150,.14);border-color:rgba(0,200,150,.3);box-shadow:0 0 16px rgba(0,200,150,.2)}
+.feat-icon svg{width:22px;height:22px;stroke:var(--green);stroke-width:1.6;fill:none}
+.feat-name{font-size:18px;font-weight:700;color:var(--text);margin-bottom:10px;letter-spacing:-.02em}
+.feat-desc{font-size:13px;color:var(--muted);line-height:1.75}
+.feat-border{position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--green),transparent);transform:scaleX(0);transition:transform .5s}
+.feat-card:hover .feat-border{transform:scaleX(1)}
+
+/* STATS */
+.stats{padding:80px 60px;position:relative;z-index:2;max-width:1400px;margin:0 auto}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border)}
+.stat-card{background:var(--panel);padding:40px 32px;text-align:center;position:relative;overflow:hidden}
+.stat-card::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:0;height:1px;background:var(--green);transition:width .5s}
+.stat-card:hover::after{width:60%}
+.stat-num{font-size:clamp(32px,4vw,52px);font-weight:800;color:var(--green);letter-spacing:-.04em;line-height:1;margin-bottom:8px}
+.stat-label{font-size:12px;color:var(--muted);line-height:1.5}
+.stat-suffix{font-size:clamp(16px,2vw,24px);font-weight:700}
+
+/* CTA */
+.cta{padding:120px 60px;position:relative;z-index:2;text-align:center}
+.cta-glow{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:500px;height:300px;background:radial-gradient(ellipse,rgba(0,200,150,.06),transparent 70%);pointer-events:none}
+.cta-title{font-size:clamp(32px,4vw,56px);font-weight:800;letter-spacing:-.03em;color:var(--text);margin-bottom:16px}
+.cta-title span{color:var(--green)}
+.cta-sub{font-size:15px;color:var(--muted);max-width:440px;margin:0 auto 36px;line-height:1.7}
+.cta-actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+
+/* FOOTER */
+footer{padding:48px 60px;border-top:1px solid var(--border);position:relative;z-index:2;max-width:1400px;margin:0 auto;display:flex;align-items:center;justify-content:space-between}
+.footer-logo{font-size:18px;font-weight:700;color:var(--text);letter-spacing:-.02em}
+.footer-logo span{color:var(--green)}
+.footer-links{display:flex;gap:28px}
+.footer-links a{font-size:12px;color:var(--muted);text-decoration:none;transition:color .3s;cursor:none}
+.footer-links a:hover{color:var(--green)}
+.footer-copy{font-size:11px;color:var(--dim)}
+
+/* REVEAL */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .8s ease,transform .8s ease}
+.reveal.vis{opacity:1;transform:translateY(0)}
+/* Hero always visible */
+.hero .reveal{opacity:1;transform:translateY(0)}
+
+/* RESPONSIVE */
+@media(max-width:1024px){
+  .hero{grid-template-columns:1fr;padding-top:100px;gap:48px}
+  .hero-left{padding-right:0}
+  .hero-features{grid-template-columns:repeat(2,1fr)}
+  .db-body{grid-template-columns:120px 1fr 110px}
+  .feat-grid{grid-template-columns:1fr 1fr}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:640px){
+  nav,section,.trusted,.features,.stats,.cta,.stats,footer{padding-left:20px;padding-right:20px}
+  .hero{padding-left:20px;padding-right:20px}
+  .db-body{grid-template-columns:1fr}
+  .db-bottom{grid-template-columns:1fr}
+  .feat-grid,nav .n-links{display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="cur" id="cur"></div>
+<div class="cur-ring" id="ring"></div>
+
+<!-- NAV -->
+<nav id="nav">
+  <div class="n-logo">
+    <div class="n-logo-icon">
+      <svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+    </div>
+    <span class="n-logo-text">Medi<span>Core</span> AI</span>
+  </div>
+  <ul class="n-links">
+    <li><a href="#features">Platform</a></li>
+    <li><a href="#features">Solutions</a></li>
+    <li><a href="#stats">Results</a></li>
+    <li><a href="#cta">Pricing</a></li>
+  </ul>
+  <div class="n-actions">
+    <button class="btn-outline">Sign in</button>
+    <button class="btn-primary">Request Demo</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <!-- LEFT -->
+  <div class="hero-left reveal">
+    <div class="hero-badge">
+      <span class="hero-badge-dot"></span>
+      <span>AI-Powered Healthcare Intelligence</span>
+    </div>
+    <h1>Smarter Care.<br><span class="highlight">Faster Decisions.</span></h1>
+    <p class="hero-sub">AI-powered monitoring, diagnostics, and hospital intelligence for modern healthcare systems. Real-time insights that save lives.</p>
+    <div class="hero-ctas">
+      <button class="btn-hero-primary">
+        Request Demo
+        <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+      <button class="btn-hero-outline">Explore Platform</button>
+    </div>
+    <div class="hero-features">
+      <div class="hf-item">
+        <div class="hf-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg></div>
+        <div class="hf-name">AI Diagnostics</div>
+        <div class="hf-desc">Smarter insights</div>
+      </div>
+      <div class="hf-item">
+        <div class="hf-icon"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+        <div class="hf-name">Live Monitoring</div>
+        <div class="hf-desc">Patient tracking</div>
+      </div>
+      <div class="hf-item">
+        <div class="hf-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+        <div class="hf-name">Risk Prediction</div>
+        <div class="hf-desc">Prevent critical events</div>
+      </div>
+      <div class="hf-item">
+        <div class="hf-icon"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>
+        <div class="hf-name">Hospital Intel</div>
+        <div class="hf-desc">Data-driven ops</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT — DASHBOARD MOCK -->
+  <div class="hero-right reveal" style="transition-delay:.2s">
+    <div class="dashboard-wrap">
+      <!-- TOP BAR -->
+      <div class="db-topbar">
+        <div>
+          <div class="db-greeting">Good Morning, <span>Dr. Sarah</span> 👋</div>
+          <div class="db-subtitle">Here's what's happening at CityCare Hospital today.</div>
+        </div>
+        <div class="db-topbar-right">
+          <div class="db-icon-btn"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div>
+          <div class="db-icon-btn"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div>
+          <div class="db-avatar">DS</div>
+        </div>
+      </div>
+
+      <!-- BODY -->
+      <div class="db-body">
+        <!-- LEFT STATS -->
+        <div class="db-panel db-left">
+          <div class="db-stat-label"><span class="live-dot"></span> Patient Overview</div>
+          <div class="db-stat-num">1,248</div>
+          <div class="db-stat-sub">Total Patients</div>
+          <div class="db-stat-change"><svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>12.5% from yesterday</div>
+          <div class="db-divider"></div>
+          <div class="db-alert-label">Critical Alerts</div>
+          <div class="db-alert-num">7<svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+          <div class="db-alert-desc">Patients need immediate attention</div>
+          <div class="db-view-link">View all Critical <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+        </div>
+
+        <!-- CENTER — 3D HEART -->
+        <div class="db-panel db-center">
+          <div class="db-scan-ring"></div>
+          <div class="db-scan-ring"></div>
+          <div class="db-scan-ring"></div>
+          <div class="db-scan-line"></div>
+          <canvas id="heart-canvas"></canvas>
+          <div class="db-center-overlay"></div>
+          <div class="db-center-label">Cardiac · 3D Model</div>
+        </div>
+
+        <!-- RIGHT VITALS -->
+        <div class="db-panel db-right">
+          <div class="vital-item">
+            <div class="vital-name">Heart Rate</div>
+            <div class="vital-val">72 <span class="vital-unit">bpm</span></div>
+            <div class="vital-bar"><div class="vital-bar-fill" style="width:72%"></div></div>
+          </div>
+          <div class="vital-item">
+            <div class="vital-name">Blood Pressure</div>
+            <div class="vital-val">120<span class="vital-unit" style="font-size:13px">/80</span></div>
+            <div class="vital-bar"><div class="vital-bar-fill" style="width:60%;background:linear-gradient(90deg,var(--cyan),var(--green))"></div></div>
+          </div>
+          <div class="vital-item">
+            <div class="vital-name">Oxygen Sat.</div>
+            <div class="vital-val">98 <span class="vital-unit">%</span></div>
+            <div class="vital-bar"><div class="vital-bar-fill" style="width:98%"></div></div>
+          </div>
+          <div class="vital-item">
+            <div class="vital-name">Resp. Rate</div>
+            <div class="vital-val">17 <span class="vital-unit">br/m</span></div>
+            <div class="vital-bar"><div class="vital-bar-fill" style="width:45%;background:linear-gradient(90deg,var(--amber),var(--green))"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOTTOM PANELS -->
+      <div class="db-bottom">
+        <!-- CHART -->
+        <div class="db-bottom-panel">
+          <div class="db-panel-title"><span class="live-dot"></span>Live Vitals Trend <span style="margin-left:auto;font-size:9px;background:rgba(0,200,150,.08);border:1px solid rgba(0,200,150,.15);padding:2px 8px;border-radius:3px;color:var(--green)">Last 24 Hours</span></div>
+          <canvas id="chart-canvas" height="60"></canvas>
+        </div>
+        <!-- QUEUE -->
+        <div class="db-bottom-panel">
+          <div class="db-panel-title">Emergency Queue <span style="margin-left:auto;font-size:9px;color:var(--green);font-weight:600">View all</span></div>
+          <div class="queue-item">
+            <div class="q-dot" style="background:var(--red)"></div>
+            <div class="q-info"><div class="q-id">Patient ID: 774682</div><div class="q-code">Code: P1 · Critical</div></div>
+            <div class="q-time">3 min</div>
+          </div>
+          <div class="queue-item">
+            <div class="q-dot" style="background:var(--amber)"></div>
+            <div class="q-info"><div class="q-id">Patient ID: 812304</div><div class="q-code">Code: P2 · Cycle</div></div>
+            <div class="q-time">8 min</div>
+          </div>
+          <div class="queue-item">
+            <div class="q-dot" style="background:var(--green)"></div>
+            <div class="q-info"><div class="q-id">Patient ID: 690214</div><div class="q-code">Code: P3 · Stable</div></div>
+            <div class="q-time">15 min</div>
+          </div>
+        </div>
+        <!-- BED OCCUPANCY -->
+        <div class="db-bottom-panel">
+          <div class="db-panel-title">Bed Occupancy <span style="margin-left:auto;font-size:9px;color:var(--green);font-weight:600">View all</span></div>
+          <div class="bed-donut">
+            <canvas id="donut-canvas" width="70" height="70"></canvas>
+            <div class="bed-legend">
+              <div class="bl-item"><div class="bl-dot" style="background:var(--green)"></div>Occupied 312</div>
+              <div class="bl-item"><div class="bl-dot" style="background:var(--cyan)"></div>Available 88</div>
+              <div class="bl-item"><div class="bl-dot" style="background:var(--amber)"></div>Maintenance 12</div>
+              <div class="bl-item"><div class="bl-dot" style="background:#333"></div>Total 412</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TRUSTED -->
+<div class="trusted">
+  <span class="trusted-label">Trusted by leading healthcare providers</span>
+  <div class="trusted-logos">
+    <span class="trusted-logo"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>CityCare Hospitals</span>
+    <span class="trusted-logo"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>Medix Healthcare</span>
+    <span class="trusted-logo"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>HealthPlus</span>
+    <span class="trusted-logo"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>LifeLine Medical</span>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="reveal">
+    <div class="sec-label">Core Platform</div>
+    <h2 class="sec-title">Everything your hospital <span>needs to excel</span></h2>
+    <p class="sec-sub">Built for clinicians, designed by healthcare AI experts. Six modules that transform hospital operations.</p>
+  </div>
+  <div class="feat-grid reveal" style="transition-delay:.15s">
+    <div class="feat-card">
+      <div class="feat-num">01</div>
+      <div class="feat-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg></div>
+      <div class="feat-name">AI Diagnostics</div>
+      <div class="feat-desc">Claude-powered diagnostic assistant analyzes labs, imaging, and vitals to surface insights in seconds — not hours.</div>
+      <div class="feat-border"></div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-num">02</div>
+      <div class="feat-icon"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+      <div class="feat-name">Real-time Monitoring</div>
+      <div class="feat-desc">Live patient tracking with sub-second data refresh. Anomaly detection fires before the patient shows symptoms.</div>
+      <div class="feat-border"></div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-num">03</div>
+      <div class="feat-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg></div>
+      <div class="feat-name">Risk Prediction</div>
+      <div class="feat-desc">Predictive models with 94% accuracy flag high-risk patients 6–12 hours before critical events occur.</div>
+      <div class="feat-border"></div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-num">04</div>
+      <div class="feat-icon"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/><path d="M7 8h10M7 11h6"/></svg></div>
+      <div class="feat-name">Hospital Intelligence</div>
+      <div class="feat-desc">Bed management, staff allocation, ORscheduling and supply chain — all optimized by AI in real time.</div>
+      <div class="feat-border"></div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-num">05</div>
+      <div class="feat-icon"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 10h.01M12 10h.01M16 10h.01"/></svg></div>
+      <div class="feat-name">AI Assistant</div>
+      <div class="feat-desc">Ask in natural language. Get evidence-based answers from your patient data, literature, and clinical protocols.</div>
+      <div class="feat-border"></div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-num">06</div>
+      <div class="feat-icon"><svg viewBox="0 0 24 24"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg></div>
+      <div class="feat-name">Analytics & Reports</div>
+      <div class="feat-desc">Executive dashboards, compliance reports, and KPI tracking — auto-generated and ready to share.</div>
+      <div class="feat-border"></div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="stats" id="stats">
+  <div class="stats-grid reveal">
+    <div class="stat-card">
+      <div class="stat-num"><span class="counter" data-target="94">0</span><span class="stat-suffix">%</span></div>
+      <div class="stat-label">Diagnostic accuracy<br>across all specialties</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num"><span class="counter" data-target="340">0</span><span class="stat-suffix">+</span></div>
+      <div class="stat-label">Hospitals using<br>MediCore AI today</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num"><span class="counter" data-target="68">0</span><span class="stat-suffix">%</span></div>
+      <div class="stat-label">Reduction in<br>critical response time</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num"><span class="counter" data-target="2">0</span><span class="stat-suffix">.4M</span></div>
+      <div class="stat-label">Patient events<br>monitored daily</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta" id="cta">
+  <div class="cta-glow"></div>
+  <div class="sec-label reveal" style="margin-bottom:16px">Get started today</div>
+  <h2 class="cta-title reveal">Ready to transform<br>your <span>hospital?</span></h2>
+  <p class="cta-sub reveal">Join 340+ hospitals already using MediCore AI. Setup in 48 hours, ROI in 30 days.</p>
+  <div class="cta-actions reveal">
+    <button class="btn-hero-primary">
+      Request a Demo
+      <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </button>
+    <button class="btn-hero-outline">Talk to Sales</button>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Medi<span>Core</span> AI</div>
+  <div class="footer-links">
+    <a href="#">Platform</a>
+    <a href="#">Security</a>
+    <a href="#">HIPAA</a>
+    <a href="#">Support</a>
+    <a href="#">Privacy</a>
+  </div>
+  <div class="footer-copy">© 2025 MediCore AI — Built by NEXORA AI Studio</div>
+</footer>
+
+<script>
+// ── CURSOR ──
+const cur = document.getElementById('cur');
+const ring = document.getElementById('ring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px'});
+(function lerp(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(lerp)})();
+document.querySelectorAll('a,button,[class*="btn"],[class*="srv"],[class*="feat"]').forEach(el=>{
+  el.addEventListener('mouseenter',()=>ring.classList.add('h'));
+  el.addEventListener('mouseleave',()=>ring.classList.remove('h'));
+});
+
+// ── NAV SCROLL ──
+window.addEventListener('scroll',()=>{document.getElementById('nav').classList.toggle('sc',scrollY>40)});
+
+// ── REVEAL ──
+const ro=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('vis');ro.unobserve(e.target);}}),{threshold:.05,rootMargin:'0px 0px -20px 0px'});
+document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
+// Force check on load for elements already in viewport
+setTimeout(()=>{document.querySelectorAll('.reveal:not(.vis)').forEach(el=>{const r=el.getBoundingClientRect();if(r.top<window.innerHeight)el.classList.add('vis');});},100);
+
+// ── 3D ROTATING HEART ──
+(function(){
+  const canvas = document.getElementById('heart-canvas');
+  const parent = canvas.parentElement;
+
+  function resize(){canvas.width=parent.offsetWidth;canvas.height=parent.offsetHeight}
+  resize();
+  window.addEventListener('resize',resize);
+
+  const ctx = canvas.getContext('2d');
+
+  // Generate heart surface points using implicit equation
+  // (x² + 9y²/4 + z² - 1)³ - x²z³ - 9y²z³/200 = 0
+  const pts = [];
+  const attempts = 80000;
+  const threshold = 0.05;
+  for(let i=0;i<attempts&&pts.length<700;i++){
+    const x=(Math.random()*2.4-1.2);
+    const y=(Math.random()*2.4-1.2);
+    const z=(Math.random()*2.4-1.2);
+    const r = x*x + (9/4)*y*y + z*z - 1;
+    const val = r*r*r - x*x*z*z*z - (9/200)*y*y*z*z*z;
+    if(Math.abs(val) < threshold){
+      pts.push({ox:x,oy:-y,oz:z}); // flip Y so heart points up
+    }
+  }
+
+  let angle = 0;
+  function draw(){
+    const W=canvas.width, H=canvas.height;
+    ctx.clearRect(0,0,W,H);
+
+    const cx=W/2, cy=H/2;
+    const scale = Math.min(W,H)*0.38;
+    const cosA=Math.cos(angle), sinA=Math.sin(angle);
+
+    // Transform & sort by depth
+    const projected = pts.map(p=>{
+      const x3 = p.ox*cosA + p.oz*sinA;
+      const y3 = p.oy;
+      const z3 = -p.ox*sinA + p.oz*cosA;
+      return {sx:cx+x3*scale, sy:cy+y3*scale, z:z3};
+    });
+    projected.sort((a,b)=>a.z-b.z);
+
+    projected.forEach(p=>{
+      const depth = (p.z+1.2)/2.4; // 0=back, 1=front
+      const size = 1.2 + depth*2.2;
+      const alpha = 0.2 + depth*0.8;
+
+      // Color: back=dim teal, mid=green, front=bright cyan/white
+      let r,g,b;
+      if(depth < 0.4){
+        r=0;g=Math.floor(100+depth*200);b=Math.floor(80+depth*120);
+      } else if(depth < 0.75){
+        r=0;g=200;b=Math.floor(150+depth*100);
+      } else {
+        r=Math.floor((depth-0.75)*4*100);
+        g=220;
+        b=255;
+      }
+
+      // Glow for front points
+      if(depth > 0.8){
+        const grad = ctx.createRadialGradient(p.sx,p.sy,0,p.sx,p.sy,size*4);
+        grad.addColorStop(0,`rgba(${r},${g},${b},${alpha*0.6})`);
+        grad.addColorStop(1,'rgba(0,0,0,0)');
+        ctx.fillStyle=grad;
+        ctx.beginPath();
+        ctx.arc(p.sx,p.sy,size*4,0,Math.PI*2);
+        ctx.fill();
+      }
+
+      ctx.beginPath();
+      ctx.arc(p.sx,p.sy,size,0,Math.PI*2);
+      ctx.fillStyle=`rgba(${r},${g},${b},${alpha})`;
+      ctx.fill();
+    });
+
+    angle += 0.008;
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ── MINI LINE CHART ──
+(function(){
+  const canvas = document.getElementById('chart-canvas');
+  if(!canvas)return;
+  const ctx = canvas.getContext('2d');
+  const W=canvas.offsetWidth||300, H=60;
+  canvas.width=W; canvas.height=H;
+
+  const pts1=[72,75,71,68,74,78,72,70,73,77,72,74,76,73,72,75,71,74,72,76,74,72,70,75];
+  const pts2=[98,97,98,99,97,98,98,97,98,99,98,97,98,98,99,97,98,97,98,99,97,98,98,97];
+
+  function drawLine(data,color,yMin,yMax){
+    const n=data.length;
+    ctx.beginPath();
+    data.forEach((v,i)=>{
+      const x=i/(n-1)*W;
+      const y=H-(v-yMin)/(yMax-yMin)*H*0.8-H*0.1;
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    });
+    ctx.strokeStyle=color;
+    ctx.lineWidth=1.5;
+    ctx.stroke();
+  }
+
+  ctx.clearRect(0,0,W,H);
+  drawLine(pts1,'rgba(0,200,150,.8)',60,90);
+  drawLine(pts2,'rgba(0,212,255,.6)',90,102);
+  // Grid lines
+  for(let i=0;i<4;i++){
+    const y=H*i/3;
+    ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);
+    ctx.strokeStyle='rgba(0,200,150,.06)';ctx.lineWidth=1;ctx.stroke();
+  }
+})();
+
+// ── DONUT CHART ──
+(function(){
+  const canvas = document.getElementById('donut-canvas');
+  if(!canvas)return;
+  const ctx = canvas.getContext('2d');
+  const cx=35,cy=35,r=28,inner=18;
+  const data=[{v:312,c:'#00C896'},{v:88,c:'#00D4FF'},{v:12,c:'#F5A623'}];
+  const total=data.reduce((s,d)=>s+d.v,0);
+  let start=-Math.PI/2;
+  data.forEach(d=>{
+    const angle=(d.v/total)*Math.PI*2;
+    ctx.beginPath();
+    ctx.moveTo(cx,cy);
+    ctx.arc(cx,cy,r,start,start+angle);
+    ctx.closePath();
+    ctx.fillStyle=d.c;
+    ctx.fill();
+    start+=angle;
+  });
+  // inner hole
+  ctx.beginPath();ctx.arc(cx,cy,inner,0,Math.PI*2);
+  ctx.fillStyle='#0B1820';ctx.fill();
+  // center text
+  ctx.fillStyle='#E0F2EE';ctx.font='bold 11px Inter';ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText('78%',cx,cy-4);
+  ctx.fillStyle='rgba(224,242,238,.4)';ctx.font='7px Inter';
+  ctx.fillText('Occupied',cx,cy+7);
+})();
+
+// ── COUNTER ANIMATION ──
+const counters = document.querySelectorAll('.counter');
+const co=new IntersectionObserver(es=>es.forEach(e=>{
+  if(!e.isIntersecting)return;
+  const el=e.target, target=+el.dataset.target;
+  let start=0,dur=1800,t0=null;
+  function step(ts){
+    if(!t0)t0=ts;
+    const p=Math.min((ts-t0)/dur,1);
+    const ease=1-Math.pow(1-p,3);
+    el.textContent=Math.floor(ease*target);
+    if(p<1)requestAnimationFrame(step);else el.textContent=target;
+  }
+  requestAnimationFrame(step);
+  co.unobserve(el);
+}),{threshold:.5});
+counters.forEach(c=>co.observe(c));
+</script>
+</body>
+</html>
