@@ -948,3 +948,74 @@ html {
   95%  { opacity: 1; }
   100% { top: 100vh; opacity: 0; }
 }
+
+/* ===== PORTFOLIO DEMOS (Páginas Web) ===== */
+.portfolio-demos {
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(0,229,255,0.1);
+}
+.portfolio-label {
+  font-size: 11px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  opacity: .6;
+  margin-bottom: 16px;
+}
+.portfolio-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.portfolio-card {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  text-decoration: none;
+  border: 1px solid rgba(0,229,255,0.1);
+  transition: border-color .3s ease, transform .3s ease;
+  display: block;
+}
+.portfolio-card:hover {
+  border-color: rgba(0,229,255,0.4);
+  transform: translateY(-3px);
+}
+.pc-img {
+  height: 110px;
+  transition: transform .5s ease;
+}
+.portfolio-card:hover .pc-img {
+  transform: scale(1.06);
+}
+.pc-info {
+  padding: 12px 14px;
+  background: rgba(8,13,26,0.92);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.pc-tag {
+  font-size: 9px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  opacity: .7;
+}
+.pc-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  font-family: var(--font-main);
+}
+.pc-arrow {
+  font-size: 11px;
+  color: var(--cyan);
+  opacity: 0;
+  transform: translateX(-6px);
+  transition: all .3s ease;
+}
+.portfolio-card:hover .pc-arrow {
+  opacity: 1;
+  transform: translateX(0);
+}

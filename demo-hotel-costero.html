@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marea Azul — Hotel Boutique Costero</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400;0,700;1,400;1,700&family=Jost:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --teal-deep:#132025;--teal-mid:#33464A;--brown:#44372B;
+  --sand:#BFA68E;--sand-light:#D4C4B0;--off-white:#F4EFE8;
+}
+html{scroll-behavior:smooth}
+body{background:var(--teal-deep);color:var(--off-white);font-family:'Jost',sans-serif;overflow-x:hidden;cursor:none}
+
+.cursor{position:fixed;width:6px;height:6px;background:var(--sand);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%)}
+.cursor-ring{position:fixed;width:26px;height:26px;border:1px solid rgba(191,166,142,.5);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:all .1s}
+.cursor-ring.h{width:42px;height:42px;border-color:var(--sand)}
+
+/* NAV — Logo centrado, links a los lados */
+nav{position:fixed;top:0;inset-inline:0;z-index:1000;padding:30px 60px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:40px;transition:all .4s}
+nav.sc{background:rgba(19,32,37,.95);backdrop-filter:blur(22px);padding:18px 60px;border-bottom:1px solid rgba(191,166,142,.12)}
+.nav-left,.nav-right{display:flex;gap:36px;list-style:none;align-items:center}
+.nav-right{justify-content:flex-end}
+.nav-left a,.nav-right a{color:var(--sand-light);text-decoration:none;font-size:11px;letter-spacing:.2em;text-transform:uppercase;transition:color .3s}
+.nav-left a:hover,.nav-right a:hover{color:var(--sand)}
+.nav-logo{text-align:center;font-family:'Bodoni Moda',serif;font-size:22px;font-style:italic;color:var(--off-white);letter-spacing:.06em;white-space:nowrap}
+.nav-logo span{color:var(--sand)}
+
+/* HERO */
+.hero{height:100vh;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.hero-bg{position:absolute;inset:0;background:
+  radial-gradient(ellipse at 100% 100%,rgba(19,32,37,.3) 0%,transparent 50%),
+  radial-gradient(ellipse at 0% 0%,rgba(19,32,37,.4) 0%,transparent 50%),
+  linear-gradient(180deg,rgba(19,32,37,.25) 0%,rgba(19,32,37,.9) 100%),
+  url('https://images.unsplash.com/photo-1504150558240-0b4fd8946624?w=1920&q=80') center/cover no-repeat}
+.hero-content{position:relative;z-index:2;text-align:center;padding:0 20px}
+.hero-coords{position:absolute;right:40px;bottom:40px;font-size:10px;letter-spacing:.2em;color:var(--sand);opacity:.7}
+.hero-logo{font-family:'Bodoni Moda',serif;font-size:clamp(52px,8vw,110px);font-style:italic;font-weight:400;color:var(--off-white);line-height:1;margin-bottom:8px;opacity:0;animation:fu .9s ease .2s forwards}
+.hero-tagline{font-size:11px;letter-spacing:.35em;text-transform:uppercase;color:var(--sand);margin-bottom:40px;opacity:0;animation:fu .9s ease .4s forwards}
+.hero-line{width:60px;height:1px;background:var(--sand);margin:0 auto 36px;opacity:0;animation:fu .9s ease .5s forwards}
+.hero-sub{font-size:16px;color:var(--sand-light);font-weight:300;max-width:460px;margin:0 auto 48px;line-height:1.8;opacity:0;animation:fu .9s ease .6s forwards}
+.hero-btns{display:flex;gap:20px;justify-content:center;opacity:0;animation:fu .9s ease .8s forwards}
+.btn-p{background:transparent;border:1px solid var(--sand);color:var(--sand);padding:16px 44px;font-family:'Jost',sans-serif;font-size:11px;letter-spacing:.2em;text-transform:uppercase;cursor:none;transition:all .4s;position:relative;overflow:hidden}
+.btn-p::before{content:'';position:absolute;inset:0;background:rgba(191,166,142,.1);transform:scaleX(0);transform-origin:left;transition:transform .4s ease}
+.btn-p:hover::before{transform:scaleX(1)}
+.btn-p:hover{color:var(--off-white)}
+.btn-s{background:var(--brown);color:var(--sand-light);border:none;padding:16px 44px;font-family:'Jost',sans-serif;font-size:11px;letter-spacing:.2em;text-transform:uppercase;cursor:none;transition:all .3s}
+.btn-s:hover{background:#5A4A3A}
+.scroll-ind{position:absolute;bottom:40px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:12px;opacity:0;animation:fu .9s ease 1.1s forwards}
+.scroll-ind span{font-size:9px;letter-spacing:.3em;text-transform:uppercase;color:var(--sand);opacity:.7}
+.scroll-bar{width:1px;height:48px;background:linear-gradient(var(--sand),transparent)}
+@keyframes fu{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+
+/* EXPERIENCIA */
+.experiencia{padding:110px 60px;background:var(--off-white);display:grid;grid-template-columns:1fr 1.1fr;gap:80px;align-items:center}
+.exp-img{position:relative;overflow:hidden}
+.exp-img img{width:100%;height:520px;object-fit:cover;clip-path:polygon(5% 0,100% 0,100% 100%,0% 100%);transition:transform .8s ease}
+.exp-img:hover img{transform:scale(1.04)}
+.exp-num{position:absolute;top:-20px;left:-20px;font-family:'Bodoni Moda',serif;font-size:140px;color:rgba(19,32,37,.04);font-weight:700;line-height:1;pointer-events:none;z-index:0}
+.exp-label{font-size:10px;letter-spacing:.25em;text-transform:uppercase;color:var(--sand);margin-bottom:14px;display:flex;align-items:center;gap:12px}
+.exp-label::before{content:'';width:32px;height:1px;background:var(--sand)}
+.exp-title{font-family:'Bodoni Moda',serif;font-size:clamp(32px,3.5vw,50px);color:var(--teal-deep);margin-bottom:20px;line-height:1.15}
+.exp-title em{color:var(--brown);font-style:italic}
+.exp-text{font-size:15px;color:var(--teal-mid);line-height:1.85;font-weight:300;margin-bottom:32px}
+.exp-stats{display:flex;gap:40px;margin-bottom:36px}
+.stat{border-left:2px solid var(--sand);padding-left:16px}
+.stat-num{font-family:'Bodoni Moda',serif;font-size:36px;color:var(--teal-deep);font-weight:400}
+.stat-label{font-size:11px;letter-spacing:.1em;color:var(--teal-mid);text-transform:uppercase}
+
+/* HABITACIONES */
+.hab{padding:110px 60px;background:var(--teal-deep)}
+.sec-head{display:flex;flex-direction:column;align-items:center;text-align:center;margin-bottom:60px}
+.sec-label{font-size:10px;letter-spacing:.25em;text-transform:uppercase;color:var(--sand);margin-bottom:12px}
+.sec-title{font-family:'Bodoni Moda',serif;font-size:clamp(32px,4vw,52px);color:var(--off-white);font-weight:400;font-style:italic}
+.sec-line{width:50px;height:1px;background:var(--sand);margin-top:20px;opacity:.5}
+.tabs{display:flex;gap:0;margin-bottom:48px;border-bottom:1px solid rgba(191,166,142,.15);position:relative}
+.tab{background:transparent;border:none;color:var(--sand-light);padding:14px 32px;font-family:'Jost',sans-serif;font-size:11px;letter-spacing:.2em;text-transform:uppercase;cursor:none;transition:color .3s;position:relative}
+.tab.active{color:var(--sand)}
+.tab.active::after,.tab-indicator{content:'';position:absolute;bottom:-1px;left:0;right:0;height:1px;background:var(--sand)}
+.hab-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px}
+.hab-card{position:relative;overflow:hidden;cursor:none}
+.hab-card img{width:100%;height:360px;object-fit:cover;transition:transform .7s ease,filter .5s}
+.hab-card:hover img{transform:scale(1.06);filter:brightness(.85)}
+.hab-card-overlay{position:absolute;inset:0;background:linear-gradient(0deg,rgba(19,32,37,.88) 0%,transparent 55%);opacity:0;transition:opacity .5s;display:flex;flex-direction:column;justify-content:flex-end;padding:28px}
+.hab-card:hover .hab-card-overlay{opacity:1}
+.hc-tag{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--sand);margin-bottom:8px}
+.hc-name{font-family:'Bodoni Moda',serif;font-size:22px;font-style:italic;color:var(--off-white);margin-bottom:6px}
+.hc-info{font-size:12px;color:var(--sand-light);display:flex;gap:16px}
+
+/* AMENITIES */
+.amen{padding:110px 60px;background:var(--teal-mid)}
+.amen-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px 60px;margin-top:60px}
+.amen-item{padding:36px 0;border-bottom:1px solid rgba(191,166,142,.1);display:flex;align-items:flex-start;gap:20px}
+.amen-icon{width:36px;height:36px;flex-shrink:0;margin-top:2px;opacity:.85;transition:opacity .3s}
+.amen-item:hover .amen-icon{opacity:1}
+.amen-icon svg{width:100%;height:100%}
+.amen-name{font-size:15px;color:var(--off-white);margin-bottom:6px;font-weight:400}
+.amen-desc{font-size:12px;color:var(--sand-light);font-weight:300;line-height:1.7}
+
+/* GALLERY */
+.gallery{display:grid;grid-template-columns:1.2fr .8fr .8fr;grid-template-rows:240px 240px;gap:3px;background:var(--teal-deep)}
+.gi{overflow:hidden;position:relative}
+.gi.span2{grid-row:1/3}
+.gi img{width:100%;height:100%;object-fit:cover;transition:transform .7s ease,filter .5s}
+.gi:hover img{transform:scale(1.07);filter:saturate(.8)}
+
+/* TESTIMONIOS */
+.testi{padding:110px 60px;background:var(--teal-deep);text-align:center}
+.testi-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:60px}
+.tc{background:rgba(51,70,74,.5);border:1px solid rgba(191,166,142,.1);padding:40px 32px;text-align:left;transition:border-color .4s}
+.tc:hover{border-color:rgba(191,166,142,.35)}
+.tc-quote{font-family:'Bodoni Moda',serif;font-size:60px;color:rgba(191,166,142,.2);line-height:.8;margin-bottom:20px}
+.tc-text{font-size:14px;color:var(--sand-light);line-height:1.8;font-weight:300;font-style:italic;margin-bottom:24px}
+.tc-name{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--sand)}
+.tc-stars{color:var(--sand);font-size:12px;margin-bottom:8px}
+
+/* RESERVA */
+.reserva-cta{padding:120px 60px;text-align:center;position:relative;overflow:hidden;background:var(--brown)}
+.r-bg{position:absolute;inset:0;background:url('https://images.unsplash.com/photo-1439130490301-25e322d88054?w=1920&q=80') center/cover;opacity:.15}
+.r-content{position:relative;z-index:1}
+.r-title{font-family:'Bodoni Moda',serif;font-size:clamp(36px,5vw,64px);font-style:italic;font-weight:400;margin-bottom:16px;color:var(--off-white)}
+.r-sub{color:var(--sand-light);font-size:14px;letter-spacing:.1em;font-weight:300;margin-bottom:48px}
+.r-form{display:flex;gap:0;max-width:680px;margin:0 auto;flex-wrap:wrap}
+.r-input{flex:1;min-width:160px;background:rgba(244,239,232,.06);border:1px solid rgba(191,166,142,.2);border-right:none;color:var(--off-white);padding:16px 20px;font-family:'Jost',sans-serif;font-size:12px;letter-spacing:.05em;outline:none;transition:border-color .3s}
+.r-input:last-of-type{border-right:1px solid rgba(191,166,142,.2)}
+.r-input::placeholder{color:var(--sand-light);opacity:.7}
+.r-input:focus{border-color:var(--sand)}
+.r-btn{background:var(--sand);color:var(--teal-deep);border:none;padding:16px 32px;font-family:'Jost',sans-serif;font-size:11px;letter-spacing:.2em;text-transform:uppercase;font-weight:600;cursor:none;transition:all .3s;white-space:nowrap}
+.r-btn:hover{background:var(--sand-light)}
+
+/* FOOTER */
+footer{background:#0C1A1E;padding:70px 60px;border-top:1px solid rgba(191,166,142,.1)}
+.f-top{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:40px;margin-bottom:60px}
+.f-logo-lg{font-family:'Bodoni Moda',serif;font-size:36px;font-style:italic;color:var(--off-white);margin-bottom:14px}
+.f-logo-lg span{color:var(--sand)}
+.f-desc{font-size:12px;color:var(--sand-light);line-height:1.9;font-weight:300;margin-bottom:20px}
+.f-email{font-size:13px;color:var(--sand);letter-spacing:.05em}
+.f-title{font-size:10px;letter-spacing:.25em;text-transform:uppercase;color:var(--sand);margin-bottom:20px}
+.f-links{list-style:none;display:flex;flex-direction:column;gap:10px}
+.f-links a{color:var(--sand-light);text-decoration:none;font-size:12px;font-weight:300;transition:color .3s}
+.f-links a:hover{color:var(--sand)}
+.f-bot{border-top:1px solid rgba(191,166,142,.1);padding-top:28px;display:flex;justify-content:space-between;align-items:center}
+.f-copy{font-size:11px;color:rgba(212,196,176,.35);letter-spacing:.1em}
+.f-social{display:flex;gap:20px}
+.f-social a{color:var(--sand-light);text-decoration:none;font-size:10px;letter-spacing:.2em;text-transform:uppercase;transition:color .3s}
+.f-social a:hover{color:var(--sand)}
+
+.reveal{opacity:0;transform:translateY(36px);transition:opacity .95s ease,transform .95s ease}
+.reveal.vis{opacity:1;transform:translateY(0)}
+.reveal-l{opacity:0;transform:translateX(-36px);transition:opacity .95s ease,transform .95s ease}
+.reveal-l.vis{opacity:1;transform:translateX(0)}
+.reveal-r{opacity:0;transform:translateX(36px);transition:opacity .95s ease,transform .95s ease}
+.reveal-r.vis{opacity:1;transform:translateX(0)}
+
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9990;opacity:.025;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:180px}
+
+@media(max-width:900px){
+  nav{grid-template-columns:1fr;justify-items:center;gap:12px}.nav-left,.nav-right{display:none}
+  .experiencia{grid-template-columns:1fr;gap:40px;padding:60px 20px}
+  .exp-img img{clip-path:none;height:300px}
+  .hab{padding:60px 20px}.hab-grid{grid-template-columns:1fr}
+  .hab-card img{height:260px}
+  .amen{padding:60px 20px}.amen-grid{grid-template-columns:1fr;gap:0}
+  .gallery{grid-template-columns:1fr 1fr;grid-template-rows:auto}.gi.span2{grid-row:auto}
+  .testi{padding:60px 20px}.testi-cards{grid-template-columns:1fr}
+  .reserva-cta{padding:60px 20px}.r-form{flex-direction:column}
+  .r-input{border-right:1px solid rgba(191,166,142,.2);border-bottom:none;min-width:unset}
+  .r-input:last-of-type{border-bottom:none}
+  .f-top{grid-template-columns:1fr 1fr;gap:30px}
+  footer{padding:40px 20px}
+}
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cur"></div>
+<div class="cursor-ring" id="ring"></div>
+
+<nav id="nav">
+  <ul class="nav-left">
+    <li><a href="#habitaciones">Habitaciones</a></li>
+    <li><a href="#experiencia">Experiencia</a></li>
+  </ul>
+  <div class="nav-logo">Marea<span> Azul</span></div>
+  <ul class="nav-right">
+    <li><a href="#galeria">Galería</a></li>
+    <li><a href="#reserva">Reservar</a></li>
+  </ul>
+</nav>
+
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-content">
+    <h1 class="hero-logo">Marea Azul</h1>
+    <p class="hero-tagline">Hotel Boutique · Costa Mediterránea · Chile</p>
+    <div class="hero-line"></div>
+    <p class="hero-sub">Donde el mar susurra historias eternas y cada amanecer es una promesa de lujo sin igual.</p>
+    <div class="hero-btns">
+      <button class="btn-p">Descubrir</button>
+      <button class="btn-s">Reservar Ahora</button>
+    </div>
+  </div>
+  <div class="scroll-ind">
+    <div class="scroll-bar"></div>
+    <span>Scroll</span>
+  </div>
+  <div class="hero-coords">36°30'S · 72°58'W</div>
+</section>
+
+<section class="experiencia" id="experiencia">
+  <div class="exp-img reveal-l">
+    <div class="exp-num">01</div>
+    <img src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800&q=80" alt="Vista al mar">
+  </div>
+  <div class="reveal-r">
+    <div class="exp-label">Nuestra Esencia</div>
+    <h2 class="exp-title">Una Experiencia<br><em>Singular</em></h2>
+    <p class="exp-text">Enclavado entre acantilados y el mar infinito, Marea Azul es un santuario de serenidad donde la arquitectura dialoga con la naturaleza. Cada detalle ha sido pensado para elevar tu estancia al máximo.</p>
+    <div class="exp-stats">
+      <div class="stat">
+        <div class="stat-num">18</div>
+        <div class="stat-label">Suites Exclusivas</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">4.9★</div>
+        <div class="stat-label">Valoración Media</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">12</div>
+        <div class="stat-label">Años de Historia</div>
+      </div>
+    </div>
+    <button class="btn-p">Ver el Hotel →</button>
+  </div>
+</section>
+
+<section class="hab" id="habitaciones">
+  <div class="sec-head reveal">
+    <div class="sec-label">Alojamiento</div>
+    <h2 class="sec-title">Nuestras Suites</h2>
+    <div class="sec-line"></div>
+  </div>
+  <div class="tabs reveal">
+    <button class="tab active">Suite Ocean</button>
+    <button class="tab">Villa Privada</button>
+    <button class="tab">Penthouse</button>
+  </div>
+  <div class="hab-grid reveal">
+    <div class="hab-card">
+      <img src="https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&q=80" alt="Suite">
+      <div class="hab-card-overlay">
+        <div class="hc-tag">Suite Estándar</div>
+        <div class="hc-name">Ocean View Suite</div>
+        <div class="hc-info"><span>45 m²</span><span>2 personas</span><span>desde $180.000</span></div>
+      </div>
+    </div>
+    <div class="hab-card">
+      <img src="https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=800&q=80" alt="Villa">
+      <div class="hab-card-overlay">
+        <div class="hc-tag">Categoría Premium</div>
+        <div class="hc-name">Clifftop Villa</div>
+        <div class="hc-info"><span>90 m²</span><span>4 personas</span><span>desde $380.000</span></div>
+      </div>
+    </div>
+    <div class="hab-card">
+      <img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&q=80" alt="Penthouse">
+      <div class="hab-card-overlay">
+        <div class="hc-tag">Exclusivo</div>
+        <div class="hc-name">Sky Penthouse</div>
+        <div class="hc-info"><span>160 m²</span><span>6 personas</span><span>desde $620.000</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="amen">
+  <div class="sec-head reveal">
+    <div class="sec-label">Lo que Ofrecemos</div>
+    <h2 class="sec-title" style="color:var(--off-white)">Amenidades</h2>
+    <div class="sec-line"></div>
+  </div>
+  <div class="amen-grid reveal">
+    <div class="amen-item">
+      <div class="amen-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--sand)" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 12h20M2 12c0 5.523 4.477 10 10 10s10-4.477 10-10"/><path d="M6 12a6 6 0 0 1 12 0"/><path d="M12 2v2"/><path d="M4.93 4.93l1.41 1.41"/><path d="M19.07 4.93l-1.41 1.41"/>
+        </svg>
+      </div>
+      <div><div class="amen-name">Piscina Infinita</div><div class="amen-desc">Con vista panorámica al océano. Abierta todo el año.</div></div>
+    </div>
+    <div class="amen-item">
+      <div class="amen-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--sand)" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 11l19-9-9 19-2-8-8-2z"/>
+        </svg>
+      </div>
+      <div><div class="amen-name">Restaurant Gourmet</div><div class="amen-desc">Cocina mediterránea con ingredientes locales de temporada.</div></div>
+    </div>
+    <div class="amen-item">
+      <div class="amen-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--sand)" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/>
+        </svg>
+      </div>
+      <div><div class="amen-name">Spa & Wellness</div><div class="amen-desc">Tratamientos exclusivos con productos marinos naturales.</div></div>
+    </div>
+    <div class="amen-item">
+      <div class="amen-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--sand)" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 20h20"/><path d="M5 20V8l7-6 7 6v12"/><path d="M12 14v6"/><path d="M8 14h8"/>
+        </svg>
+      </div>
+      <div><div class="amen-name">Excursiones Marinas</div><div class="amen-desc">Navegación privada, snorkel y pesca deportiva.</div></div>
+    </div>
+    <div class="amen-item">
+      <div class="amen-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--sand)" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/>
+        </svg>
+      </div>
+      <div><div class="amen-name">Terraza Privada</div><div class="amen-desc">Cada suite con terraza y vistas despejadas al horizonte.</div></div>
+    </div>
+    <div class="amen-item">
+      <div class="amen-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--sand)" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M8 22h8"/><path d="M12 11v11"/><path d="M5 3h14l-1 7a6 6 0 0 1-12 0L5 3z"/>
+        </svg>
+      </div>
+      <div><div class="amen-name">Wine & Cóctails Bar</div><div class="amen-desc">Selección premium de vinos chilenos y cócteles de autor.</div></div>
+    </div>
+  </div>
+</section>
+
+<div class="gallery" id="galeria">
+  <div class="gi span2"><img src="https://images.unsplash.com/photo-1439130490301-25e322d88054?w=800&q=80" alt="Costa"></div>
+  <div class="gi"><img src="https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=600&q=80" alt="Suite"></div>
+  <div class="gi"><img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80" alt="Restaurant"></div>
+  <div class="gi"><img src="https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600&q=80" alt="Pool"></div>
+  <div class="gi"><img src="https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=600&q=80" alt="Spa"></div>
+</div>
+
+<section class="testi">
+  <div class="sec-head reveal">
+    <div class="sec-label">Experiencias Reales</div>
+    <h2 class="sec-title">Lo que Dicen</h2>
+    <div class="sec-line"></div>
+  </div>
+  <div class="testi-cards reveal">
+    <div class="tc">
+      <div class="tc-quote">"</div>
+      <div class="tc-stars">★★★★★</div>
+      <p class="tc-text">"Un paraíso escondido en la costa. La atención es extraordinaria y las vistas desde la suite dejan sin palabras."</p>
+      <div class="tc-name">— Isabel Fuentes · Santiago, Chile</div>
+    </div>
+    <div class="tc">
+      <div class="tc-quote">"</div>
+      <div class="tc-stars">★★★★★</div>
+      <p class="tc-text">"El restaurante es de otro nivel. Cada plato cuenta la historia del mar. Volveremos sin duda alguna."</p>
+      <div class="tc-name">— Marco Pellegrini · Buenos Aires</div>
+    </div>
+    <div class="tc">
+      <div class="tc-quote">"</div>
+      <div class="tc-stars">★★★★★</div>
+      <p class="tc-text">"El spa con vista al océano es lo más relajante que he vivido. El equipo anticipa cada necesidad."</p>
+      <div class="tc-name">— Claudia Reyes · Miami</div>
+    </div>
+  </div>
+</section>
+
+<section class="reserva-cta" id="reserva">
+  <div class="r-bg"></div>
+  <div class="r-content">
+    <div class="sec-label" style="color:var(--sand);letter-spacing:.25em;font-size:10px;text-transform:uppercase;margin-bottom:16px">Reserve su Estadía</div>
+    <h2 class="r-title reveal">Su Paraíso le Espera</h2>
+    <p class="r-sub reveal">Disponibilidad limitada · Cancelación gratuita hasta 48h antes</p>
+    <div class="r-form reveal">
+      <input class="r-input" type="date" placeholder="Llegada">
+      <input class="r-input" type="date" placeholder="Salida">
+      <input class="r-input" type="number" placeholder="Huéspedes" min="1" max="8">
+      <button class="r-btn">Reservar →</button>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="f-top">
+    <div>
+      <div class="f-logo-lg">Marea<span> Azul</span></div>
+      <p class="f-desc">Hotel Boutique de lujo en la costa chilena. Un refugio íntimo donde el mar y la elegancia se encuentran.</p>
+      <div class="f-email">reservas@mareaazul.cl</div>
+    </div>
+    <div>
+      <div class="f-title">Alojamiento</div>
+      <ul class="f-links">
+        <li><a href="#">Ocean View Suite</a></li>
+        <li><a href="#">Clifftop Villa</a></li>
+        <li><a href="#">Sky Penthouse</a></li>
+        <li><a href="#">Tarifas</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="f-title">Experiencias</div>
+      <ul class="f-links">
+        <li><a href="#">Spa & Wellness</a></li>
+        <li><a href="#">Restaurant</a></li>
+        <li><a href="#">Excursiones</a></li>
+        <li><a href="#">Eventos</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="f-title">Contacto</div>
+      <ul class="f-links">
+        <li><a href="#">+56 9 8765 4321</a></li>
+        <li><a href="#">Costa del Pacífico, Chile</a></li>
+        <li><a href="#">Check-in: 15:00h</a></li>
+        <li><a href="#">Check-out: 12:00h</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="f-bot">
+    <span class="f-copy">© 2026 Marea Azul Hotel Boutique · Todos los derechos reservados</span>
+    <div class="f-social">
+      <a href="#">Instagram</a>
+      <a href="#">Facebook</a>
+      <a href="#">TripAdvisor</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+const cur=document.getElementById('cur'),ring=document.getElementById('ring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px'});
+(function lerp(){rx+=(mx-rx)*.1;ry+=(my-ry)*.1;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(lerp)})();
+document.querySelectorAll('a,button,.hab-card,.tc,.gi').forEach(el=>{
+  el.addEventListener('mouseenter',()=>ring.classList.add('h'));
+  el.addEventListener('mouseleave',()=>ring.classList.remove('h'));
+});
+window.addEventListener('scroll',()=>{document.getElementById('nav').classList.toggle('sc',scrollY>60)},{passive:true});
+const ro=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('vis')})},{threshold:.1});
+document.querySelectorAll('.reveal,.reveal-l,.reveal-r').forEach(el=>ro.observe(el));
+document.querySelectorAll('.tab').forEach((t,i)=>{
+  t.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));t.classList.add('active')});
+});
+</script>
+</body>
+</html>

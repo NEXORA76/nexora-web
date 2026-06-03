@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verona Properties — Inmobiliaria de Lujo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&family=Raleway:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --burgundy:#390517;--gold:#A38560;--forest:#16302B;
+  --obsidian:#03110D;--platinum:#E0E0E0;--cream:#F5EFE6;
+  --gold-g:rgba(163,133,96,0.15);
+}
+html{scroll-behavior:smooth}
+body{background:var(--obsidian);color:var(--cream);font-family:'Raleway',sans-serif;overflow-x:hidden;cursor:none}
+
+.cursor{position:fixed;width:6px;height:6px;background:var(--gold);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%)}
+.cursor-ring{position:fixed;width:26px;height:26px;border:1px solid rgba(163,133,96,.4);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:all .1s}
+.cursor-ring.h{width:46px;height:46px;border-color:var(--gold)}
+
+/* NAVBAR */
+nav{position:fixed;top:0;inset-inline:0;z-index:1000;padding:30px 60px;display:flex;align-items:center;justify-content:space-between;transition:all .4s}
+nav.sc{background:rgba(3,17,13,.96);backdrop-filter:blur(24px);padding:18px 60px;border-bottom:1px solid rgba(163,133,96,.15)}
+.n-logo{font-family:'Cormorant Garamond',serif;font-size:22px;letter-spacing:.12em;text-transform:uppercase;color:var(--cream);font-weight:300}
+.n-logo em{color:var(--gold);font-style:italic}
+.n-links{display:flex;gap:40px;list-style:none}
+.n-links a{color:var(--platinum);text-decoration:none;font-size:10px;letter-spacing:.22em;text-transform:uppercase;font-weight:500;transition:color .3s;position:relative}
+.n-links a::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:1px;background:var(--gold);transition:width .3s}
+.n-links a:hover{color:var(--gold)}
+.n-links a:hover::after{width:100%}
+
+/* HERO */
+.hero{height:100vh;position:relative;display:grid;grid-template-columns:1fr 1fr;align-items:center;overflow:hidden}
+.hero-bg{position:absolute;inset:0;
+  background:
+  radial-gradient(ellipse at 0% 100%,rgba(57,5,23,.5) 0%,transparent 50%),
+  radial-gradient(ellipse at 100% 0%,rgba(22,48,43,.3) 0%,transparent 50%),
+  linear-gradient(135deg,rgba(3,17,13,.8) 0%,rgba(3,17,13,.4) 100%),
+  url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1920&q=80') center/cover no-repeat}
+/* Orbs */
+.orb{position:absolute;border-radius:50%;filter:blur(100px);pointer-events:none}
+.o1{width:600px;height:600px;background:radial-gradient(rgba(163,133,96,.05),transparent);top:-150px;right:-100px;animation:fl 12s ease-in-out infinite}
+.o2{width:400px;height:400px;background:radial-gradient(rgba(57,5,23,.12),transparent);bottom:-100px;left:-50px;animation:fl 10s ease-in-out infinite reverse}
+@keyframes fl{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-40px) scale(1.05)}}
+/* Corner SVG brackets */
+.corner{position:absolute;width:60px;height:60px;pointer-events:none;opacity:.35}
+.corner svg{width:100%;height:100%}
+.c-tl{top:80px;left:30px}.c-tr{top:80px;right:30px;transform:scaleX(-1)}
+.c-bl{bottom:30px;left:30px;transform:scaleY(-1)}.c-br{bottom:30px;right:30px;transform:scale(-1)}
+.hero-content{position:relative;z-index:2;padding:0 60px 0 60px;padding-top:80px}
+.h-label{font-size:9px;letter-spacing:.35em;text-transform:uppercase;color:var(--gold);margin-bottom:24px;display:flex;align-items:center;gap:16px;opacity:0;animation:fu .7s ease .2s forwards}
+.h-label::before{content:'';width:40px;height:1px;background:var(--gold);opacity:.6}
+.h-title{font-family:'Cormorant Garamond',serif;margin-bottom:28px;opacity:0;animation:fu .7s ease .4s forwards}
+.ht-thin{display:block;font-size:clamp(44px,5.5vw,72px);font-weight:300;line-height:1;color:var(--cream);letter-spacing:-.01em}
+.ht-bold{display:block;font-size:clamp(48px,6vw,80px);font-weight:700;font-style:italic;line-height:1;color:var(--gold)}
+.h-sub{font-size:14px;color:var(--platinum);font-weight:300;line-height:1.8;max-width:400px;margin-bottom:44px;opacity:0;animation:fu .7s ease .6s forwards}
+.h-btns{display:flex;gap:16px;margin-bottom:60px;opacity:0;animation:fu .7s ease .8s forwards}
+.btn-gold{background:transparent;border:1px solid var(--gold);color:var(--gold);padding:16px 44px;font-family:'Raleway',sans-serif;font-size:10px;letter-spacing:.22em;text-transform:uppercase;cursor:none;position:relative;overflow:hidden;transition:color .4s}
+.btn-gold::before{content:'';position:absolute;inset:0;background:var(--gold);transform:scaleX(0);transform-origin:left;transition:transform .4s ease}
+.btn-gold:hover{color:var(--obsidian)}
+.btn-gold:hover::before{transform:scaleX(1)}
+.btn-gold span{position:relative;z-index:1}
+.btn-text{background:transparent;border:none;color:var(--platinum);padding:16px;font-family:'Raleway',sans-serif;font-size:10px;letter-spacing:.15em;text-transform:uppercase;cursor:none;transition:color .3s;display:flex;align-items:center;gap:8px}
+.btn-text .arr{transition:transform .3s}
+.btn-text:hover{color:var(--cream)}
+.btn-text:hover .arr{transform:translateX(6px)}
+.h-stats{display:flex;gap:0;border-top:1px solid rgba(163,133,96,.15);padding-top:36px;opacity:0;animation:fu .7s ease 1s forwards}
+.hstat{flex:1;padding-right:32px;border-right:1px solid rgba(163,133,96,.12)}
+.hstat:last-child{border-right:none;padding-right:0;padding-left:32px}
+.hstat-num{font-family:'Cormorant Garamond',serif;font-size:40px;font-weight:300;color:var(--gold)}
+.hstat-label{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--platinum);margin-top:4px}
+.hero-img{position:relative;z-index:2;height:100%;overflow:hidden}
+.hero-img img{width:100%;height:100%;object-fit:cover;opacity:0;animation:fu .8s ease .3s forwards;filter:saturate(.85)}
+.hi-badge{position:absolute;bottom:60px;left:-20px;background:rgba(3,17,13,.92);border:1px solid rgba(163,133,96,.25);padding:20px 24px;backdrop-filter:blur(10px)}
+.hi-b-label{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
+.hi-b-val{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;color:var(--cream)}
+@keyframes fu{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+
+/* MANIFESTO */
+.manifesto{padding:110px 40px;background:var(--burgundy);text-align:center;position:relative;overflow:hidden}
+.mf-bg{position:absolute;font-family:'Cormorant Garamond',serif;font-size:220px;color:rgba(163,133,96,.04);top:50%;left:50%;transform:translate(-50%,-50%);white-space:nowrap;pointer-events:none}
+.mf-line{width:60px;height:1px;background:var(--gold);margin:0 auto 40px}
+.mf-text{font-family:'Cormorant Garamond',serif;font-size:clamp(26px,3.5vw,44px);font-weight:300;font-style:italic;color:var(--cream);max-width:780px;margin:0 auto;line-height:1.5;position:relative;z-index:1}
+.mf-text em{color:var(--gold);font-style:italic}
+
+/* PROPIEDADES */
+.props{padding:110px 60px;background:var(--obsidian)}
+.s-label{font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);margin-bottom:14px;display:flex;align-items:center;gap:14px}
+.s-label::before{content:'✦';font-size:8px}
+.s-title{font-family:'Cormorant Garamond',serif;font-size:clamp(32px,4vw,52px);font-weight:300;font-style:italic;margin-bottom:60px;color:var(--cream)}
+.props-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:2px;margin-bottom:2px}
+.props-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px}
+.prop{position:relative;overflow:hidden;cursor:none}
+.prop img{width:100%;height:100%;object-fit:cover;transition:transform .8s ease,filter .5s}
+.prop:hover img{transform:scale(1.06);filter:brightness(.75)}
+.prop-info{position:absolute;bottom:0;left:0;right:0;padding:28px;background:linear-gradient(0deg,rgba(3,17,13,.92) 0%,transparent 70%);transform:translateY(40px);opacity:0;transition:all .5s ease}
+.prop:hover .prop-info{transform:translateY(0);opacity:1}
+.pi-tag{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
+.pi-name{font-family:'Cormorant Garamond',serif;font-size:20px;font-style:italic;color:var(--cream);margin-bottom:4px}
+.pi-price{font-size:13px;color:var(--gold)}
+.prop-l{min-height:500px}
+.prop-sm{min-height:240px}
+.props-btn{text-align:center;margin-top:48px}
+
+/* FILOSOFÍA */
+.filo{padding:110px 60px;background:var(--forest)}
+.filo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:60px;border:1px solid rgba(163,133,96,.1)}
+.filo-item{padding:50px 40px;border-right:1px solid rgba(163,133,96,.1);position:relative}
+.filo-item:last-child{border-right:none}
+.fi-num{font-family:'Cormorant Garamond',serif;font-size:80px;color:rgba(163,133,96,.12);font-weight:700;line-height:1;margin-bottom:20px}
+.fi-title{font-size:16px;font-weight:500;color:var(--cream);margin-bottom:12px;letter-spacing:.05em}
+.fi-desc{font-size:13px;color:var(--platinum);font-weight:300;line-height:1.8}
+.fi-line{width:32px;height:1px;background:var(--gold);margin-bottom:20px}
+
+/* FEATURED */
+.featured{padding:110px 60px;background:var(--obsidian);display:grid;grid-template-columns:.95fr 1fr;gap:0;align-items:stretch}
+.ft-img{overflow:hidden;position:relative}
+.ft-img img{width:100%;height:100%;object-fit:cover;min-height:560px;clip-path:polygon(0 0,92% 0,100% 100%,0 100%);transition:transform .8s ease}
+.ft-img:hover img{transform:scale(1.04)}
+.ft-content{background:var(--burgundy);padding:80px 60px;display:flex;flex-direction:column;justify-content:center}
+.ft-num{font-family:'Cormorant Garamond',serif;font-size:120px;color:rgba(163,133,96,.06);font-weight:700;line-height:1;margin-bottom:-20px}
+.ft-label{font-size:9px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);margin-bottom:16px}
+.ft-title{font-family:'Cormorant Garamond',serif;font-size:clamp(28px,3vw,42px);font-style:italic;font-weight:300;margin-bottom:20px;line-height:1.3}
+.ft-text{font-size:13px;color:var(--platinum);font-weight:300;line-height:1.9;margin-bottom:32px}
+.ft-details{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:36px;border-top:1px solid rgba(163,133,96,.15);padding-top:28px}
+.ft-det{font-size:11px}
+.ft-det-label{color:var(--gold);letter-spacing:.15em;text-transform:uppercase;font-size:9px;margin-bottom:4px}
+.ft-det-val{color:var(--cream)}
+
+/* TESTIMONIAL */
+.testi{padding:120px 60px;background:var(--forest);text-align:center;position:relative;overflow:hidden}
+.t-bg-img{position:absolute;inset:0;background:url('https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=1920&q=80') center/cover;opacity:.08}
+.t-content{position:relative;z-index:1}
+.t-quote{font-family:'Cormorant Garamond',serif;font-size:160px;color:rgba(163,133,96,.1);line-height:.7;margin-bottom:-20px}
+.t-text{font-family:'Cormorant Garamond',serif;font-size:clamp(20px,2.5vw,30px);font-style:italic;font-weight:300;color:var(--cream);max-width:720px;margin:0 auto 32px;line-height:1.6}
+.t-name{font-size:10px;letter-spacing:.25em;text-transform:uppercase;color:var(--gold)}
+
+/* CTA FINAL */
+.cta-final{padding:120px 60px;text-align:center;background:var(--burgundy);position:relative;overflow:hidden}
+.cf-bg{position:absolute;inset:0;background:url('https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=1920&q=80') center/cover;opacity:.12}
+.cf-content{position:relative;z-index:1}
+.cf-title{font-family:'Cormorant Garamond',serif;font-size:clamp(36px,5vw,64px);font-style:italic;font-weight:300;margin-bottom:16px}
+.cf-sub{color:var(--platinum);font-size:14px;font-weight:300;margin-bottom:48px;letter-spacing:.06em}
+.cf-dec-tl,.cf-dec-br{position:absolute;width:80px;height:80px;opacity:.25}
+.cf-dec-tl{top:30px;left:30px}
+.cf-dec-br{bottom:30px;right:30px;transform:scale(-1)}
+
+/* FOOTER */
+footer{background:#010508;padding:70px 60px;border-top:1px solid rgba(163,133,96,.08)}
+.f-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:40px;margin-bottom:48px}
+.f-logo{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;letter-spacing:.1em;text-transform:uppercase;color:var(--cream);margin-bottom:14px}
+.f-logo em{color:var(--gold)}
+.f-desc{font-size:12px;color:var(--platinum);line-height:1.9;font-weight:300}
+.f-title{font-size:9px;letter-spacing:.25em;text-transform:uppercase;color:var(--gold);margin-bottom:18px}
+.f-links{list-style:none;display:flex;flex-direction:column;gap:10px}
+.f-links a{color:var(--platinum);text-decoration:none;font-size:12px;font-weight:300;transition:color .3s}
+.f-links a:hover{color:var(--gold)}
+.f-bottom{border-top:1px solid rgba(163,133,96,.08);padding-top:24px;display:flex;justify-content:space-between;align-items:center}
+.f-copy{font-size:10px;color:rgba(224,224,224,.3);letter-spacing:.12em}
+.f-social{display:flex;gap:20px}
+.f-social a{color:var(--platinum);text-decoration:none;font-size:9px;letter-spacing:.22em;text-transform:uppercase;transition:color .3s}
+.f-social a:hover{color:var(--gold)}
+
+.reveal{opacity:0;transform:translateY(40px);transition:opacity 1s ease,transform 1s ease}
+.reveal.vis{opacity:1;transform:translateY(0)}
+.reveal-l{opacity:0;transform:translateX(-40px);transition:opacity 1s ease,transform 1s ease}
+.reveal-l.vis{opacity:1;transform:translateX(0)}
+.reveal-r{opacity:0;transform:translateX(40px);transition:opacity 1s ease,transform 1s ease}
+.reveal-r.vis{opacity:1;transform:translateX(0)}
+
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9990;opacity:.03;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:180px}
+
+@media(max-width:900px){
+  nav{padding:18px 20px}.n-links{display:none}
+  .hero{grid-template-columns:1fr;padding:0;min-height:100vh}
+  .hero-img{display:none}
+  .hero-content{padding:120px 24px 60px}
+  .h-stats{flex-wrap:wrap}
+  .hstat{padding:0 20px 20px 0;border-right:none}
+  .manifesto,.props,.filo,.featured,.testi,.cta-final{padding:60px 20px}
+  .props-grid{grid-template-columns:1fr}
+  .props-row{grid-template-columns:1fr}
+  .filo-grid{grid-template-columns:1fr}
+  .filo-item{border-right:none;border-bottom:1px solid rgba(163,133,96,.1)}
+  .featured{grid-template-columns:1fr}
+  .ft-img{display:none}
+  .ft-content{padding:60px 24px}
+  .f-grid{grid-template-columns:1fr 1fr;gap:30px}
+  footer{padding:40px 20px}
+}
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cur"></div>
+<div class="cursor-ring" id="ring"></div>
+
+<!-- Corner brackets -->
+<div class="corner c-tl"><svg viewBox="0 0 60 60" fill="none"><path d="M0 60V0H60" stroke="#A38560" stroke-width="1"/></svg></div>
+<div class="corner c-tr"><svg viewBox="0 0 60 60" fill="none"><path d="M0 60V0H60" stroke="#A38560" stroke-width="1"/></svg></div>
+
+<nav id="nav">
+  <div class="n-logo">Verona <em>Properties</em></div>
+  <ul class="n-links">
+    <li><a href="#propiedades">Propiedades</a></li>
+    <li><a href="#nosotros">Nosotros</a></li>
+    <li><a href="#servicios">Servicios</a></li>
+    <li><a href="#contacto">Contacto</a></li>
+  </ul>
+</nav>
+
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="orb o1"></div>
+  <div class="orb o2"></div>
+  <div class="hero-content">
+    <div class="h-label">Inmobiliaria Exclusiva · Santiago · Chile</div>
+    <h1 class="h-title">
+      <span class="ht-thin">Donde el Lujo</span>
+      <span class="ht-bold">Encuentra Hogar</span>
+    </h1>
+    <p class="h-sub">Propiedades excepcionales para quienes exigen lo extraordinario. Residencias que trascienden el tiempo.</p>
+    <div class="h-btns">
+      <button class="btn-gold"><span>Ver Propiedades</span></button>
+      <button class="btn-text">Agenda una Visita <span class="arr">→</span></button>
+    </div>
+    <div class="h-stats">
+      <div class="hstat">
+        <div class="hstat-num" data-target="320">0</div>
+        <div class="hstat-label">Propiedades Vendidas</div>
+      </div>
+      <div class="hstat" style="padding-left:32px;border-right:1px solid rgba(163,133,96,.12)">
+        <div class="hstat-num" data-target="18">0</div>
+        <div class="hstat-label">Años de Experiencia</div>
+      </div>
+      <div class="hstat" style="padding-left:32px">
+        <div class="hstat-num">99%</div>
+        <div class="hstat-label">Satisfacción de Clientes</div>
+      </div>
+    </div>
+  </div>
+  <div class="hero-img">
+    <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=900&q=80" alt="Propiedad">
+    <div class="hi-badge">
+      <div class="hi-b-label">Propiedad Destacada</div>
+      <div class="hi-b-val">Las Condes · $2.4M USD</div>
+    </div>
+  </div>
+</section>
+
+<section class="manifesto">
+  <div class="mf-bg">Verona</div>
+  <div class="mf-line"></div>
+  <p class="mf-text reveal">
+    No vendemos propiedades. <em>Entregamos legados</em><br>que perduran de generación en generación.
+  </p>
+</section>
+
+<section class="props" id="propiedades">
+  <div class="s-label">Portafolio Exclusivo</div>
+  <h2 class="s-title reveal">Propiedades Destacadas</h2>
+  <div class="props-grid reveal">
+    <div class="prop prop-l">
+      <img src="https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=900&q=80" alt="Casa">
+      <div class="prop-info">
+        <div class="pi-tag">Residencia Premium</div>
+        <div class="pi-name">Casa Verona · Las Condes</div>
+        <div class="pi-price">USD 2.400.000 · 640 m²</div>
+      </div>
+    </div>
+    <div class="prop prop-l">
+      <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=700&q=80" alt="Penthouse">
+      <div class="prop-info">
+        <div class="pi-tag">Penthouse</div>
+        <div class="pi-name">Sky Loft · Vitacura</div>
+        <div class="pi-price">USD 1.800.000 · 340 m²</div>
+      </div>
+    </div>
+  </div>
+  <div class="props-row reveal">
+    <div class="prop prop-sm">
+      <img src="https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=600&q=80" alt="Villa">
+      <div class="prop-info">
+        <div class="pi-tag">Villa</div>
+        <div class="pi-name">Villa Mar · Chicureo</div>
+        <div class="pi-price">USD 3.200.000</div>
+      </div>
+    </div>
+    <div class="prop prop-sm">
+      <img src="https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=600&q=80" alt="Depto">
+      <div class="prop-info">
+        <div class="pi-tag">Departamento</div>
+        <div class="pi-name">Park Suite · Providencia</div>
+        <div class="pi-price">USD 890.000</div>
+      </div>
+    </div>
+    <div class="prop prop-sm">
+      <img src="https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=600&q=80" alt="Oficina">
+      <div class="prop-info">
+        <div class="pi-tag">Oficina Premium</div>
+        <div class="pi-name">Corporate Hub · El Golf</div>
+        <div class="pi-price">USD 1.100.000</div>
+      </div>
+    </div>
+  </div>
+  <div class="props-btn reveal">
+    <button class="btn-gold"><span>Ver Todas las Propiedades</span></button>
+  </div>
+</section>
+
+<section class="filo" id="nosotros">
+  <div class="s-label">Nuestra Filosofía</div>
+  <h2 class="s-title reveal">Por Qué Elegirnos</h2>
+  <div class="filo-grid reveal">
+    <div class="filo-item">
+      <div class="fi-num">I</div>
+      <div class="fi-line"></div>
+      <div class="fi-title">Exclusividad Garantizada</div>
+      <p class="fi-desc">Trabajamos con un portafolio selecto de propiedades únicas que no encontrarás en otros portales. Discreción y confidencialidad absolutas.</p>
+    </div>
+    <div class="filo-item">
+      <div class="fi-num">II</div>
+      <div class="fi-line"></div>
+      <div class="fi-title">Asesoría Personalizada</div>
+      <p class="fi-desc">Un agente dedicado acompaña cada proceso de principio a fin. Conocemos el mercado premium como nadie más en Chile.</p>
+    </div>
+    <div class="filo-item">
+      <div class="fi-num">III</div>
+      <div class="fi-line"></div>
+      <div class="fi-title">Inversión Inteligente</div>
+      <p class="fi-desc">Analizamos cada propiedad como una oportunidad de inversión. Maximizamos el retorno y protegemos su patrimonio a largo plazo.</p>
+    </div>
+  </div>
+</section>
+
+<section class="featured">
+  <div class="ft-img reveal-l">
+    <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=900&q=80" alt="Propiedad">
+  </div>
+  <div class="ft-content reveal-r">
+    <div class="ft-num">01</div>
+    <div class="ft-label">Propiedad del Mes</div>
+    <h3 class="ft-title">Casa Verona — La Joya de Las Condes</h3>
+    <p class="ft-text">Una residencia que redefine el concepto de hogar de lujo en Santiago. Arquitectura de vanguardia con materiales importados de Italia, jardines diseñados por Piet Oudolf y vistas panorámicas de la cordillera.</p>
+    <div class="ft-details">
+      <div class="ft-det"><div class="ft-det-label">Superficie</div><div class="ft-det-val">640 m² construidos</div></div>
+      <div class="ft-det"><div class="ft-det-label">Terreno</div><div class="ft-det-val">1.200 m²</div></div>
+      <div class="ft-det"><div class="ft-det-label">Habitaciones</div><div class="ft-det-val">6 suites + 2 dep</div></div>
+      <div class="ft-det"><div class="ft-det-label">Precio</div><div class="ft-det-val">USD 2.400.000</div></div>
+    </div>
+    <button class="btn-gold"><span>Ver Propiedad →</span></button>
+  </div>
+</section>
+
+<section class="testi">
+  <div class="t-bg-img"></div>
+  <div class="t-content">
+    <div class="t-quote">"</div>
+    <p class="t-text reveal">"Verona Properties encontró nuestra casa de ensueño en tiempo récord. Su discreción y profesionalismo son incomparables en el mercado chileno."</p>
+    <p class="t-name reveal">— Andrés & Patricia Larraín · Familia fundadora, Las Condes</p>
+  </div>
+</section>
+
+<section class="cta-final" id="contacto">
+  <div class="cf-bg"></div>
+  <div class="cf-dec-tl">
+    <svg viewBox="0 0 80 80" fill="none"><path d="M0 80V0H80" stroke="#A38560" stroke-width="1"/></svg>
+  </div>
+  <div class="cf-dec-br">
+    <svg viewBox="0 0 80 80" fill="none"><path d="M0 80V0H80" stroke="#A38560" stroke-width="1"/></svg>
+  </div>
+  <div class="cf-content">
+    <div class="s-label" style="justify-content:center;margin-bottom:20px">Hablemos</div>
+    <h2 class="cf-title reveal">¿Listo para Encontrar<br>su Propiedad Ideal?</h2>
+    <p class="cf-sub reveal">Agenda una consulta privada y sin compromiso con nuestros asesores especializados.</p>
+    <button class="btn-gold reveal"><span>Agendar Consulta Privada</span></button>
+  </div>
+</section>
+
+<footer>
+  <div class="f-grid">
+    <div>
+      <div class="f-logo">Verona <em>Properties</em></div>
+      <p class="f-desc">Inmobiliaria de lujo especializada en propiedades exclusivas en Santiago y sus alrededores. Discreción, experiencia y resultados extraordinarios.</p>
+    </div>
+    <div>
+      <div class="f-title">Servicios</div>
+      <ul class="f-links">
+        <li><a href="#">Venta de Propiedades</a></li>
+        <li><a href="#">Arriendo Premium</a></li>
+        <li><a href="#">Gestión de Inversión</a></li>
+        <li><a href="#">Tasaciones</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="f-title">Zonas</div>
+      <ul class="f-links">
+        <li><a href="#">Las Condes</a></li>
+        <li><a href="#">Vitacura</a></li>
+        <li><a href="#">Providencia</a></li>
+        <li><a href="#">Chicureo</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="f-title">Contacto</div>
+      <ul class="f-links">
+        <li><a href="#">+56 2 2987 6543</a></li>
+        <li><a href="#">info@veronaproperties.cl</a></li>
+        <li><a href="#">El Bosque Norte 0177</a></li>
+        <li><a href="#">Las Condes, Santiago</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="f-bottom">
+    <span class="f-copy">© 2026 Verona Properties · Todos los derechos reservados</span>
+    <div class="f-social">
+      <a href="#">Instagram</a>
+      <a href="#">LinkedIn</a>
+      <a href="#">WhatsApp</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+const cur=document.getElementById('cur'),ring=document.getElementById('ring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px'});
+(function lerp(){rx+=(mx-rx)*.09;ry+=(my-ry)*.09;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(lerp)})();
+document.querySelectorAll('a,button,.prop,.filo-item').forEach(el=>{
+  el.addEventListener('mouseenter',()=>ring.classList.add('h'));
+  el.addEventListener('mouseleave',()=>ring.classList.remove('h'));
+});
+window.addEventListener('scroll',()=>{document.getElementById('nav').classList.toggle('sc',scrollY>60)},{passive:true});
+const ro=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('vis');if(e.target.classList.contains('h-stats'))startCounters()}})},{threshold:.12});
+document.querySelectorAll('.reveal,.reveal-l,.reveal-r,.h-stats').forEach(el=>ro.observe(el));
+
+function startCounters(){
+  document.querySelectorAll('[data-target]').forEach(el=>{
+    const target=+el.dataset.target,dur=2000,start=performance.now();
+    function tick(now){
+      const p=Math.min((now-start)/dur,1);
+      const ease=1-Math.pow(1-p,4);
+      el.textContent=Math.floor(ease*target)+(p<1?'':'+');
+      if(p<1)requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  });
+}
+</script>
+</body>
+</html>
